@@ -1,0 +1,16 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="radio_button_padding_left">5dp</dimen>
+    <dimen name="radio_button_padding_right">10dp</dimen>
+    <dimen name="people_menu_button_size2">50dp</dimen>
+
+    <dimen name="one">1dp</dimen>
+    <dimen name="five">5dp</dimen>
+    <dimen name="ten">10dp</dimen>
+    <dimen name="fifteen">15dp</dimen>
+    <dimen name="twenty">20dp</dimen>
+    <dimen name="thirty">30dp</dimen>
+    <dimen name="people_menu_button">50dp</dimen>
+</resources>

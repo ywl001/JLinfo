@@ -1,0 +1,45 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:background="@drawable/search_bg">
+
+        <Button
+            android:id="@+id/btn_search_type"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_gravity="right|center_vertical"
+            android:background="@drawable/search_type_people" />
+        <!-- 输入的搜索信息 -->
+        <EditText
+            android:id="@+id/et_search"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:gravity="center_vertical"
+            android:hint="人员姓名、身份证号"
+            android:imeOptions="actionSearch"
+            android:maxLines="1"
+            android:inputType="text"
+            android:textColor="#0e0e0e"
+            android:textColorHint="#b0c6ce"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/btn_clear"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="right|center_vertical"
+            android:background="@drawable/clear" />
+
+        <Button
+            android:id="@+id/btn_search1"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:visibility="gone"
+            android:background="@drawable/search"/>
+</LinearLayout>
+

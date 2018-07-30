@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
+    android:background="@color/light_gray"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/btn_add_people"
+        style="@style/mark_info_btn_container">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/add_people" />
+
+        <TextView
+            style="@style/text_normal"
+            android:text="添加人员" />
+    </LinearLayout>
+
+    <View android:id="@+id/line1" style="@style/mark_info_short_line" />
+
+    <LinearLayout
+        android:id="@+id/btn_upload_image"
+        style="@style/mark_info_btn_container">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/icon_upload" />
+
+        <TextView
+            style="@style/text_normal"
+            android:text="上传图片" />
+    </LinearLayout>
+
+    <View style="@style/mark_info_short_line" />
+
+    <LinearLayout
+        android:id="@+id/btn_move"
+        style="@style/mark_info_btn_container">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/icon_move" />
+
+        <TextView
+            style="@style/text_normal"
+            android:text="移动位置" />
+    </LinearLayout>
+
+
+    <View style="@style/mark_info_short_line" />
+
+    <LinearLayout
+        android:id="@+id/btn_edit"
+        style="@style/mark_info_btn_container">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/icon_edit" />
+
+        <TextView
+            style="@style/text_normal"
+            android:text="编辑" />
+    </LinearLayout>
+
+    <View style="@style/mark_info_short_line" />
+
+    <LinearLayout
+        android:id="@+id/btn_del"
+        style="@style/mark_info_btn_container">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/icon_delete" />
+
+        <TextView
+            style="@style/text_normal"
+            android:text="删除" />
+    </LinearLayout>
+</merge>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/back_login">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/appName"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.1" />
+
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/login"
+        android:alpha="0.7"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        android:layout_marginTop="10dp"
+        />
+    <ImageView
+        android:id="@+id/imageView_user"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/user"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline_v1"
+        app:layout_constraintTop_toTopOf="@+id/guideline_h1" />
+
+    <EditText
+        android:id="@+id/et_user"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:hint="@string/hint_user"
+        android:paddingLeft="50dp"
+        android:theme="@style/editText_white"
+        app:layout_constraintStart_toStartOf="@id/guideline_v1"
+        app:layout_constraintEnd_toStartOf="@id/guideline_v2"
+        app:layout_constraintTop_toTopOf="@+id/guideline_h1" />
+
+    <ImageView
+        android:id="@+id/iv_password"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/password"
+        android:layout_marginTop="16dp"
+        app:layout_constraintLeft_toLeftOf="@+id/guideline_v1"
+        app:layout_constraintTop_toBottomOf="@+id/et_user" />
+
+    <EditText
+        android:id="@+id/et_password"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:hint="@string/hint_user"
+        android:paddingLeft="50dp"
+        android:theme="@style/editText_white"
+        app:layout_constraintBottom_toBottomOf="@id/iv_password"
+        app:layout_constraintEnd_toStartOf="@id/guideline_v2"
+        app:layout_constraintStart_toStartOf="@id/guideline_v1"
+        app:layout_constraintTop_toTopOf="@id/iv_password" />
+
+
+
+    <Button
+        android:id="@+id/btn_login"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:layout_marginBottom="124dp"
+        android:background="@color/orange"
+        android:text="登录"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="@id/guideline_v1"
+        app:layout_constraintEnd_toStartOf="@id/guideline_v2"
+        app:layout_constraintTop_toBottomOf="@id/et_password"
+        android:layout_marginTop="50dp"
+        />
+
+    <Button
+        android:id="@+id/button_register"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:background="@color/gray"
+        android:text="注册"
+        android:textColor="@color/white"
+        android:textSize="18dp"
+        app:layout_constraintStart_toStartOf="@id/guideline_v1"
+        app:layout_constraintEnd_toStartOf="@id/guideline_v2"
+        app:layout_constraintTop_toBottomOf="@id/btn_login"
+        android:layout_marginTop="10dp" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_h1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.35" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_v1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.1" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_v2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.9" />
+
+
+</android.support.constraint.ConstraintLayout>

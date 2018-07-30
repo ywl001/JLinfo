@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.ywl01.jlinfo.views.SwipeItem xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <include layout="@layout/include_people_content" />
+
+    <include layout="@layout/include_people_menu" />
+
+</com.ywl01.jlinfo.views.SwipeItem>

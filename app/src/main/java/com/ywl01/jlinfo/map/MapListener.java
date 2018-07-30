@@ -1,0 +1,530 @@
+package com.ywl01.jlinfo.map;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.v4.content.ContextCompat;
+import android.view.MotionEvent;
+import android.widget.Toast;
+
+import com.esri.arcgisruntime.concurrent.ListenableFuture;
+import com.esri.arcgisruntime.geometry.Envelope;
+import com.esri.arcgisruntime.geometry.Geometry;
+import com.esri.arcgisruntime.geometry.GeometryEngine;
+import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
+import com.esri.arcgisruntime.mapping.view.Graphic;
+import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
+import com.esri.arcgisruntime.mapping.view.IdentifyGraphicsOverlayResult;
+import com.esri.arcgisruntime.mapping.view.MapScaleChangedEvent;
+import com.esri.arcgisruntime.mapping.view.MapScaleChangedListener;
+import com.esri.arcgisruntime.mapping.view.MapView;
+import com.esri.arcgisruntime.mapping.view.NavigationChangedEvent;
+import com.esri.arcgisruntime.mapping.view.NavigationChangedListener;
+import com.esri.arcgisruntime.mapping.view.ViewpointChangedEvent;
+import com.esri.arcgisruntime.mapping.view.ViewpointChangedListener;
+import com.esri.arcgisruntime.symbology.CompositeSymbol;
+import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
+import com.esri.arcgisruntime.symbology.Symbol;
+import com.esri.arcgisruntime.symbology.TextSymbol;
+import com.esri.arcgisruntime.util.ListenableList;
+import com.ywl01.jlinfo.R;
+import com.ywl01.jlinfo.activities.PeoplesActivity;
+import com.ywl01.jlinfo.beans.MarkBean;
+import com.ywl01.jlinfo.beans.PeopleBean;
+import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.consts.GraphicFlag;
+import com.ywl01.jlinfo.consts.KeyName;
+import com.ywl01.jlinfo.consts.PeopleFlag;
+import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.consts.TableName;
+import com.ywl01.jlinfo.events.ShowGraphicMenuEvent;
+import com.ywl01.jlinfo.events.ShowMarkInfoEvent;
+import com.ywl01.jlinfo.events.TypeEvent;
+import com.ywl01.jlinfo.net.HttpMethods;
+import com.ywl01.jlinfo.net.SqlFactory;
+import com.ywl01.jlinfo.observers.BaseObserver;
+import com.ywl01.jlinfo.observers.BuildingObserver;
+import com.ywl01.jlinfo.observers.GraphicObserver;
+import com.ywl01.jlinfo.observers.HouseObserver;
+import com.ywl01.jlinfo.observers.IntObserver;
+import com.ywl01.jlinfo.observers.MarkObserver;
+import com.ywl01.jlinfo.observers.PeopleObserver;
+import com.ywl01.jlinfo.utils.AppUtils;
+import com.ywl01.jlinfo.utils.BeanMapUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import io.reactivex.Observer;
+
+public class MapListener extends DefaultMapViewOnTouchListener
+        implements
+        MapScaleChangedListener,
+        ViewpointChangedListener,
+        NavigationChangedListener,
+        BaseObserver.OnNextListener {
+
+    private final MapView mapView;
+
+
+    private Graphic prevGraphic;
+    private Graphic nowGraphic;
+
+    //观察者
+    private MarkObserver markObserver;
+    private BuildingObserver buildingObserver;
+    private HouseObserver houseObserver;
+
+    //定义保存地图数据的overlay
+    private GraphicsOverlay markOverlay;
+    private GraphicsOverlay buildingOverlay;
+    private GraphicsOverlay houseOverlay;
+
+    private Envelope prevExtent;
+
+    private boolean isFirstLoad = true;
+    private boolean isUpdateAllMarks = false;
+    private boolean isUpdateAllBuildings;
+    private boolean isUpdateAllHouses;
+
+    //地图是否进行了缩放
+    private Envelope nowExtent;
+    private double mapScale;
+    private final double displayScale_building;
+    private final double displayScale_house;
+    private boolean isMoveGraphic;
+    private PeopleObserver peopleObserver;
+
+    public MapListener(Context context, final MapView mapView) {
+        super(context, mapView);
+        this.mapView = mapView;
+
+        this.mapView.addViewpointChangedListener(this);
+        this.mapView.addNavigationChangedListener(this);
+        this.mapView.addMapScaleChangedListener(this);
+
+
+
+        markObserver = new MarkObserver();
+
+        markOverlay = new GraphicsOverlay();
+        buildingOverlay = new GraphicsOverlay();
+        houseOverlay = new GraphicsOverlay();
+
+        this.mapView.getGraphicsOverlays().add(markOverlay);
+        this.mapView.getGraphicsOverlays().add(buildingOverlay);
+        this.mapView.getGraphicsOverlays().add(houseOverlay);
+
+        EventBus.getDefault().register(this);
+        displayScale_building = CommVar.getInstance().level_scale.get(CommVar.buildingDisplayLevel);
+        displayScale_house = CommVar.getInstance().level_scale.get(CommVar.houseDisplayLevel);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // 地图元素的载入
+    ///////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void navigationChanged(NavigationChangedEvent navigationChangedEvent) {
+        //navigation 开始时 isNavigating（）is true；结束时为false；
+        if (navigationChangedEvent.isNavigating()) {
+            TypeEvent.dispatch(TypeEvent.CLEAR_BOTTOM_CONTAINER);
+            return;
+        } else {
+            nowExtent = mapView.getVisibleArea().getExtent();
+            boolean isChange = true;
+
+            if (prevExtent != null) {
+                isChange = isExtentChange(prevExtent, nowExtent);
+            }
+            prevExtent = nowExtent;
+            mapScale = mapView.getMapScale();
+            if (isChange) {
+                loadMarks();
+                System.out.println("加载。。。。");
+                if (mapScale < displayScale_building) {
+                    loadBuildings();
+                } else {
+                    clearGraphic(buildingOverlay);
+                }
+
+                if (mapScale < displayScale_house) {
+                    loadHouses();
+                } else {
+                    clearGraphic(houseOverlay);
+                }
+            }
+        }
+    }
+
+    private void clearGraphic(GraphicsOverlay graphicsOverlay) {
+        graphicsOverlay.getGraphics().clear();
+    }
+
+    private void loadHouses() {
+        houseObserver = new HouseObserver(mapScale);
+        loadGraphics(houseObserver, nowExtent, mapScale, TableName.HOUSE);
+    }
+
+    private void loadMarks() {
+        loadGraphics(markObserver, nowExtent, mapScale, TableName.MARK);
+    }
+
+    private void loadBuildings() {
+        buildingObserver = new BuildingObserver(mapScale);
+        loadGraphics(buildingObserver, nowExtent, mapScale, TableName.BUILDING);
+    }
+
+    private void updateGraphic(List<Graphic> loadGraphics, GraphicsOverlay graphicsOverlay, Boolean isUpdateAll) {
+        System.out.println("加载完毕，开始更新graphic，是否更新全部" + isUpdateAll);
+        if (isUpdateAll) {
+            updateAllGraphic(loadGraphics, graphicsOverlay);
+        } else {
+            updatePartGraphic(loadGraphics, graphicsOverlay);
+        }
+    }
+
+    //更新全部graphic
+    private void updateAllGraphic(List<Graphic> loadGraphics, GraphicsOverlay graphicsOverlay) {
+        ListenableList<Graphic> mapGraphics = graphicsOverlay.getGraphics();
+        mapGraphics.clear();
+        mapGraphics.addAll(loadGraphics);
+    }
+
+    //更新变化的graphic
+    private void updatePartGraphic(List<Graphic> loadGraphics, GraphicsOverlay graphicsOverlay) {
+        ListenableList<Graphic> mapGraphics = graphicsOverlay.getGraphics();
+        //添加新的Graphic
+        for (int i = 0; i < loadGraphics.size(); i++) {
+            Graphic g = loadGraphics.get(i);
+            if (!isGraphicInMap(mapGraphics, g)) {
+                mapGraphics.add(g);
+            }
+        }
+        //去除范围外的
+        Envelope mapExtent = mapView.getVisibleArea().getExtent();
+        for (int i = mapGraphics.size() - 1; i >= 0; i--) {
+            Graphic g = mapGraphics.get(i);
+            if (isGraphicOutExtent(mapExtent, g)) {
+                mapGraphics.remove(g);
+            }
+        }
+    }
+
+    //graphic 是否已经在地图中
+    private boolean isGraphicInMap(List<Graphic> mapGraphics, Graphic g) {
+        for (int i = 0; i < mapGraphics.size(); i++) {
+            Graphic graphic = mapGraphics.get(i);
+            Geometry geo = graphic.getGeometry();
+            if (geo.equals(g.getGeometry())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //graphic 是否出地图范围
+    private boolean isGraphicOutExtent(Envelope mapExtent, Graphic g) {
+        double currentMapScale = mapView.getMapScale();
+        int displayLevel = (int) g.getAttributes().get("displayLevel");
+        double graphicScale = CommVar.getInstance().level_scale.get(displayLevel);
+        if (!GeometryEngine.contains(mapExtent, g.getGeometry()) || graphicScale < currentMapScale)
+            return true;
+        return false;
+    }
+
+    //服务器端载入数据
+    private void loadGraphics(GraphicObserver observer, Envelope extent, double mapScale, String tableName) {
+        String sql = SqlFactory.selectGraphicData(extent, mapScale, tableName);
+        observer.setOnNextListener(this);
+        HttpMethods.getInstance().getSqlResult(observer, SqlAction.SELECT, sql);
+    }
+
+    //判断当前视图是否改变
+    private boolean isExtentChange(Envelope beforeExtent, Envelope nowExtent) {
+        return !beforeExtent.equals(nowExtent);
+    }
+
+    //地图初始化，第一次获取数据
+    @Override
+    public void viewpointChanged(ViewpointChangedEvent viewpointChangedEvent) {
+        if (isFirstLoad) {
+            Envelope extent = mapView.getVisibleArea().getExtent();
+            double mapScale = mapView.getMapScale();
+            CommVar.mapSpatialReference = mapView.getSpatialReference();
+            loadGraphics(markObserver, extent, mapView.getMapScale(), TableName.MARK);
+            isFirstLoad = false;
+            prevExtent = extent;
+        }
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    // 单击操作：
+    ///////////////////////////////////////////////////////////////////////////
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
+        nowGraphic = getSelectGraphic(screenPoint);
+
+        //单击空白区域
+        if (nowGraphic == null) {
+            if (isMoveGraphic) {
+                moveGraphic(screenPoint);
+
+            }
+            return super.onSingleTapConfirmed(e);
+        }
+
+        changeGraphicSymbol();
+        int graphicFlag = (int) nowGraphic.getAttributes().get(KeyName.GRAPHIC_FLAG);
+
+        switch (graphicFlag) {
+            case GraphicFlag.MARK:
+                showMarkInfo();
+//                Viewpoint viewpoint = new Viewpoint(mp, mapView.getMapScale());
+//                mapView.setViewpointAsync(viewpoint, 0.5f);
+                break;
+
+            case GraphicFlag.BUILDING:
+                //showBuildingPlan(nowGraphic);
+                break;
+
+            case GraphicFlag.POSITION:
+                //showHighLightGraphic();
+                break;
+        }
+        return super.onSingleTapConfirmed(e);
+    }
+
+
+    //显示markinfo
+    private void showMarkInfo() {
+        MarkBean markBean = new MarkBean();
+        BeanMapUtils.mapToBean(nowGraphic.getAttributes(), markBean);
+
+        ShowMarkInfoEvent event = new ShowMarkInfoEvent();
+        event.markBean = markBean;
+        event.dispatch();
+    }
+
+    private void moveGraphic(android.graphics.Point screenPoint) {
+        isMoveGraphic = false;
+        Point mapPoint = mapView.screenToLocation(screenPoint);
+        prevGraphic.setGeometry(mapPoint);
+
+        String tableName = getTableNameByGraphic(prevGraphic);
+        long id = (long) prevGraphic.getAttributes().get("id");
+        Map<String, String> data = new HashMap<>();
+        data.put("x", mapPoint.getX() + "");
+        data.put("y", mapPoint.getY() + "");
+        data.put("updateUser", CommVar.UserID + "");
+        String sql = SqlFactory.update(tableName, data, id);
+
+        IntObserver moveObserver = new IntObserver();
+        HttpMethods.getInstance().getSqlResult(moveObserver, SqlAction.UPDATE, sql);
+        moveObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                int rows = (int) data;
+                if (rows > 0) {
+                    AppUtils.showToast("移动位置成功");
+                }
+            }
+        });
+    }
+
+
+    //设置点击的Graphic符号的变化
+    private void changeGraphicSymbol() {
+        if (nowGraphic == null) {
+            return;
+        }
+        setFocusSymbol(nowGraphic.getSymbol());
+        if (prevGraphic != null)
+            recoverSymbol(prevGraphic.getSymbol());
+        prevGraphic = nowGraphic;
+    }
+
+    //设置点击时的符号
+    private void setFocusSymbol(Symbol symbol) {
+        if (symbol instanceof CompositeSymbol) {
+            CompositeSymbol cs = (CompositeSymbol) symbol;
+            List<Symbol> symbols = cs.getSymbols();
+            BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(AppUtils.getContext(), R.drawable.smb_glow);
+            PictureMarkerSymbol pms = new PictureMarkerSymbol(drawable);
+            pms.setHeight(25);
+            pms.setWidth(25);
+            symbols.add(1, pms);
+        } else if (symbol instanceof TextSymbol) {
+            TextSymbol ts = (TextSymbol) symbol;
+            ts.setColor(Color.RED);
+        }
+    }
+
+    //恢复符号
+    private void recoverSymbol(Symbol symbol) {
+        if (symbol instanceof CompositeSymbol) {
+            CompositeSymbol cs = (CompositeSymbol) symbol;
+            List<Symbol> symbols = cs.getSymbols();
+            symbols.remove(1);
+        } else if (symbol instanceof TextSymbol) {
+            TextSymbol ts = (TextSymbol) symbol;
+            ts.setColor(Color.BLACK);
+        }
+    }
+
+
+    //获取当前点击的graphic
+    private Graphic getSelectGraphic(android.graphics.Point screenPoint) {
+        ListenableFuture<List<IdentifyGraphicsOverlayResult>> results = mapView.identifyGraphicsOverlaysAsync(screenPoint, 5, false, 1);
+        try {
+            List<IdentifyGraphicsOverlayResult> identifyGraphicsOverlayResults = results.get();
+            if (identifyGraphicsOverlayResults.size() > 0) {
+                IdentifyGraphicsOverlayResult identifyResult = identifyGraphicsOverlayResults.get(0);
+                List<Graphic> graphics = identifyResult.getGraphics();
+                if (graphics.size() > 0) {
+                    return graphics.get(0);
+                } else
+                    return null;
+            }
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+        return null;
+    }
+
+    private String getTableNameByGraphic(Graphic graphic) {
+        int graphicFlag = (int) graphic.getAttributes().get("graphicFlag");
+        if (graphicFlag == GraphicFlag.MARK) {
+            return TableName.MARK;
+        } else if (graphicFlag == GraphicFlag.HOUSE) {
+            return TableName.HOUSE;
+        } else if (graphicFlag == GraphicFlag.BUILDING) {
+            return TableName.BUILDING;
+        }
+        return null;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // 长按操作：
+    ///////////////////////////////////////////////////////////////////////////
+    @Override
+    public void onLongPress(MotionEvent e) {
+        android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
+        nowGraphic = getSelectGraphic(screenPoint);
+
+        changeGraphicSymbol();
+
+        ShowGraphicMenuEvent event = new ShowGraphicMenuEvent();
+        event.graphic = nowGraphic;
+        event.dispatch();
+        super.onLongPress(e);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // 双击操作：
+    ///////////////////////////////////////////////////////////////////////////
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+        android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
+        nowGraphic = getSelectGraphic(screenPoint);
+        if (nowGraphic == null)
+            return super.onDoubleTap(e);
+
+        changeGraphicSymbol();
+        showPeoples(nowGraphic);
+
+        return false;//双击graphic,不进行默认操作，不放大地图
+    }
+
+    private void showPeoples(Graphic g) {
+        int graphicFlag = (int) g.getAttributes().get(KeyName.GRAPHIC_FLAG);
+        long id = (long) g.getAttributes().get(KeyName.ID);
+        String sql = "";
+        int peopleFlag = -1;
+        if (graphicFlag == GraphicFlag.MARK) {
+            sql = SqlFactory.selectPeopleByMark(id);
+            peopleFlag = PeopleFlag.FROM_MARK;
+        } else if (graphicFlag == GraphicFlag.BUILDING) {
+            sql = SqlFactory.selectPeopleByBuilding(id);
+            peopleFlag = PeopleFlag.FROM_BUILDING;
+        } else if (graphicFlag == GraphicFlag.HOUSE) {
+            sql = SqlFactory.selectPeopleByHouse(id);
+            peopleFlag = PeopleFlag.FROM_HOUSE;
+        }
+        peopleObserver = new PeopleObserver(peopleFlag);
+        HttpMethods.getInstance().getSqlResult(peopleObserver, SqlAction.SELECT, sql);
+        peopleObserver.setOnNextListener(this);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // onNext回调
+    ///////////////////////////////////////////////////////////////////////////
+    @Override
+    public void onNext(Observer observer, Object data) {
+        if (observer == markObserver) {
+            updateGraphic((List<Graphic>) data, markOverlay, isUpdateAllMarks);
+            isUpdateAllMarks = false;
+        } else if (observer == buildingObserver) {
+            updateGraphic((List<Graphic>) data, buildingOverlay, isUpdateAllBuildings);
+            isUpdateAllBuildings = false;
+        } else if (observer == houseObserver) {
+            updateGraphic((List<Graphic>) data, houseOverlay, isUpdateAllHouses);
+            isUpdateAllHouses = false;
+        }else if (observer == peopleObserver) {
+            ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data;
+            if (peoples.size() > 0) {
+                CommVar.getInstance().clear();
+                CommVar.getInstance().put("peoples",peoples);
+                AppUtils.startActivity(PeoplesActivity.class);
+            } else {
+                Toast.makeText(AppUtils.getContext(), "无相关人员", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // eventBus 事件的接收
+    ///////////////////////////////////////////////////////////////////////////
+    @Subscribe
+    public void refreshGraphic(TypeEvent event) {
+        switch (event.type) {
+            case TypeEvent.REFRESH_MARKERS:
+                isUpdateAllMarks = true;
+                loadMarks();
+                break;
+            case TypeEvent.REFRESH_BUILDINGS:
+                isUpdateAllBuildings = true;
+                loadBuildings();
+                break;
+            case TypeEvent.REFRESH_HOUSE:
+                isUpdateAllHouses = true;
+                loadHouses();
+                break;
+            case TypeEvent.MOVE_GRAPHIC:
+                isMoveGraphic = true;
+                AppUtils.showToast("请在要移动的位置上单击");
+                break;
+        }
+    }
+
+    //禁止地图旋转
+    @Override
+    public boolean onRotate(MotionEvent event, double rotationAngle) {
+        return false;
+    }
+
+    @Override
+    public void mapScaleChanged(MapScaleChangedEvent mapScaleChangedEvent) {
+        System.out.println("map scale change,current map scale:" + mapView.getMapScale());
+        isUpdateAllBuildings = true;
+        isUpdateAllHouses = true;
+    }
+}

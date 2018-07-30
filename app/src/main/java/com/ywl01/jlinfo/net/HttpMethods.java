@@ -1,0 +1,99 @@
+package com.ywl01.jlinfo.net;
+
+
+import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.observers.UploadObserver;
+
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
+import me.jessyan.progressmanager.ProgressManager;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+
+/**
+ * 单例模式
+ * Created by ywl01 on 2017/12/10.
+ */
+
+public class HttpMethods {
+    private static final int DEFAULT_TIMEOUT = 10;
+    private Retrofit retrofit;
+
+    private ConfigService configService;
+    private SqlService sqlService;
+    private DelFileService delFileService;
+    private UploadImageService uploadImageService;
+//    private DownloadService downloadService;
+//    private UploadImagesService uploadImagesService;
+
+    private HttpMethods() {
+        OkHttpClient.Builder okBuilder = new OkHttpClient.Builder();
+        okBuilder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+
+        OkHttpClient client = ProgressManager.getInstance().with(okBuilder).build();
+
+        retrofit = new Retrofit.Builder()
+                .baseUrl(CommVar.baseUrl)
+                .client(client)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(new ToStringConverterFactory())
+                .build();
+        configService = retrofit.create(ConfigService.class);
+        sqlService = retrofit.create(SqlService.class);
+        delFileService = retrofit.create(DelFileService.class);
+        uploadImageService = retrofit.create(UploadImageService.class);
+//        uploadImagesService = retrofit.create(UploadImagesService.class);
+//        downloadService = retrofit.create(DownloadService.class);
+    }
+
+//    public void getAppConfig(Observer observer) {
+//        Observable<String> observable = configService.getConfig(CommVar.configUrl);
+//        execute(observable,observer);
+//    }
+
+    public void getSqlResult(Observer observer, String sqlAction, String sql) {
+        Observable<String> observable = sqlService.getResult(CommVar.sqlUrl,sqlAction,sql);
+        execute(observable,observer);
+    }
+
+    public void delFile(Observer<String> observer, String filePath) {
+        Observable<String> observable = delFileService.delFile(CommVar.delFileUrl,filePath);
+        execute(observable,observer);
+    }
+
+    public void uploadImage(UploadObserver observer, RequestBody fileDir, MultipartBody.Part file){
+        Observable<String> observable = uploadImageService.upload(CommVar.uploadUrl,fileDir, file);
+        execute(observable,observer);
+    }
+//
+//    public void uploadImages(UploadObserver observer, RequestBody fileDir, List<MultipartBody.Part> files){
+//        Observable<String> observable = uploadImagesService.uploadImages(fileDir, files);
+//        execute(observable,observer);
+//    }
+//
+//
+//    public void download(DownloadObserver observer, String url) {
+//        Observable<String> observable = downloadService.download(url);
+//        execute(observable,observer);
+//    }
+
+    private void execute(Observable observable, Observer observer){
+        observable.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
+    }
+    public static HttpMethods getInstance() {
+        return SingletonHolder.INSTANCE;
+    }
+
+    private static class SingletonHolder {
+        private static final HttpMethods INSTANCE = new HttpMethods();
+    }
+}

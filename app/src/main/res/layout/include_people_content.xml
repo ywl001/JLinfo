@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="120dp">
+
+    <HorizontalScrollView
+        android:id="@+id/image_scroll"
+        android:layout_width="100dp"
+        android:layout_height="120dp"
+        android:scrollbars="horizontal">
+
+        <com.ywl01.jlinfo.views.ImageGroup
+            android:id="@+id/image_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/tv_name"
+        style="@style/text_title"
+        android:layout_marginLeft="10dp"
+        android:text="上官欧阳"
+        app:layout_constraintLeft_toRightOf="@id/image_scroll"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_sex"
+        style="@style/text_normal"
+        android:layout_marginLeft="10dp"
+        android:text="男"
+        app:layout_constraintBottom_toBottomOf="@id/tv_name"
+        app:layout_constraintLeft_toRightOf="@id/tv_name" />
+
+    <TextView
+        android:id="@+id/tv_telephone"
+        style="@style/text_normal"
+        android:layout_marginLeft="10dp"
+        android:text="13838899999"
+        app:layout_constraintBottom_toBottomOf="@id/tv_name"
+        app:layout_constraintLeft_toRightOf="@id/tv_sex" />
+
+    <TextView
+        android:id="@+id/tv_people_number"
+        style="@style/text_normal"
+        android:layout_marginLeft="10dp"
+
+        android:text="400000000000000000"
+        app:layout_constraintLeft_toRightOf="@id/image_scroll"
+        app:layout_constraintTop_toBottomOf="@id/h1" />
+
+    <TextView
+        android:id="@+id/tv_address"
+        style="@style/text_normal"
+        android:layout_marginLeft="10dp"
+
+        android:text="洛阳市吉利区东杨村"
+        app:layout_constraintLeft_toRightOf="@id/image_scroll"
+        app:layout_constraintTop_toBottomOf="@id/h2"/>
+
+    <TextView
+        android:id="@+id/tv_workplace"
+        style="@style/text_normal"
+        android:layout_marginLeft="10dp"
+        android:text="吉利区公安局"
+        app:layout_constraintTop_toBottomOf="@id/h2"
+        app:layout_constraintLeft_toRightOf="@id/tv_address"/>
+
+    <TextView
+        android:id="@+id/tv_home"
+        style="@style/text_normal"
+        android:layout_marginLeft="10dp"
+        android:text="户主"
+        app:layout_constraintTop_toBottomOf="@id/h2"
+        app:layout_constraintLeft_toRightOf="@id/tv_workplace"/>
+
+    <TextView
+        android:id="@+id/tv_update_info"
+        style="@style/text_normal"
+        android:layout_marginLeft="10dp"
+        android:text="姚伟立2017-01-01更新"
+        app:layout_constraintBottom_toBottomOf="@id/image_scroll"
+        app:layout_constraintLeft_toRightOf="@id/image_scroll"
+        />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/h1"
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="35dp" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/h2"
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="65dp" />
+
+
+</android.support.constraint.ConstraintLayout>

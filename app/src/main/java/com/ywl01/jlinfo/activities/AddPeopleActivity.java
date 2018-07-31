@@ -21,7 +21,6 @@ import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.InsertObserver;
-import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.DialogUtils;
@@ -96,7 +95,7 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
     private InsertObserver insertPBuildingObserver;
     private InsertObserver insertPHouseObserver;
     private PeopleObserver selectHomePeopleObserver;
-    private IntObserver checkPeopleIsAddObserver;
+    private PeopleObserver checkPeopleIsAddObserver;
 
     @Override
     protected void initView() {
@@ -131,6 +130,7 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
     @Override
     public void onItemSelect(PeopleBean peopleBean) {
         System.out.println("on item select");
+        people = peopleBean;
         checkPeopleIsAdded(peopleBean);
     }
 
@@ -141,24 +141,23 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
         long peopleID = peopleBean.id;
         if (graphicFlag == GraphicFlag.MARK) {
             tableName = TableName.PEOPLE_MARK;
-            sql = "select peopleId from " + tableName + " where peopleID =  "+ peopleID + " and markID = "+ graphicID;
+            sql = "select * from " + tableName + " where peopleID =  "+ peopleID + " and markID = "+ graphicID;
         } else if (graphicFlag == GraphicFlag.BUILDING) {
             tableName = TableName.PEOPLE_BUILDING;
-            sql = "select peopleId from " + tableName + " where peopleID =  "+ peopleID + " and buildingID = "+ graphicID;
+            sql = "select * from " + tableName + " where peopleID =  "+ peopleID + " and buildingID = "+ graphicID;
         }else if (graphicFlag == GraphicFlag.HOUSE) {
             tableName = TableName.PEOPLE_HOUSE;
-            sql = "select peopleId from " + tableName + " where peopleID =  "+ peopleID + " and houseID = "+ graphicID;
+            sql = "select * from " + tableName + " where peopleID =  "+ peopleID + " and houseID = "+ graphicID;
         }
-        checkPeopleIsAddObserver = new IntObserver();
+        checkPeopleIsAddObserver = new PeopleObserver(peopleFlag);
         HttpMethods.getInstance().getSqlResult(checkPeopleIsAddObserver, SqlAction.SELECT, sql);
         checkPeopleIsAddObserver.setOnNextListener(this);
     }
 
-    private void initAddPeopleView(PeopleBean peopleBean) {
+    private void initAddPeopleView() {
         setContentView(R.layout.activity_add_people);
         ButterKnife.bind(AddPeopleActivity.this);
 
-        people = peopleBean;
         peopleFlag = people.peopleFlag;
 
         if (peopleFlag == PeopleFlag.FROM_MARK) {
@@ -356,9 +355,11 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
     @Override
     public void onNext(Observer observer,Object data) {
         if (observer == checkPeopleIsAddObserver) {
-            List<Integer> peopleIDs = (List<Integer>) data;
-            if (peopleIDs.size() > 0) {
+            List<PeopleBean> peoples = (List<PeopleBean>) data;
+            if (peoples.size() > 0) {
                 DialogUtils.showPrompt(this,"人员已经添加过了");
+            }else{
+                initAddPeopleView();
             }
         } else if (observer == insertPeopleObserver) {
             Long pid = (Long) data;
@@ -395,7 +396,16 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
             }
         } else if (observer == selectHomePeopleObserver) {
             homePeoples = (List<PeopleBean>) data;
-            DialogUtils.showAlert(this, "提示信息：", "和" + people.name + "同户的还有" + homePeoples.size() + "人,是否一起添加？", "确定", this, "取消", this);
+            if(homePeoples.size() > 1)
+                DialogUtils.showAlert(this, "提示信息：", "和" + people.name + "同户的还有" + (homePeoples.size()-1) + "人,是否一起添加？", "确定", this, "取消", this);
+            else{
+                if (peopleFlag == PeopleFlag.FROM_BUILDING) {
+                    insertPeopleBuilding(people);
+                } else {
+                    insertPeopleHouse(people);
+                }
+                finish();
+            }
         }
     }
 
@@ -409,12 +419,14 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
                     insertPeopleHouse(homePeoples.get(i));
                 }
             }
+            finish();
         } else if (which == DialogInterface.BUTTON_NEGATIVE) {
             if (peopleFlag == PeopleFlag.FROM_BUILDING) {
                 insertPeopleBuilding(people);
             } else {
                 insertPeopleHouse(people);
             }
+            finish();
         }
     }
 

@@ -5,7 +5,7 @@ package com.ywl01.jlinfo.beans;
  */
 
 public class GraphicBean {
-    public long id;
+    public int id;
     public String name;
     public double x;
     public double y;
@@ -14,8 +14,8 @@ public class GraphicBean {
     public int displayLevel;
     public String updateTime;
     public String insertTime;
-    public long updateUser;
-    public long insertUser;
+    public int updateUser;
+    public int insertUser;
     public String tableName;
     public int isDelete;
 

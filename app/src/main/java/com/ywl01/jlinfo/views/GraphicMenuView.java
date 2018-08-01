@@ -87,8 +87,8 @@ public class GraphicMenuView extends LinearLayout {
     public void onUploadImage() {
         Map<String, Object> data = new HashMap<>();
         data.put("imageDir", CommVar.serverImageDir);
-        data.put("id", graphic.getAttributes().get("id") + "");
-        data.put("imageType", ImageType.images + "");
+        data.put("id", graphic.getAttributes().get("id"));
+        data.put("imageType", ImageType.images);
 
         UploadImageMenuDialog dialog = new UploadImageMenuDialog(BaseActivity.currentActivity, R.style.dialog);
         dialog.data = data;
@@ -99,7 +99,6 @@ public class GraphicMenuView extends LinearLayout {
     public void onMove() {
         TypeEvent.dispatch(TypeEvent.MOVE_GRAPHIC);
     }
-
 
     @OnClick(R.id.btn_del)
     public void onDelete() {

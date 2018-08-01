@@ -320,7 +320,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
         prevGraphic.setGeometry(mapPoint);
 
         String tableName = getTableNameByGraphic(prevGraphic);
-        long id = (long) prevGraphic.getAttributes().get("id");
+        int id = (int) prevGraphic.getAttributes().get("id");
         Map<String, String> data = new HashMap<>();
         data.put("x", mapPoint.getX() + "");
         data.put("y", mapPoint.getY() + "");
@@ -446,7 +446,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
 
     private void showPeoples(Graphic g) {
         int graphicFlag = (int) g.getAttributes().get(KeyName.GRAPHIC_FLAG);
-        long id = (long) g.getAttributes().get(KeyName.ID);
+        int id = (int) g.getAttributes().get(KeyName.ID);
         String sql = "";
         int peopleFlag = -1;
         if (graphicFlag == GraphicFlag.MARK) {

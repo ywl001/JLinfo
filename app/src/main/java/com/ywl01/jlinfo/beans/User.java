@@ -1,7 +1,7 @@
 package com.ywl01.jlinfo.beans;
 
 public class User {
-    public long id;
+    public int id;
     public String userName;
     public String password;
     public String type;

@@ -40,6 +40,8 @@ public class ImageActivity extends BaseActivity implements ViewPager.OnPageChang
     private List<ImageBean> images;
     private int position;
     private boolean isShowDelBtn;
+
+    //显示照片的分类，删除照片时的区分
     private int imageType;
 
     private String delImageUrl;
@@ -98,7 +100,7 @@ public class ImageActivity extends BaseActivity implements ViewPager.OnPageChang
         ImageBean imageBean = images.get(position);
         delImageUrl = imageBean.imageUrl;
         delThumbUrl = imageBean.thumbUrl;
-        long id = imageBean.id;
+        int id = imageBean.id;
         String sql = "";
         if(imageType == ImageType.images)
             sql = SqlFactory.delete(TableName.MARK_IMAGE, id);

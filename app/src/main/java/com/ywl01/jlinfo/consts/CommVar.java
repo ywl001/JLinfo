@@ -25,7 +25,7 @@ public class CommVar {
 
     public static SpatialReference mapSpatialReference;
     public static User loginUser;
-    public static long UserID = 1;
+    public static int UserID = 1;
     public static boolean isEdit = true;
 
 

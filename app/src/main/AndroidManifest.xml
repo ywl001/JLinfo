@@ -54,6 +54,7 @@
         <activity android:name=".activities.EditGraphicActivity"></activity>
         <activity android:name=".activities.AddPeopleActivity"/>
         <activity android:name=".activities.PeoplesActivity" android:launchMode="singleTop"/>
+        <activity android:name=".activities.EditPeopleActivity" />
     </application>
 
 </manifest>

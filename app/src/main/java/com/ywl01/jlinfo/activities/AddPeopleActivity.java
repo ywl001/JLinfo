@@ -84,7 +84,7 @@ public class AddPeopleActivity extends BaseActivity {
     private PeopleBean people;
     private int peopleExists;
     private int homeExists;
-    private long peopleID;
+    private int peopleID;
     private List<PeopleBean> homePeoples;
     private Graphic graphic;
     private int graphicFlag;
@@ -128,8 +128,8 @@ public class AddPeopleActivity extends BaseActivity {
     private void checkPeopleIsAdded(PeopleBean peopleBean) {
         String tableName = "";
         String sql = "";
-        long graphicID = (long) graphic.getAttributes().get("id");
-        long peopleID = peopleBean.id;
+        int graphicID = (int) graphic.getAttributes().get("id");
+        int peopleID = peopleBean.id;
         if (graphicFlag == GraphicFlag.MARK) {
             tableName = TableName.PEOPLE_MARK;
             sql = "select * from " + tableName + " where peopleID =  "+ peopleID + " and markID = "+ graphicID;
@@ -243,7 +243,7 @@ public class AddPeopleActivity extends BaseActivity {
         insertPeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
-                Long pid = (Long) data;
+                int pid = (int) data;
                 if (pid > 0) {
                     //插入户信息
                     peopleID = pid;

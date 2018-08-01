@@ -13,7 +13,9 @@ import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.consts.CommVar;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
+import com.ywl01.jlinfo.events.ListEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
+import com.ywl01.jlinfo.events.UpdatePeopleEvent;
 import com.ywl01.jlinfo.events.UploadImageEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.ProgressRequestBody;
@@ -125,6 +127,23 @@ public class PeoplesActivity extends BaseActivity {
     public void onStop() {
         System.out.println("people activity on stop");
         super.onStop();
+    }
+
+    @Subscribe
+    public void onUpdatePeople(UpdatePeopleEvent event) {
+        PeopleBean p = event.people;
+        int countPeople = peoples.size();
+        for (int i = 0; i < countPeople; i++) {
+            if (peoples.get(i).id == p.id) {
+                peoples.set(i, p);
+
+                ListEvent e = new ListEvent();
+                e.action = ListEvent.update;
+                e.position  = i;
+                e.dispatch();
+                break;
+            }
+        }
     }
 
     @Subscribe

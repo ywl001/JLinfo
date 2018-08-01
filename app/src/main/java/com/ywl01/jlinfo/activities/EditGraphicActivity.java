@@ -202,7 +202,7 @@ public class EditGraphicActivity extends BaseActivity {
         Map<String, String> data = new HashMap<>();
         data.put("name", etName.getText().toString().trim());
         data.put("updateUser", CommVar.UserID + "");
-        long id = 0;
+        int id = 0;
         if (graphicFlag == GraphicFlag.MARK) {
             data.put("registerName", etRegistName.getText().toString().trim());
             data.put("telephone", etTelephone.getText().toString().trim());

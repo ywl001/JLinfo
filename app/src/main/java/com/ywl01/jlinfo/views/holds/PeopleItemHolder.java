@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.BaseActivity;
+import com.ywl01.jlinfo.activities.EditPeopleActivity;
 import com.ywl01.jlinfo.activities.ImageActivity;
 import com.ywl01.jlinfo.activities.PeoplesActivity;
 import com.ywl01.jlinfo.beans.ImageBean;
@@ -130,6 +131,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
             }
         });
         ButterKnife.bind(this, itemView);
+        EventBus.getDefault().register(this);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -331,7 +333,9 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     @Nullable
     @OnClick(R.id.btn_edit_people)
     public void onEditPeople() {
-//        IntentUtils.startActivity(EditPeopleActivity.class, bundleArgs);
+        CommVar.getInstance().clear();
+        CommVar.getInstance().put("people",data);
+        AppUtils.startActivity(EditPeopleActivity.class);
     }
 
     //上传人员照片
@@ -417,7 +421,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
 
     private void delPeople() {
         String tableName = null;
-        long tableID = 0;
+        int tableID = 0;
         if (data.peopleFlag == PeopleFlag.FROM_BUILDING) {
             tableName = TableName.PEOPLE_BUILDING;
             tableID = data.pbID;
@@ -565,7 +569,10 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
 
     @Subscribe
     public void refreshImages(TypeEvent event) {
-        if(event.type == TypeEvent.REFRESH_IMAGE)
+        if(event.type == TypeEvent.REFRESH_IMAGE){
             getPeoplePhoto(data);
+            System.out.println("刷新了人员照片");
+        }
+
     }
 }

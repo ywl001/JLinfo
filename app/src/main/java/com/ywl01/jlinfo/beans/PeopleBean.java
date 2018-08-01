@@ -25,23 +25,23 @@ public class PeopleBean{
     //人员附加属性
     public int isLeave;//和地点关联，表示人员是否还在该位置工作和居住
 
-    public long pmID;
+    public int pmID;
     public String workPlace;//工作单位
     public String department;//所属部门
     public String job; //工作
     public int isManager;//是否是单位负责人。
 
 
-    public long pbID;
+    public int pbID;
     public String buildingName;//楼号
     public String roomNumber;//房间号、住址
 
-    public long phmID;
+    public int phmID;
     public String homeNumber;//户号
     public String relation;//与户主关系
     public int homeExists;
 
-    public long phuID;
+    public int phuID;
 
     public int isExists;
 

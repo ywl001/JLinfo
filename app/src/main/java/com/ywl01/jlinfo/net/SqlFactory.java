@@ -32,12 +32,12 @@ public class SqlFactory {
         return 9;
     }
 
-    public static String selectUser(long userID) {
+    public static String selectUser(int userID) {
         String sql = "select * from user where id = " + userID;
         return sql;
     }
 
-    public static String selectPeopleByBuilding(long buildingID) {
+    public static String selectPeopleByBuilding(int buildingID) {
         String sql = "SELECT distinct " +
                 "p.id,p.peopleNumber,p.name,p.sex,p.nation,p.telephone,p.liveType,p.community,pb.isDelete isLeave," +
                 "pb.roomNumber,pb.id pbID,pb.insertUser,pb.insertTime,pb.updateTime," +
@@ -51,7 +51,7 @@ public class SqlFactory {
         return sql;
     }
 
-    public static String selectPeopleByMark(long markID) {
+    public static String selectPeopleByMark(int markID) {
         String sql = "select distinct p.id,p.peopleNumber,p.name,p.sex,p.nation,p.telephone,p.liveType,p.community," +
                 "pm.isManager,m.name workPlace,pm.id pmID,pm.isDelete isLeave,pm.insertTime,pm.updateTime,pm.department,pm.job " +
                 "from people_mark pm " +
@@ -62,13 +62,13 @@ public class SqlFactory {
         return sql;
     }
 
-    public static String selectPhotosByPeopleID(long peopleID) {
+    public static String selectPhotosByPeopleID(int peopleID) {
         String sql = "select * from people_photo where peopleID = " + peopleID;
         //System.out.println(sql);
         return sql;
     }
 
-    public static String selectPeopleByHouse(long houseID) {
+    public static String selectPeopleByHouse(int houseID) {
         String sql = "SELECT DISTINCT " +
                         "p.*," +
                         "phu.isDelete isLeave," +
@@ -86,7 +86,7 @@ public class SqlFactory {
     }
 
     //根据人员id获取人员的住址************************************************************
-    public static String selectAddressByPeopleID(long peopleID){
+    public static String selectAddressByPeopleID(int peopleID){
         String sql =
                 "SELECT DISTINCT hu.id,hu.name,hu.x,hu.y,hu.displayLevel,'house' as tableName " +
                         "FROM people_house phu LEFT JOIN house hu ON phu.houseID = hu.id " +
@@ -99,7 +99,7 @@ public class SqlFactory {
     }
 
     //根据peopleID查询同户人员*****************************************************
-    public static String selectHomePeopleByPid(long peopleID){
+    public static String selectHomePeopleByPid(int peopleID){
         String childSql =
                 "select homeNumber " +
                         "from people_home " +
@@ -115,7 +115,7 @@ public class SqlFactory {
     }
 
     //根据peopleID查询所有同户人员*****************************************************
-    public static String selectAllHomePeopleByPid(long peopleID){
+    public static String selectAllHomePeopleByPid(int peopleID){
         String childSql =
                 "select homeNumber " +
                         "from people_home " +
@@ -131,7 +131,7 @@ public class SqlFactory {
     }
 
     //根据peopleID查询人员的父级户号中的所有人员*****************************************************
-    public static String selectParentHomePeoplesByPid(long peopleID){
+    public static String selectParentHomePeoplesByPid(int peopleID){
         //获取父级户号
         String childSql =
                 "select distinct homeNumber " +
@@ -166,29 +166,29 @@ public class SqlFactory {
         return sql;
     }
 
-    public static String delete(String tableName, long id) {
+    public static String delete(String tableName, int id) {
         String sql = "delete from " + tableName + " where id = " + id;
         return sql;
     }
 
 
-    public static String selectPeoplesByHome(long peopleID) {
+    public static String selectPeoplesByHome(int peopleID) {
         String sql = "select distinct p.* from people_home phm left join people p on p.id = phm.peopleID where p.id = " + peopleID;
         System.out.println(sql);
         return sql;
     }
 
-    public static String selectMarkManager(long markID) {
+    public static String selectMarkManager(int markID) {
        String sql = "select p.* from people_mark pm left join people p on pm.peopleID = p.id where pm.markID = " + markID + " and pm.isManager = 1 limit 1";
         return sql;
     }
 
-    public static String selectMarkImages(long markID) {
+    public static String selectMarkImages(int markID) {
         String sql = "select * from mark_image where markID = " + markID;
         return sql;
     }
 
-    public static String update(String tableName,Map<String,String> data,long id) {
+    public static String update(String tableName,Map<String,String> data,int id) {
         String sql = "update " + tableName + " set ";
 
         for(String key: data.keySet()){

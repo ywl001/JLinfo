@@ -6,7 +6,7 @@ package com.ywl01.jlinfo.beans;
 
 public class PeopleBean{
 
-    public long id;
+    public int id;
     public String peopleNumber;
     public String name;
     public String namePinyin;

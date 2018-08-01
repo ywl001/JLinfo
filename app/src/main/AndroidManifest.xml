@@ -51,7 +51,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".activities.EditActivity"></activity>
+        <activity android:name=".activities.EditGraphicActivity"></activity>
         <activity android:name=".activities.AddPeopleActivity"/>
         <activity android:name=".activities.PeoplesActivity" android:launchMode="singleTop"/>
     </application>

@@ -8,9 +8,10 @@ import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.AddPeopleActivity;
 import com.ywl01.jlinfo.activities.BaseActivity;
-import com.ywl01.jlinfo.activities.EditActivity;
+import com.ywl01.jlinfo.activities.EditGraphicActivity;
 import com.ywl01.jlinfo.consts.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
+import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.utils.AppUtils;
 
@@ -42,17 +43,17 @@ public class GraphicMenuView extends LinearLayout {
     LinearLayout btnDelete;
 
 
-
     public GraphicMenuView(Context context) {
         super(context);
         initView();
     }
 
+
     private void initView() {
         View view = View.inflate(AppUtils.getContext(), R.layout.view_graphic_menu, this);
         ButterKnife.bind(this, view);
         setBackground(AppUtils.getResDrawable(R.color.light_gray));
-        setPadding(0,AppUtils.dip2px(5),0,AppUtils.dip2px(5));
+        setPadding(0, AppUtils.dip2px(5), 0, AppUtils.dip2px(5));
     }
 
     public void setData(Graphic graphic) {
@@ -62,7 +63,7 @@ public class GraphicMenuView extends LinearLayout {
         if (graphicFlag == GraphicFlag.BUILDING || graphicFlag == GraphicFlag.HOUSE) {
             btnDelete.setVisibility(GONE);
             btnUploadImage.setVisibility(GONE);
-        }else{
+        } else {
             btnDelete.setVisibility(VISIBLE);
             btnUploadImage.setVisibility(VISIBLE);
         }
@@ -78,15 +79,16 @@ public class GraphicMenuView extends LinearLayout {
     @OnClick(R.id.btn_edit)
     public void onEdit() {
         CommVar.getInstance().clear();
-        CommVar.getInstance().put("graphic",graphic);
-        AppUtils.startActivity(EditActivity.class);
+        CommVar.getInstance().put("graphic", graphic);
+        AppUtils.startActivity(EditGraphicActivity.class);
     }
 
     @OnClick(R.id.btn_upload_image)
     public void onUploadImage() {
-        Map<String, String> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
         data.put("imageDir", CommVar.serverImageDir);
         data.put("id", graphic.getAttributes().get("id") + "");
+        data.put("imageType", ImageType.images + "");
 
         UploadImageMenuDialog dialog = new UploadImageMenuDialog(BaseActivity.currentActivity, R.style.dialog);
         dialog.data = data;
@@ -97,7 +99,6 @@ public class GraphicMenuView extends LinearLayout {
     public void onMove() {
         TypeEvent.dispatch(TypeEvent.MOVE_GRAPHIC);
     }
-
 
 
     @OnClick(R.id.btn_del)

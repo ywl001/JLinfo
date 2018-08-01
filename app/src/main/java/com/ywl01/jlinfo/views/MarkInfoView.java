@@ -11,11 +11,12 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.ImageActivity;
+import com.ywl01.jlinfo.beans.ImageBean;
 import com.ywl01.jlinfo.beans.MarkBean;
-import com.ywl01.jlinfo.beans.MarkImageBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.beans.User;
 import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.events.TypeEvent;
@@ -44,7 +45,7 @@ import io.reactivex.Observer;
  * 监控信息显示的view
  */
 
-public class MarkInfoView extends FrameLayout implements BaseObserver.OnNextListener, View.OnClickListener {
+public class MarkInfoView extends FrameLayout implements View.OnClickListener {
     private Context context;
     private MarkBean markBean;
 
@@ -58,7 +59,7 @@ public class MarkInfoView extends FrameLayout implements BaseObserver.OnNextList
     private String delThumbUrl;
 
 
-    private ArrayList<MarkImageBean> markImages;
+    private ArrayList<ImageBean> markImages;
 
     @BindView(R.id.tv_name)
     TextView tvName;
@@ -122,14 +123,38 @@ public class MarkInfoView extends FrameLayout implements BaseObserver.OnNextList
         userObserver = new UserObserver();
         String sql = SqlFactory.selectUser(markBean.updateUser);
         HttpMethods.getInstance().getSqlResult(userObserver, SqlAction.SELECT, sql);
-        userObserver.setOnNextListener(this);
+        userObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                User updateUser = (User) data;
+                if (updateUser != null) {
+                    setText(TvUpdateInfo, updateUser.realName + markBean.updateTime.substring(0, 10) + "更新");
+                } else {
+                    TvUpdateInfo.setVisibility(GONE);
+                }
+            }
+        });
     }
 
     private void getManager() {
         managerObersver = new PeopleObserver(PeopleFlag.FROM_MARK);
         String sql = SqlFactory.selectMarkManager(markBean.id);
         HttpMethods.getInstance().getSqlResult(managerObersver, SqlAction.SELECT, sql);
-        managerObersver.setOnNextListener(this);
+        managerObersver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                List<PeopleBean> peoples = (List<PeopleBean>) data;
+                if (peoples.size() > 0) {
+                    PeopleBean people = peoples.get(0);
+                    setText(tvManager, people.name);
+                    if (!StringUtils.isEmpty(people.telephone)) {
+                        setText(tvTelephone, people.telephone);
+                    }
+                } else {
+                    tvManager.setVisibility(GONE);
+                }
+            }
+        });
     }
 
     //获取图像
@@ -137,10 +162,16 @@ public class MarkInfoView extends FrameLayout implements BaseObserver.OnNextList
         imageObserver = new MarkImageObserver();
         String sql = SqlFactory.selectMarkImages(markBean.id);
         HttpMethods.getInstance().getSqlResult(imageObserver, SqlAction.SELECT, sql);
-        imageObserver.setOnNextListener(this);
+        imageObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                markImages = (ArrayList<ImageBean>) data;
+                setMarkImages(markImages);
+            }
+        });
     }
 
-    private void setMarkImages(List<MarkImageBean> markImages) {
+    private void setMarkImages(List<ImageBean> markImages) {
         if (markImages != null && markImages.size() > 0) {
             scrollView.setVisibility(View.VISIBLE);
             imageGroup.removeAllViews();
@@ -170,49 +201,23 @@ public class MarkInfoView extends FrameLayout implements BaseObserver.OnNextList
         if (view instanceof ImageView) {
 
             System.out.println("show image");
-            MarkImageBean MarkImageBean = (MarkImageBean) view.getTag();
+            ImageBean MarkImageBean = (ImageBean) view.getTag();
             int position = markImages.indexOf(MarkImageBean);
             boolean isShowDelBtn = false;
 
             CommVar.getInstance().clear();
             CommVar.getInstance().put("isShowDelBtn", isShowDelBtn);
             CommVar.getInstance().put("images", markImages);
-            CommVar.getInstance().put("markBean", markBean);
             CommVar.getInstance().put("position", position);
+            CommVar.getInstance().put("imageType", ImageType.images);
 
             AppUtils.startActivity(ImageActivity.class);
         }
     }
 
-    @Override
-    public void onNext(Observer observer, Object data) {
-        if (observer == managerObersver) {
-            List<PeopleBean> peoples = (List<PeopleBean>) data;
-            if (peoples.size() > 0) {
-                PeopleBean people = peoples.get(0);
-                setText(tvManager, people.name);
-                if (!StringUtils.isEmpty(people.telephone)) {
-                    setText(tvTelephone, people.telephone);
-                }
-            } else {
-                tvManager.setVisibility(GONE);
-            }
-        } else if (observer == imageObserver) {
-            markImages = (ArrayList<MarkImageBean>) data;
-            setMarkImages(markImages);
-        } else if (observer == userObserver) {
-            User updateUser = (User) data;
-            if (updateUser != null) {
-                setText(TvUpdateInfo, updateUser.realName + markBean.updateTime.substring(0, 10) + "更新");
-            } else {
-                TvUpdateInfo.setVisibility(GONE);
-            }
-        }
-    }
-
     @Subscribe
     public void refreshImages(TypeEvent event) {
-        if(event.type == TypeEvent.UPLOAD_COMPLETE)
+        if(event.type == TypeEvent.REFRESH_IMAGE)
             getMarkImage();
     }
 

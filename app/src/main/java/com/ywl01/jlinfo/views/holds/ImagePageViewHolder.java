@@ -15,7 +15,7 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.BaseActivity;
-import com.ywl01.jlinfo.beans.MarkImageBean;
+import com.ywl01.jlinfo.beans.ImageBean;
 import com.ywl01.jlinfo.beans.User;
 import com.ywl01.jlinfo.consts.CommVar;
 import com.ywl01.jlinfo.consts.SqlAction;
@@ -36,7 +36,7 @@ import io.reactivex.Observer;
  * Created by ywl01 on 2018/2/27.
  */
 
-public class ImagePageViewHolder extends BaseHolder<MarkImageBean> implements OnPhotoTapListener {
+public class ImagePageViewHolder extends BaseHolder<ImageBean> implements OnPhotoTapListener {
     @BindView(R.id.photo_view)
     PhotoView photoView;
 
@@ -49,7 +49,7 @@ public class ImagePageViewHolder extends BaseHolder<MarkImageBean> implements On
     @BindView(R.id.btn_download)
     Button btnDownload;
 
-    private MarkImageBean markImageBean;
+    private ImageBean markImageBean;
 
     private Bitmap bitmap;
 
@@ -64,7 +64,7 @@ public class ImagePageViewHolder extends BaseHolder<MarkImageBean> implements On
     }
 
     @Override
-    protected void refreshUI(MarkImageBean markImageBean) {
+    protected void refreshUI(ImageBean markImageBean) {
         this.markImageBean = markImageBean;
         ImageLoader.getInstance().displayImage(CommVar.serverImageRootUrl + markImageBean.imageUrl, photoView, new ImageLoadingListener(progressBar));
         getUpdateInfo();

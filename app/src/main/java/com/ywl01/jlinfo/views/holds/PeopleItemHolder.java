@@ -14,10 +14,12 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.BaseActivity;
+import com.ywl01.jlinfo.activities.ImageActivity;
 import com.ywl01.jlinfo.activities.PeoplesActivity;
+import com.ywl01.jlinfo.beans.ImageBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
-import com.ywl01.jlinfo.beans.PeoplePhotoBean;
 import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
@@ -28,13 +30,14 @@ import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
-import com.ywl01.jlinfo.observers.PhotoObserver;
+import com.ywl01.jlinfo.observers.PeoplePhotoObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.DialogUtils;
 import com.ywl01.jlinfo.utils.StringUtils;
-import com.ywl01.jlinfo.views.ImageGroup;
 import com.ywl01.jlinfo.views.SwipeItem;
+import com.ywl01.jlinfo.views.UploadImageMenuDialog;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
@@ -47,16 +50,14 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observer;
 
-;
-
 /**
  * Created by ywl01 on 2017/1/23.
  */
 
-public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> implements BaseObserver.OnNextListener, ImageGroup.DragListener, DialogInterface.OnClickListener {
+public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
 
     @BindView(R.id.image_group)
-    ImageGroup imageGroup;//存放照片的容器，继承自linearLayout
+    LinearLayout imageGroup;//存放照片的容器，继承自linearLayout
 
     @BindView(R.id.tv_name)
     TextView tvName;//人员姓名
@@ -102,16 +103,14 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> implements 
 
 
     //操作的各种观察者
-    private PhotoObserver photoObserver;//显示照片观察者
     //private PositionObserver positionObserver;//显示位置观察者
-    private PeopleObserver homePeopleObserver;//显示同户人员观察者
     // private FamilyDataObserver familyDataObserver;//亲戚数据观察者
     private PeopleObserver familyObserver;//显示亲戚信息观察者
     private IntObserver delPhotoOberver;//删除照片观察者
     private IntObserver delParentObserver;
 
     private int peopleFlag;
-    private PeoplePhotoBean photo;
+    private ImageBean photo;
 
     private Bundle bundleArgs;
     private SwipeItem rootView;
@@ -140,15 +139,14 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> implements 
     protected void refreshUI(PeopleBean data) {
         peopleFlag = data.peopleFlag;
 
-        setMenuButtonVisible();
+        setMenuButton();
         setPeopleUIValue();
         setBackground();
 
         getPeoplePhoto(data);
     }
 
-
-    private void setMenuButtonVisible() {
+    private void setMenuButton() {
         if (CommVar.isEdit) {
             if (peopleFlag == PeopleFlag.FROM_BUILDING || peopleFlag == PeopleFlag.FROM_MARK || peopleFlag == PeopleFlag.FROM_HOUSE) {
                 btnDelPeople.setVisibility(View.VISIBLE);
@@ -198,7 +196,6 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> implements 
         } else {
             setUIAlpha(rootView, 1);
         }
-
     }
 
     private String getString(String string) {
@@ -227,16 +224,21 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> implements 
     //获取人员照片
     private void getPeoplePhoto(PeopleBean people) {
         imageGroup.removeAllViews();
-        photoObserver = new PhotoObserver();
+        PeoplePhotoObserver photoObserver = new PeoplePhotoObserver();
         HttpMethods.getInstance().getSqlResult(photoObserver, SqlAction.SELECT, SqlFactory.selectPhotosByPeopleID(people.id));
-        photoObserver.setOnNextListener(this);
+        photoObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                List<ImageBean> photos = (List<ImageBean>) data;
+                setPeoplePhoto(photos);
+            }
+        });
     }
 
-    private void setPeoplePhoto(List<PeoplePhotoBean> photos) {
+    private void setPeoplePhoto(final List<ImageBean> photos) {
         if (photos != null && photos.size() > 0) {
             for (int i = 0; i < photos.size(); i++) {
                 ImageView img = new ImageView(AppUtils.getContext());
-                //img.setImageResource(R.drawable.img_no_photo);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, AppUtils.dip2px(118));
                 img.setLayoutParams(params);
                 if (i != photos.size() - 1)
@@ -252,12 +254,28 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> implements 
                 String thumburl = CommVar.serverImageRootUrl + photos.get(i).thumbUrl;
                 Picasso.with(AppUtils.getContext()).load(thumburl).into(img);
                 imageGroup.addView(img);
+                img.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        System.out.println("show photo");
+                        ImageBean imageBean = (ImageBean) view.getTag();
+                        int position = photos.indexOf(imageBean);
+                        boolean isShowDelBtn = false;
+
+                        CommVar.getInstance().clear();
+                        CommVar.getInstance().put("isShowDelBtn", isShowDelBtn);
+                        CommVar.getInstance().put("images", photos);
+                        CommVar.getInstance().put("position", position);
+                        CommVar.getInstance().put("imageType",ImageType.phpto);
+
+                        AppUtils.startActivity(ImageActivity.class);
+                    }
+                });
             }
         } else {
             ImageView img = new ImageView(AppUtils.getContext());
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(AppUtils.dip2px(90), AppUtils.dip2px(120));
             img.setLayoutParams(params);
-//            img.setImageResource(R.drawable.img_no_photo);
             Picasso.with(AppUtils.getContext()).load(R.drawable.img_no_photo).into(img);
             imageGroup.addView(img);
         }
@@ -287,25 +305,17 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> implements 
         rootView.close2();
 
         String sql = SqlFactory.selectHomePeopleByPid(data.id);
-        homePeopleObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
+        PeopleObserver homePeopleObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
         HttpMethods.getInstance().getSqlResult(homePeopleObserver, SqlAction.SELECT, sql);
-        homePeopleObserver.setOnNextListener(PeopleItemHolder.this);
-
-//        rootView.setOnSwipeStateChangeListener(new SwipeItem.OnSwipeStateChangeListener() {
-//            @Override
-//            public void open(Object tag) {
-//
-//            }
-//
-//            @Override
-//            public void close(Object tag) {
-//                String sql = SqlFactory.selectHomePeopleByPid(data.id);
-//                homePeopleObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
-//                HttpMethods.getInstance().getSqlResult(homePeopleObserver, SqlAction.SELECT, sql);
-//                homePeopleObserver.setOnNextListener(PeopleItemHolder.this);
-//            }
-//        });
-
+        homePeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                ArrayList<PeopleBean> homePeoples = (ArrayList<PeopleBean>) data;
+                CommVar.getInstance().clear();
+                CommVar.getInstance().put("peoples", homePeoples);
+                AppUtils.startActivity(PeoplesActivity.class);
+            }
+        });
     }
 
     //显示人员亲戚信息
@@ -328,16 +338,17 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> implements 
     @Nullable
     @OnClick(R.id.btn_upload_photo)
     public void onUploadPhoto() {
-//        Map<String, String> menuData = new HashMap<>();
-//        menuData.put("imageDir", ServerImageDir.PHOTO_DIR);
-//        menuData.put("id", data.id + "");
-//
-//        UploadImageMenuDialog dialog = new UploadImageMenuDialog(BaseActivity.currentActivity);
-//        dialog.data = menuData;
-//        dialog.show();
-//
-//        if (!EventBus.getDefault().isRegistered(this))
-//            EventBus.getDefault().register(this);
+        Map<String, Object> menuData = new HashMap<>();
+        menuData.put("imageDir", CommVar.serverPhotoDir);
+        menuData.put("id", data.id );
+        menuData.put("imageType", ImageType.phpto);
+
+        UploadImageMenuDialog dialog = new UploadImageMenuDialog(BaseActivity.currentActivity);
+        dialog.data = menuData;
+        dialog.show();
+
+        if (!EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().register(this);
     }
 
     @Subscribe
@@ -391,7 +402,17 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> implements 
                 txtInfo = "确认要从" + data.workPlace + "删除" + data.name + "吗？";
                 break;
         }
-        delPeopleDialog = DialogUtils.showAlert(BaseActivity.currentActivity, "删除警告：", txtInfo, "确定", this, "取消", this);
+        delPeopleDialog = DialogUtils.showAlert(BaseActivity.currentActivity,
+                "删除警告：", txtInfo,
+                "确定",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        delPeople();
+                    }
+                },
+                "取消",
+                null);
     }
 
     private void delPeople() {
@@ -413,41 +434,43 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> implements 
 
             String sql = SqlFactory.update(tableName, map, tableID);
             setPeopleLeaveObserver = new IntObserver();
-            setPeopleLeaveObserver.setOnNextListener(this);
+            setPeopleLeaveObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+                @Override
+                public void onNext(Observer observer, Object data) {
+                    int rows = (int) data;
+                    if (rows > 0) {
+                        AppUtils.showToast("删除人员成功。");
+                        ListEvent event = new ListEvent();
+
+                        event.action = ListEvent.remove;
+                        event.position = position;
+                        event.dispatch();
+                    }
+                }
+            });
             HttpMethods.getInstance().getSqlResult(setPeopleLeaveObserver, SqlAction.UPDATE, sql);
         } else if (data.isLeave == 1) {
             delPeopleObserver = new IntObserver();
             String sql = SqlFactory.delete(tableName, tableID);
-            delPeopleObserver.setOnNextListener(this);
+            delPeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+                @Override
+                public void onNext(Observer observer, Object data) {
+                    int rows = (int) data;
+                    if (rows > 0) {
+                        AppUtils.showToast("删除人员成功。");
+                        ListEvent event = new ListEvent();
+
+                        event.action = ListEvent.remove;
+                        event.position = position;
+                        event.dispatch();
+                    }
+                }
+            });
             HttpMethods.getInstance().getSqlResult(delPeopleObserver, SqlAction.DELETE, sql);
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // onNext的回调
-    ///////////////////////////////////////////////////////////////////////////
-    @Override
-    public void onNext(Observer observer, Object data) {
-        if (observer == photoObserver) {
-            List<PeoplePhotoBean> photos = (List<PeoplePhotoBean>) data;
-            setPeoplePhoto(photos);
-        } else if (observer == setPeopleLeaveObserver || observer == delPeopleObserver) {
-            int rows = (int) data;
-            if (rows > 0) {
-                AppUtils.showToast("删除人员成功。");
-                ListEvent event = new ListEvent();
 
-                event.action = ListEvent.remove;
-                event.position = position;
-                event.dispatch();
-            }
-        } else if (observer == homePeopleObserver) {
-            ArrayList<PeopleBean> homePeoples = (ArrayList<PeopleBean>) data;
-            CommVar.getInstance().clear();
-            CommVar.getInstance().put("peoples", homePeoples);
-            AppUtils.startActivity(PeoplesActivity.class);
-
-        }
 // else if (observer == positionObserver) {
 //            List<Graphic> positions = (List<Graphic>) data;
 //            if (positions != null && positions.size() > 0) {
@@ -491,7 +514,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> implements 
 //                ToastUtils.show("解除父子关系成功。");
 //            }
 //        }
-    }
+//    }
 
     ///////////////////////////////////////////////////////////////////////////
     // 拖动人员照片的回调,下载或删除
@@ -515,32 +538,34 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> implements 
     ///////////////////////////////////////////////////////////////////////////
     // 点击确认对话框的回调
     ///////////////////////////////////////////////////////////////////////////
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
-        if (dialog == delPhotoDialog) {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                long id = photo.id;
-                delPhotoOberver = new IntObserver();
-                String sql = SqlFactory.delete(TableName.PEOPLE_PHOTO, id);
-                System.out.println(sql);
-                HttpMethods.getInstance().getSqlResult(delPhotoOberver, SqlAction.DELETE, sql);
-                delPhotoOberver.setOnNextListener(this);
-            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-                getPeoplePhoto(data);
-            }
-        } else if (dialog == delParentDialog) {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                //breakParentHomeRelation();
-            }
-        } else if (dialog == delPeopleDialog) {
-            if (which == DialogInterface.BUTTON_POSITIVE) {
-                delPeople();
-            }
-        }
-    }
 
-    @Override
-    public void onDrag(View view, int action) {
+//    public void onClick(DialogInterface dialog, int which) {
+//        if (dialog == delPhotoDialog) {
+//            if (which == DialogInterface.BUTTON_POSITIVE) {
+//                long id = photo.id;
+//                delPhotoOberver = new IntObserver();
+//                String sql = SqlFactory.delete(TableName.PEOPLE_PHOTO, id);
+//                System.out.println(sql);
+//                HttpMethods.getInstance().getSqlResult(delPhotoOberver, SqlAction.DELETE, sql);
+//                delPhotoOberver.setOnNextListener(this);
+//            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+//                getPeoplePhoto(data);
+//            }
+//        } else if (dialog == delParentDialog) {
+//            if (which == DialogInterface.BUTTON_POSITIVE) {
+//                //breakParentHomeRelation();
+//            }
+//        } else if (dialog == delPeopleDialog) {
+//            if (which == DialogInterface.BUTTON_POSITIVE) {
+//                delPeople();
+//            }
+//        }
+//    }
 
+
+    @Subscribe
+    public void refreshImages(TypeEvent event) {
+        if(event.type == TypeEvent.REFRESH_IMAGE)
+            getPeoplePhoto(data);
     }
 }

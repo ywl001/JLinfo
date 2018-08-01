@@ -1,9 +1,12 @@
 package com.ywl01.jlinfo.observers;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.ywl01.jlinfo.beans.MarkImageBean;
+import com.ywl01.jlinfo.beans.ImageBean;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,10 +14,28 @@ import java.util.List;
  */
 
 public class MarkImageObserver extends BaseObserver {
-
     @Override
-    protected List<MarkImageBean> convert(String data) {
-        List<MarkImageBean> photos = new Gson().fromJson(data, new TypeToken<List<MarkImageBean>>() {}.getType());
-        return photos;
+    protected List<ImageBean> convert(String data) {
+        List<ImageBean> images = new ArrayList<>();
+        try {
+            JSONArray jsonArray = new JSONArray(data);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                ImageBean imageBean = new ImageBean();
+                if (jsonObject != null) {
+                    imageBean.id = jsonObject.optInt("id");
+                    imageBean.hostID = jsonObject.optInt("markID");
+                    imageBean.imageType = jsonObject.optInt("imageType");
+                    imageBean.imageUrl = jsonObject.optString("imageUrl");
+                    imageBean.thumbUrl = jsonObject.optString("thumbUrl");
+                    imageBean.insertTime = jsonObject.optString("insertTime");
+                    imageBean.insertUser = jsonObject.optInt("insertUser");
+                }
+                images.add(imageBean);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return images;
     }
 }

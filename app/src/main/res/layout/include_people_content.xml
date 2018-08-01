@@ -10,10 +10,10 @@
         android:layout_height="120dp"
         android:scrollbars="horizontal">
 
-        <com.ywl01.jlinfo.views.ImageGroup
+        <LinearLayout
             android:id="@+id/image_group"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="horizontal" />
     </HorizontalScrollView>
 

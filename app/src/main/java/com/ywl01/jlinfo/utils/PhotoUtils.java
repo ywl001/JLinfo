@@ -31,7 +31,7 @@ public class PhotoUtils {
     /**
      * 打开相机拍照上传
      */
-    public static void takePhoto(Activity activity) {
+    public static void takeImage(Activity activity) {
         if (isHasPermission(activity)) {
             System.out.println("有权限");
             //獲取系統版本
@@ -76,7 +76,7 @@ public class PhotoUtils {
     }
 
     //选择图片上传
-    public static void selectPhoto(Activity activity) {
+    public static void selectImage(Activity activity) {
         if (isHasPermission(activity)) {
             System.out.println("有权限");
             Intent intent = new Intent();
@@ -123,7 +123,7 @@ public class PhotoUtils {
     /*
    * 判断sdcard是否被挂载
    */
-    public static boolean hasSdcard() {
+    private static boolean hasSdcard() {
         return Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED);
     }
@@ -164,9 +164,9 @@ public class PhotoUtils {
             @Override
             public void onPermissionGranted() {
                 if (requestCode == TAKE_PHOTO)
-                    takePhoto(activity);
+                    takeImage(activity);
                 else if (requestCode == SELECT_PHOTO) {
-                    selectPhoto(activity);
+                    selectImage(activity);
                 }
             }
 

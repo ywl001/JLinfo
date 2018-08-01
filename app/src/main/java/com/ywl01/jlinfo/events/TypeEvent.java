@@ -12,7 +12,7 @@ public class TypeEvent extends Event {
     public static final int LOGIN = 3;
     public static final int MOVE_GRAPHIC = 4;
     public static final int SHOW_PANORRMA = 6;
-    public static final int UPLOAD_COMPLETE = 7;
+    public static final int REFRESH_IMAGE = 7;
     public static final int SHOW_BTN_CONTAINER = 8;
     public static final int REFRESH_MARKERS = 5;
     public static final int REFRESH_BUILDINGS = 9;

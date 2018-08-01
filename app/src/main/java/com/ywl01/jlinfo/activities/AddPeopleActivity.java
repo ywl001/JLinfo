@@ -36,7 +36,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observer;
 
-public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.OnItemSelectListener, BaseObserver.OnNextListener, DialogInterface.OnClickListener {
+public class AddPeopleActivity extends BaseActivity {
 
     @BindView(R.id.et_people_name)
     EditText etPeopleName;
@@ -89,14 +89,6 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
     private Graphic graphic;
     private int graphicFlag;
 
-    private InsertObserver insertPeopleObserver;
-    private InsertObserver insertHomeObserver;
-    private InsertObserver insertPMarkObserver;
-    private InsertObserver insertPBuildingObserver;
-    private InsertObserver insertPHouseObserver;
-    private PeopleObserver selectHomePeopleObserver;
-    private PeopleObserver checkPeopleIsAddObserver;
-
     @Override
     protected void initView() {
         QueryPeopleView queryPeopleView = new QueryPeopleView(this);
@@ -124,14 +116,13 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
                 finish();
             }
         });
-        queryPeopleView.setOnItemSelectListener(this);
-    }
-
-    @Override
-    public void onItemSelect(PeopleBean peopleBean) {
-        System.out.println("on item select");
-        people = peopleBean;
-        checkPeopleIsAdded(peopleBean);
+        queryPeopleView.setOnItemSelectListener(new QueryPeopleView.OnItemSelectListener() {
+            @Override
+            public void onItemSelect(PeopleBean peopleBean) {
+                people = peopleBean;
+                checkPeopleIsAdded(peopleBean);
+            }
+        });
     }
 
     private void checkPeopleIsAdded(PeopleBean peopleBean) {
@@ -149,9 +140,19 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
             tableName = TableName.PEOPLE_HOUSE;
             sql = "select * from " + tableName + " where peopleID =  "+ peopleID + " and houseID = "+ graphicID;
         }
-        checkPeopleIsAddObserver = new PeopleObserver(peopleFlag);
+        PeopleObserver checkPeopleIsAddObserver = new PeopleObserver(peopleFlag);
         HttpMethods.getInstance().getSqlResult(checkPeopleIsAddObserver, SqlAction.SELECT, sql);
-        checkPeopleIsAddObserver.setOnNextListener(this);
+        checkPeopleIsAddObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                List<PeopleBean> peoples = (List<PeopleBean>) data;
+                if (peoples.size() > 0) {
+                    DialogUtils.showPrompt(AddPeopleActivity.this,"人员已经添加过了");
+                }else{
+                    initAddPeopleView();
+                }
+            }
+        });
     }
 
     private void initAddPeopleView() {
@@ -237,9 +238,19 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
         peopleData.put("insertTime", "now()");
 
         String sql = SqlFactory.insert(TableName.PEOPLE, peopleData);
-        insertPeopleObserver = new InsertObserver();
+        InsertObserver insertPeopleObserver = new InsertObserver();
         HttpMethods.getInstance().getSqlResult(insertPeopleObserver, SqlAction.INSERT, sql);
-        insertPeopleObserver.setOnNextListener(this);
+        insertPeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                Long pid = (Long) data;
+                if (pid > 0) {
+                    //插入户信息
+                    peopleID = pid;
+                    insertPeopleHome();
+                }
+            }
+        });
     }
 
     //给新添加人员分配个户号
@@ -251,10 +262,21 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
         homeData.put("insertUser", CommVar.UserID + "");
         homeData.put("insertTime", "now()");
 
-        insertHomeObserver = new InsertObserver();
+        InsertObserver insertHomeObserver = new InsertObserver();
         String sql = SqlFactory.insert(TableName.PEOPLE_HOME, homeData);
         HttpMethods.getInstance().getSqlResult(insertHomeObserver, SqlAction.INSERT, sql);
-        insertHomeObserver.setOnNextListener(this);
+        insertHomeObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                if (peopleFlag == PeopleFlag.FROM_MARK) {
+                    insertPeopleMark();
+                } else if (peopleFlag == PeopleFlag.FROM_HOUSE) {
+                    insertPeopleHouse(people);
+                } else if (peopleFlag == PeopleFlag.FROM_BUILDING) {
+                    insertPeopleBuilding(people);
+                }
+            }
+        });
     }
 
     private void insertPeopleMark() {
@@ -267,10 +289,19 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
         data.put("insertUser", CommVar.UserID + "");
         data.put("insertTime", "now()");
 
-        insertPMarkObserver = new InsertObserver();
+        InsertObserver insertPMarkObserver = new InsertObserver();
         String sql = SqlFactory.insert(TableName.PEOPLE_MARK, data);
         HttpMethods.getInstance().getSqlResult(insertPMarkObserver, SqlAction.INSERT, sql);
-        insertPMarkObserver.setOnNextListener(this);
+        insertPMarkObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                Long returnID = (Long) data;
+                if (returnID > 0) {
+                    AppUtils.showToast("插入人员工作场所成功");
+                    finish();
+                }
+            }
+        });
     }
 
     private void insertPeopleBuilding(PeopleBean p) {
@@ -281,10 +312,19 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
         data.put("insertUser", CommVar.UserID + "");
         data.put("insertTime", "now()");
 
-        insertPBuildingObserver = new InsertObserver();
+        InsertObserver insertPBuildingObserver = new InsertObserver();
         String sql = SqlFactory.insert(TableName.PEOPLE_BUILDING, data);
         HttpMethods.getInstance().getSqlResult(insertPBuildingObserver, SqlAction.INSERT, sql);
-        insertPBuildingObserver.setOnNextListener(this);
+        insertPBuildingObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                Long returnID = (Long) data;
+                if (returnID > 0) {
+                    AppUtils.showToast("插入人员住所成功");
+                    finish();
+                }
+            }
+        });
     }
 
     private void insertPeopleHouse(PeopleBean p) {
@@ -294,17 +334,67 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
         data.put("insertUser", CommVar.UserID + "");
         data.put("insertTime", "now()");
 
-        insertPHouseObserver = new InsertObserver();
+        InsertObserver insertPHouseObserver = new InsertObserver();
         String sql = SqlFactory.insert(TableName.PEOPLE_HOUSE, data);
         HttpMethods.getInstance().getSqlResult(insertPHouseObserver, SqlAction.INSERT, sql);
-        insertPHouseObserver.setOnNextListener(this);
+        insertPHouseObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                Long returnID = (Long) data;
+                if (returnID > 0) {
+                    AppUtils.showToast("插入人员住所成功");
+                    finish();
+                }
+            }
+        });
     }
 
     private void selectPeopleInHome() {
         String sql = SqlFactory.selectPeoplesByHome(peopleID);
-        selectHomePeopleObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
+        PeopleObserver selectHomePeopleObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
         HttpMethods.getInstance().getSqlResult(selectHomePeopleObserver, SqlAction.SELECT, sql);
-        selectHomePeopleObserver.setOnNextListener(this);
+        selectHomePeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                homePeoples = (List<PeopleBean>) data;
+                if(homePeoples.size() > 1)
+                    DialogUtils.showAlert(AddPeopleActivity.this,
+                            "提示信息：",
+                            "和" + people.name + "同户的还有" + (homePeoples.size() - 1) + "人,是否一起添加？",
+                            "确定",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int which) {
+                                    for (int i = 0; i < homePeoples.size(); i++) {
+                                        if (peopleFlag == PeopleFlag.FROM_BUILDING) {
+                                            insertPeopleBuilding(homePeoples.get(i));
+                                        } else {
+                                            insertPeopleHouse(homePeoples.get(i));
+                                        }
+                                    }
+                                    finish();
+                                }
+                            }, "取消", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int which) {
+                                    if (peopleFlag == PeopleFlag.FROM_BUILDING) {
+                                        insertPeopleBuilding(people);
+                                    } else {
+                                        insertPeopleHouse(people);
+                                    }
+                                    finish();
+                                }
+                            });
+                else{
+                    if (peopleFlag == PeopleFlag.FROM_BUILDING) {
+                        insertPeopleBuilding(people);
+                    } else {
+                        insertPeopleHouse(people);
+                    }
+                    finish();
+                }
+            }
+        });
     }
 
     //验证填写的信息
@@ -352,82 +442,5 @@ public class AddPeopleActivity extends BaseActivity implements QueryPeopleView.O
         }
     }
 
-    @Override
-    public void onNext(Observer observer,Object data) {
-        if (observer == checkPeopleIsAddObserver) {
-            List<PeopleBean> peoples = (List<PeopleBean>) data;
-            if (peoples.size() > 0) {
-                DialogUtils.showPrompt(this,"人员已经添加过了");
-            }else{
-                initAddPeopleView();
-            }
-        } else if (observer == insertPeopleObserver) {
-            Long pid = (Long) data;
-            if (pid > 0) {
-                //插入户信息
-                peopleID = pid;
-                insertPeopleHome();
-            }
-        } else if (observer == insertHomeObserver) {
-            if (peopleFlag == PeopleFlag.FROM_MARK) {
-                insertPeopleMark();
-            } else if (peopleFlag == PeopleFlag.FROM_HOUSE) {
-                insertPeopleHouse(people);
-            } else if (peopleFlag == PeopleFlag.FROM_BUILDING) {
-                insertPeopleBuilding(people);
-            }
-        } else if (observer == insertPMarkObserver) {
-            Long returnID = (Long) data;
-            if (returnID > 0) {
-                AppUtils.showToast("插入人员工作场所成功");
-                finish();
-            }
-        } else if (observer == insertPBuildingObserver) {
-            Long returnID = (Long) data;
-            if (returnID > 0) {
-                AppUtils.showToast("插入人员住所成功");
-                finish();
-            }
-        } else if (observer == insertPHouseObserver) {
-            Long returnID = (Long) data;
-            if (returnID > 0) {
-                AppUtils.showToast("插入人员住所成功");
-                finish();
-            }
-        } else if (observer == selectHomePeopleObserver) {
-            homePeoples = (List<PeopleBean>) data;
-            if(homePeoples.size() > 1)
-                DialogUtils.showAlert(this, "提示信息：", "和" + people.name + "同户的还有" + (homePeoples.size()-1) + "人,是否一起添加？", "确定", this, "取消", this);
-            else{
-                if (peopleFlag == PeopleFlag.FROM_BUILDING) {
-                    insertPeopleBuilding(people);
-                } else {
-                    insertPeopleHouse(people);
-                }
-                finish();
-            }
-        }
-    }
-
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
-        if (which == DialogInterface.BUTTON_POSITIVE) {
-            for (int i = 0; i < homePeoples.size(); i++) {
-                if (peopleFlag == PeopleFlag.FROM_BUILDING) {
-                    insertPeopleBuilding(homePeoples.get(i));
-                } else {
-                    insertPeopleHouse(homePeoples.get(i));
-                }
-            }
-            finish();
-        } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-            if (peopleFlag == PeopleFlag.FROM_BUILDING) {
-                insertPeopleBuilding(people);
-            } else {
-                insertPeopleHouse(people);
-            }
-            finish();
-        }
-    }
 
 }

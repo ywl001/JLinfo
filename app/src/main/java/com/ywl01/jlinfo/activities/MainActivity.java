@@ -52,7 +52,7 @@ import io.reactivex.Observer;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-public class MainActivity extends BaseActivity implements BaseObserver.OnNextListener {
+public class MainActivity extends BaseActivity {
 
     @BindView(R.id.map_view)
     MapView mapView;
@@ -72,8 +72,7 @@ public class MainActivity extends BaseActivity implements BaseObserver.OnNextLis
     private MarkInfoView markInfoView;
     private GraphicMenuView graphicMenuView;
     private UploadImageEvent uploadImageEvent;
-    private UploadObserver uploadObserver;
-    private InsertObserver insertObserver;
+
     private ArcGISTiledLayer tiledLayer;
 
     @Override
@@ -104,40 +103,6 @@ public class MainActivity extends BaseActivity implements BaseObserver.OnNextLis
 
         mapView.setMap(map);
         mapView.setOnTouchListener(new MapListener(MainActivity.this, mapView));
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // onnext 回调
-    ///////////////////////////////////////////////////////////////////////////
-    @Override
-    public void onNext( Observer observer,Object data) {
-        if (observer == uploadObserver) {
-            String returnData = (String) data;
-            String imgUrl = returnData.substring(12);
-            String[] temp = imgUrl.split("\\.");
-            String thumbUrl = temp[0] + "_thumb.jpg";
-
-            insertObserver = new InsertObserver();
-            Map<String, String> tableData = new HashMap<String, String>();
-            String id = uploadImageEvent.id;
-
-            tableData.put("markID", id);
-            tableData.put("imageUrl", imgUrl);
-            tableData.put("thumbUrl", thumbUrl);
-            tableData.put("insertUser", CommVar.UserID + "");
-            tableData.put("insertTime", "now()");
-            String sql = SqlFactory.insert(TableName.MARK_IMAGE, tableData);
-            HttpMethods.getInstance().getSqlResult(insertObserver, SqlAction.INSERT, sql);
-
-            insertObserver.setOnNextListener(this);
-        } else if (observer == insertObserver) {
-            Long returnData = (Long) data;
-            if (returnData > 0) {
-                AppUtils.showToast("上传图片成功");
-                //派发事件，让cameraInfoView刷新图片
-                TypeEvent.dispatch(TypeEvent.UPLOAD_COMPLETE);
-            }
-        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -223,13 +188,12 @@ public class MainActivity extends BaseActivity implements BaseObserver.OnNextLis
     }
 
     @Subscribe
-    public void uploadImage(final UploadImageEvent event) {
+    public void uploadImage(UploadImageEvent event) {
         uploadImageEvent = event;
-        if (event.type == UploadImageEvent.FROM_PHOTOS)
-            PhotoUtils.selectPhoto(this);
-        else if (event.type == UploadImageEvent.FROM_CAMERS)
-            PhotoUtils.takePhoto(this);
-
+        if (event.type == UploadImageEvent.SELECT_IMAGE_FOR_MARK)
+            PhotoUtils.selectImage(this);
+        else if (event.type == UploadImageEvent.TAKE_IMAGE_FOR_MARK)
+            PhotoUtils.takeImage(this);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -265,10 +229,42 @@ public class MainActivity extends BaseActivity implements BaseObserver.OnNextLis
         ProgressRequestBody requestFile = new ProgressRequestBody(file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("fileData", file.getName(), requestFile);
 
-        uploadObserver = new UploadObserver();
+        UploadObserver uploadObserver = new UploadObserver();
 
         HttpMethods.getInstance().uploadImage(uploadObserver, fileDir, body);
-        uploadObserver.setOnNextListener(this);
+        uploadObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                String returnData = (String) data;
+                String imgUrl = returnData.substring(12);
+                String[] temp = imgUrl.split("\\.");
+                String thumbUrl = temp[0] + "_thumb.jpg";
+
+                InsertObserver insertObserver = new InsertObserver();
+                Map<String, String> tableData = new HashMap<String, String>();
+                int id = uploadImageEvent.id;
+
+                tableData.put("markID", id+"");
+                tableData.put("imageUrl", imgUrl);
+                tableData.put("thumbUrl", thumbUrl);
+                tableData.put("insertUser", CommVar.UserID + "");
+                tableData.put("insertTime", "now()");
+                String sql = SqlFactory.insert(TableName.MARK_IMAGE, tableData);
+                HttpMethods.getInstance().getSqlResult(insertObserver, SqlAction.INSERT, sql);
+
+                insertObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+                    @Override
+                    public void onNext(Observer observer, Object data) {
+                        Long returnData = (Long) data;
+                        if (returnData > 0) {
+                            AppUtils.showToast("上传图片成功");
+                            //派发事件，让cameraInfoView刷新图片
+                            TypeEvent.dispatch(TypeEvent.REFRESH_IMAGE);
+                        }
+                    }
+                });
+            }
+        });
     }
 
 

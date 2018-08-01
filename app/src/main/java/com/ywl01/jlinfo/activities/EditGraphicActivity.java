@@ -38,7 +38,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observer;
 
-public class EditActivity extends BaseActivity {
+public class EditGraphicActivity extends BaseActivity {
 
     @BindView(R.id.et_name)
     EditText etName;

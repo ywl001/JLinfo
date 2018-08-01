@@ -9,12 +9,12 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.ywl01.jlinfo.R;
-import com.ywl01.jlinfo.beans.MarkBean;
-import com.ywl01.jlinfo.beans.MarkImageBean;
+import com.ywl01.jlinfo.beans.ImageBean;
 import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
-import com.ywl01.jlinfo.events.ShowMarkInfoEvent;
+import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
@@ -37,10 +37,10 @@ import io.reactivex.Observer;
 
 public class ImageActivity extends BaseActivity implements ViewPager.OnPageChangeListener {
 
-    private List<MarkImageBean> images;
+    private List<ImageBean> images;
     private int position;
     private boolean isShowDelBtn;
-    private MarkBean markBean;
+    private int imageType;
 
     private String delImageUrl;
     private String delThumbUrl;
@@ -62,10 +62,10 @@ public class ImageActivity extends BaseActivity implements ViewPager.OnPageChang
     @Override
     protected void initData() {
         super.initData();
-        images = (List<MarkImageBean>) CommVar.getInstance().get("images");
+        images = (List<ImageBean>) CommVar.getInstance().get("images");
         position = (int) CommVar.getInstance().get("position");
         isShowDelBtn = (boolean) CommVar.getInstance().get("isShowDelBtn");
-        markBean = (MarkBean) CommVar.getInstance().get("markBean");
+        imageType = (int) CommVar.getInstance().get("imageType");
     }
 
     @Override
@@ -95,11 +95,16 @@ public class ImageActivity extends BaseActivity implements ViewPager.OnPageChang
 
     private void confirmDel() {
         IntObserver delImageObserver = new IntObserver();
-        MarkImageBean imageBean = images.get(position);
+        ImageBean imageBean = images.get(position);
         delImageUrl = imageBean.imageUrl;
         delThumbUrl = imageBean.thumbUrl;
         long id = imageBean.id;
-        String sql = SqlFactory.delete(TableName.MARK_IMAGE, id);
+        String sql = "";
+        if(imageType == ImageType.images)
+            sql = SqlFactory.delete(TableName.MARK_IMAGE, id);
+        else if (imageType == ImageType.phpto) {
+            sql = SqlFactory.delete(TableName.PEOPLE_PHOTO, id);
+        }
         HttpMethods.getInstance().getSqlResult(delImageObserver, SqlAction.DELETE, sql);
 
         delImageObserver.setOnNextListener(new BaseObserver.OnNextListener() {
@@ -133,9 +138,7 @@ public class ImageActivity extends BaseActivity implements ViewPager.OnPageChang
         //派发事件，从mainActivity中重新加载markInfoView
         if (isImageChange) {
             System.out.println("图像页面派发了事件");
-            ShowMarkInfoEvent e = new ShowMarkInfoEvent();
-            e.markBean = markBean;
-            e.dispatch();
+            TypeEvent.dispatch(TypeEvent.REFRESH_IMAGE);
         }
     }
 
@@ -161,9 +164,9 @@ public class ImageActivity extends BaseActivity implements ViewPager.OnPageChang
     ///////////////////////////////////////////////////////////////////////////
     class ImagePageAdapter extends PagerAdapter {
 
-        private List<MarkImageBean> imageUrls;
+        private List<ImageBean> imageUrls;
 
-        public ImagePageAdapter(List<MarkImageBean> imageUrls) {
+        public ImagePageAdapter(List<ImageBean> imageUrls) {
             this.imageUrls = imageUrls;
         }
 

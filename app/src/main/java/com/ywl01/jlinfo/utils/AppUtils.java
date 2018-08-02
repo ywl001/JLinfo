@@ -143,7 +143,7 @@ public class AppUtils {
 
     public static void showToast(String message) {
         if (toast == null) {
-            toast = Toast.makeText(BaseActivity.currentActivity, message, Toast.LENGTH_SHORT);
+            toast = Toast.makeText(BaseActivity.currentActivity, message, Toast.LENGTH_LONG);
         } else {
             toast.setText(message);
         }

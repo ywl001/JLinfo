@@ -98,6 +98,14 @@ public class SqlFactory {
         return sql;
     }
 
+    public static String selectWorkplaceByPeopleID(int peopleID) {
+        String sql = "select m.name,x,y,displayLevel,'mark' as tableName " +
+                    "from people_mark pm,people p,mark m " +
+                    "where p.id = pm.peopleID and pm.markID = m.id and pm.peopleid =  " + peopleID;
+        System.out.println(sql);
+        return sql;
+    }
+
     //根据peopleID查询同户人员*****************************************************
     public static String selectHomePeopleByPid(int peopleID){
         String childSql =

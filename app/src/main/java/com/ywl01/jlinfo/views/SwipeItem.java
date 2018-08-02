@@ -71,7 +71,7 @@ public class SwipeItem extends FrameLayout {
                 float delatY = moveY - downY;//y方向移动的距离
                 if(Math.abs(delatX) / 2 > Math.abs(delatY)){
                     //表示移动是偏向于水平方向，那么应该SwipeLayout应该处理，请求listview不要拦截
-                    System.out.println("水平滑动，不要拦截");
+                    //System.out.println("水平滑动，不要拦截");
                     requestDisallowInterceptTouchEvent(true);
                 }
                 //更新downX，downY

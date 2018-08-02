@@ -31,7 +31,7 @@ public abstract class BaseObserver<T> implements Observer<String> {
      */
     @Override
     public void onNext(@NonNull String data) {
-        System.out.println("on next");
+        //System.out.println("on next");
         T newData = convert(data);
         if (onNextListener != null) {
             onNextListener.onNext(this,newData);
@@ -45,7 +45,7 @@ public abstract class BaseObserver<T> implements Observer<String> {
 
     @Override
     public void onComplete() {
-        System.out.println("on complete");
+        //System.out.println("on complete");
     }
 
     /**

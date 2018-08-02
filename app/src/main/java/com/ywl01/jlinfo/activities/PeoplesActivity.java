@@ -54,6 +54,7 @@ public class PeoplesActivity extends BaseActivity {
 
     @Override
     protected void initView() {
+        System.out.println("peopleActivity initView");
         setContentView(R.layout.activity_peoples);
         ButterKnife.bind(this);
         peopless = new ArrayList<>();
@@ -67,29 +68,30 @@ public class PeoplesActivity extends BaseActivity {
         peopleListView.addItemDecoration(new DividerItemDecoration(AppUtils.getContext(), LinearLayoutManager.VERTICAL));
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        peoples = (ArrayList<PeopleBean>) CommVar.getInstance().get("peoples");
-        peopless.add(peoples);
-        adapter = new PeopleListAdapter(peoples);
-        peopleListView.setAdapter(adapter);
-//        adapter.notifyDataSetChanged();
-    }
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        System.out.println("peopleActivity on new intent......");
+//        super.onNewIntent(intent);
+//        peoples = (ArrayList<PeopleBean>) CommVar.getInstance().get("peoples");
+//        peopless.add(peoples);
+//        adapter = new PeopleListAdapter(peoples);
+//        peopleListView.setAdapter(adapter);
+////        adapter.notifyDataSetChanged();
+//    }
 
-    @Override
-    public void onBackPressed() {
-        //super.onBackPressed();
-        System.out.println("on back pressed................");
-        peopless.remove(peopless.size() - 1);
-        if (peopless.size() > 0) {
-            peoples = peopless.get(peopless.size() - 1);
-            adapter = new PeopleListAdapter(peoples);
-            peopleListView.setAdapter(adapter);
-        }else{
-            finish();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//        //super.onBackPressed();
+//        System.out.println("on back pressed................" + peopless.size());
+//        peopless.remove(peopless.size() - 1);
+//        if (peopless.size() > 0) {
+//            peoples = peopless.get(peopless.size() - 1);
+//            adapter = new PeopleListAdapter(peoples);
+//            peopleListView.setAdapter(adapter);
+//        }else{
+//            finish();
+//        }
+//    }
 
     @Override
     public void onStart() {

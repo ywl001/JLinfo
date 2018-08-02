@@ -1,11 +1,17 @@
 package com.ywl01.jlinfo.observers;
 
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.v4.content.ContextCompat;
 
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.view.Graphic;
+import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.esri.arcgisruntime.symbology.TextSymbol;
+import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.consts.GraphicFlag;
+import com.ywl01.jlinfo.utils.AppUtils;
 
 
 import org.json.JSONArray;
@@ -34,10 +40,10 @@ public class PositionObserver extends BaseObserver {
                     int level = jsonObject.optInt("displayLevel");
                     double mapScale = getScaleBylevel(level);
                     String displayText = "";
-                    String tableName = jsonObject.getString("tableName");
-                    String roomNumber = jsonObject.getString("roomNumber");
-                    String community = jsonObject.getString("community");
-                    String name = jsonObject.getString("name");
+                    String tableName = jsonObject.optString("tableName");
+                    String roomNumber = jsonObject.optString("roomNumber");
+                    String community = jsonObject.optString("community");
+                    String name = jsonObject.optString("name");
                     if ("house".equals(tableName)) {
                         displayText = community + roomNumber + name;
                     } else if ("building".equals(tableName)) {
@@ -49,10 +55,15 @@ public class PositionObserver extends BaseObserver {
                     Map<String, Object> map = new HashMap<>();
                     map.put("mapScale", mapScale);
                     map.put("displayText", displayText);
+                    map.put("graphicFlag", GraphicFlag.POSITION);
 
-                    TextSymbol ts = new TextSymbol(16,displayText, Color.BLUE, TextSymbol.HorizontalAlignment.CENTER, TextSymbol.VerticalAlignment.MIDDLE);
+                    BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(AppUtils.getContext(), R.drawable.position);
+                    PictureMarkerSymbol pms = new PictureMarkerSymbol(drawable);
+                    pms.setHeight(40);
+                    pms.setWidth(40);
+                    pms.setOffsetY(20);
 
-                    Graphic g = new Graphic(new Point(x, y,CommVar.mapSpatialReference),map,ts);
+                    Graphic g = new Graphic(new Point(x, y,CommVar.mapSpatialReference),map,pms);
                     graphics.add(g);
                 }
             }

@@ -70,8 +70,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
         implements
         MapScaleChangedListener,
         ViewpointChangedListener,
-        NavigationChangedListener,
-        BaseObserver.OnNextListener {
+        NavigationChangedListener {
 
     private final MapView mapView;
 
@@ -248,7 +247,21 @@ public class MapListener extends DefaultMapViewOnTouchListener
     //服务器端载入数据
     private void loadGraphics(GraphicObserver observer, Envelope extent, double mapScale, String tableName) {
         String sql = SqlFactory.selectGraphicData(extent, mapScale, tableName);
-        observer.setOnNextListener(this);
+        observer.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                if (observer == markObserver) {
+                    updateGraphic((List<Graphic>) data, markOverlay, isUpdateAllMarks);
+                    isUpdateAllMarks = false;
+                } else if (observer == buildingObserver) {
+                    updateGraphic((List<Graphic>) data, buildingOverlay, isUpdateAllBuildings);
+                    isUpdateAllBuildings = false;
+                } else if (observer == houseObserver) {
+                    updateGraphic((List<Graphic>) data, houseOverlay, isUpdateAllHouses);
+                    isUpdateAllHouses = false;
+                }
+            }
+        });
         HttpMethods.getInstance().getSqlResult(observer, SqlAction.SELECT, sql);
     }
 
@@ -283,7 +296,6 @@ public class MapListener extends DefaultMapViewOnTouchListener
         if (nowGraphic == null) {
             if (isMoveGraphic) {
                 moveGraphic(screenPoint);
-
             }
             return super.onSingleTapConfirmed(e);
         }
@@ -303,10 +315,34 @@ public class MapListener extends DefaultMapViewOnTouchListener
                 break;
 
             case GraphicFlag.POSITION:
-                //showHighLightGraphic();
+                showPositionInfo();
                 break;
         }
         return super.onSingleTapConfirmed(e);
+    }
+
+    private void showPositionInfo() {
+        double positionMapScale = (double) nowGraphic.getAttributes().get("mapScale");
+        String displayText = (String) nowGraphic.getAttributes().get("displayText");
+        final String tableName = (String) nowGraphic.getAttributes().get("tableName");
+        nowGraphic.getGraphicsOverlay().getGraphics().remove(nowGraphic);
+        if (positionMapScale == mapView.getMapScale()) {
+            AppUtils.showToast(displayText);
+        }else{
+            mapView.setViewpointCenterAsync((Point) nowGraphic.getGeometry(), positionMapScale);
+            AppUtils.showToast(displayText);
+        }
+    }
+
+    private Graphic getSameLocationGraphic(List<Graphic> graphics, Graphic graphic) {
+        for (int i = 0; i < graphics.size(); i++) {
+            Point p = (Point) graphic.getGeometry();
+            Point p1 = (Point) graphics.get(i).getGeometry();
+            if (p.equals(p1, 0.000001)) {
+                return graphics.get(i);
+            }
+        }
+        return null;
     }
 
 
@@ -467,33 +503,19 @@ public class MapListener extends DefaultMapViewOnTouchListener
         }
         peopleObserver = new PeopleObserver(peopleFlag);
         HttpMethods.getInstance().getSqlResult(peopleObserver, SqlAction.SELECT, sql);
-        peopleObserver.setOnNextListener(this);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // onNext回调
-    ///////////////////////////////////////////////////////////////////////////
-    @Override
-    public void onNext(Observer observer, Object data) {
-        if (observer == markObserver) {
-            updateGraphic((List<Graphic>) data, markOverlay, isUpdateAllMarks);
-            isUpdateAllMarks = false;
-        } else if (observer == buildingObserver) {
-            updateGraphic((List<Graphic>) data, buildingOverlay, isUpdateAllBuildings);
-            isUpdateAllBuildings = false;
-        } else if (observer == houseObserver) {
-            updateGraphic((List<Graphic>) data, houseOverlay, isUpdateAllHouses);
-            isUpdateAllHouses = false;
-        }else if (observer == peopleObserver) {
-            ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data;
-            if (peoples.size() > 0) {
-                CommVar.getInstance().clear();
-                CommVar.getInstance().put("peoples",peoples);
-                AppUtils.startActivity(PeoplesActivity.class);
-            } else {
-                Toast.makeText(AppUtils.getContext(), "无相关人员", Toast.LENGTH_SHORT).show();
+        peopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data;
+                if (peoples.size() > 0) {
+                    CommVar.getInstance().clear();
+                    CommVar.getInstance().put("peoples",peoples);
+                    AppUtils.startActivity(PeoplesActivity.class);
+                } else {
+                    Toast.makeText(AppUtils.getContext(), "无相关人员", Toast.LENGTH_SHORT).show();
+                }
             }
-        }
+        });
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -524,9 +546,18 @@ public class MapListener extends DefaultMapViewOnTouchListener
     @Subscribe
     public void showPosition(ShowPositionEvent event) {
         positionOverlay.getGraphics().clear();
+        List<Graphic> positions = event.positions;
+        positionOverlay.getGraphics().addAll(positions);
 
-        positionOverlay.getGraphics().addAll(event.positions);
-        mapView.setViewpointGeometryAsync(positionOverlay.getExtent(), 5);
+        if (positions.size() == 1) {
+            Graphic g = positions.get(0);
+            double mapscale = (double) g.getAttributes().get("mapScale");
+            String displayText = (String) g.getAttributes().get("displayText");
+            mapView.setViewpointCenterAsync((Point) g.getGeometry(), mapscale);
+            AppUtils.showToast(displayText);
+        }else{
+            mapView.setViewpointGeometryAsync(positionOverlay.getExtent(), 20);
+        }
     }
 
 

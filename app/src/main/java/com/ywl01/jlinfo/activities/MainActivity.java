@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
@@ -272,6 +273,38 @@ public class MainActivity extends BaseActivity {
         });
     }
 
+    private boolean isPressBack;
+    private int clickBackTimes;
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            System.out.println("back");
+            isPressBack = true;
+            clickBackTimes++;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void finish() {
+        if (isPressBack) {
+            if (activities.size() > 1) {
+                for (int i = 0; i < activities.size(); i++) {
+                    BaseActivity activity = (BaseActivity) activities.get(i);
+                    if (activity instanceof PeoplesActivity) {
+                        AppUtils.moveActivityToFront(activity.getClass());
+                        System.out.println("activitys size:" + activities.size());
+                    }
+                }
+                clickBackTimes = 0;
+            } else if (clickBackTimes == 1) {
+                AppUtils.showToast("再按一次退出");
+            }else{
+                super.finish();
+            }
+        }
+    }
 
     @Override
     protected void onStart() {

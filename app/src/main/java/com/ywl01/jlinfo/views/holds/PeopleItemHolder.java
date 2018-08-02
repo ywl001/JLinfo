@@ -321,7 +321,23 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     //显示人员工作单位
     @OnClick(R.id.btn_show_work_place)
     public void onShowWorkPlace() {
-
+        String sql = SqlFactory.selectWorkplaceByPeopleID(data.id);
+        PositionObserver positionObserver = new PositionObserver();
+        HttpMethods.getInstance().getSqlResult(positionObserver, SqlAction.SELECT, sql);
+        positionObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                List<Graphic> positions = (List<Graphic>) data;
+                if (positions != null && positions.size() > 0) {
+                    AppUtils.moveActivityToFront(MainActivity.class);
+                    ShowPositionEvent event = new ShowPositionEvent(ShowPositionEvent.SHOW_ADDRESS);
+                    event.positions = positions;
+                    event.dispatch();
+                } else {
+                    AppUtils.showToast("人员无住址信息");
+                }
+            }
+        });
     }
 
     //显示人员同户人员
@@ -590,6 +606,5 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
             getPeoplePhoto(data);
             System.out.println("刷新了人员照片");
         }
-
     }
 }

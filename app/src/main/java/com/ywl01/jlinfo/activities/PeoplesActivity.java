@@ -91,23 +91,6 @@ public class PeoplesActivity extends BaseActivity {
         }
     }
 
-    //    @Subscribe
-//    public void onUpdatePeople(UpdatePeopleEvent event) {
-//        PeopleBean p = event.people;
-//        int countPeople = peoples.size();
-//        for (int i = 0; i < countPeople; i++) {
-//            if (peoples.get(i).id == p.id) {
-//                peoples.set(i, p);
-//
-//                ListEvent e = new ListEvent();
-//                e.action = ListEvent.update;
-//                e.position  = i;
-//                e.dispatch();
-//                break;
-//            }
-//        }
-//    }
-//
     @Override
     public void onStart() {
         System.out.println("people activity on start");
@@ -136,10 +119,7 @@ public class PeoplesActivity extends BaseActivity {
         for (int i = 0; i < countPeople; i++) {
             if (peoples.get(i).id == p.id) {
                 peoples.set(i, p);
-
-                ListEvent e = new ListEvent();
-                e.action = ListEvent.update;
-                e.position  = i;
+                ListEvent e = new ListEvent(ListEvent.update,i);
                 e.dispatch();
                 break;
             }

@@ -15,6 +15,7 @@ import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import com.esri.arcgisruntime.layers.ArcGISTiledLayer;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.view.BackgroundGrid;
+import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.consts.CommVar;
@@ -22,9 +23,11 @@ import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.ShowGraphicMenuEvent;
 import com.ywl01.jlinfo.events.ShowMarkInfoEvent;
+import com.ywl01.jlinfo.events.ShowPositionEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.events.UploadImageEvent;
 import com.ywl01.jlinfo.map.MapListener;
+import com.ywl01.jlinfo.map.SymbolManager;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.ProgressRequestBody;
 import com.ywl01.jlinfo.net.SqlFactory;
@@ -43,6 +46,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -160,6 +164,7 @@ public class MainActivity extends BaseActivity {
 
         setAnmation(bottomContainer, graphicMenuView.getHeight(),0);
     }
+
 
     private void clearBottomContainer() {
         TranslateAnimation animation = new TranslateAnimation(0, 0, 0, bottomContainer.getHeight());

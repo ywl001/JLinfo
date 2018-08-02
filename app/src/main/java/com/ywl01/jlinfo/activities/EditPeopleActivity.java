@@ -136,6 +136,7 @@ public class EditPeopleActivity extends BaseActivity{
             peopleData.put("isDead", isDead.isChecked() ? "1" : "0");
             peopleData.put("updateUser", CommVar.UserID + "");
 
+            //获取更新信息，保存，用于视图刷新
             people.name = peopleData.get("name");
             people.sex = peopleData.get("sex");
             people.nation = peopleData.get("nation");
@@ -154,10 +155,10 @@ public class EditPeopleActivity extends BaseActivity{
                     int rows = (int) data;
                     if (rows > 0) {
                         AppUtils.showToast("更新人员信息成功。。。");
-                        finish();
                         UpdatePeopleEvent event = new UpdatePeopleEvent();
                         event.people = people;
                         event.dispatch();
+                        finish();
                     }
                 }
             });
@@ -169,12 +170,20 @@ public class EditPeopleActivity extends BaseActivity{
             otherData.put("department", etDepartment.getText().toString().trim());
             otherData.put("job", etJob.getText().toString().trim());
             otherData.put("isManager", isManager.isChecked() ? "1" : "0");
+            otherData.put("updateUser", CommVar.UserID + "");
+            people.department = otherData.get("department");
+            people.job = otherData.get("job");
+            people.isManager = isManager.isChecked() ? 1 : 0;
         } else if (flag == PeopleFlag.FROM_BUILDING && buildingInfoIsChange()) {
             otherData = new HashMap<>();
             otherData.put("roomNumber", etRoomNumber.getText().toString().trim());
+            otherData.put("updateUser", CommVar.UserID + "");
+            people.roomNumber = otherData.get("roomNumber");
         } else if (flag == PeopleFlag.FROM_HOME && relationIsChange()) {
             otherData = new HashMap<>();
             otherData.put("relation", etRelation.getText().toString().trim());
+            otherData.put("updateUser", CommVar.UserID + "");
+            people.relation = otherData.get("relation");
         }
 
         if (otherData != null) {

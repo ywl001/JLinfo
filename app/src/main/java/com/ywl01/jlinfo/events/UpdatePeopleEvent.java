@@ -8,14 +8,7 @@ import org.greenrobot.eventbus.EventBus;
  * Created by ywl01 on 2017/2/12.
  */
 
-public class UpdatePeopleEvent {
-
+public class UpdatePeopleEvent extends Event{
     public PeopleBean people;
 
-    public UpdatePeopleEvent() {
-    }
-
-    public void dispatch(){
-        EventBus.getDefault().post(this);
-    }
 }

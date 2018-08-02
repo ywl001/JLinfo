@@ -3,6 +3,7 @@ package com.ywl01.jlinfo.views.holds;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +12,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.squareup.picasso.Picasso;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.BaseActivity;
 import com.ywl01.jlinfo.activities.EditPeopleActivity;
 import com.ywl01.jlinfo.activities.ImageActivity;
+import com.ywl01.jlinfo.activities.MainActivity;
 import com.ywl01.jlinfo.activities.PeoplesActivity;
 import com.ywl01.jlinfo.beans.ImageBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
@@ -25,6 +28,7 @@ import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.ListEvent;
+import com.ywl01.jlinfo.events.ShowPositionEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.SqlFactory;
@@ -32,6 +36,7 @@ import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.observers.PeoplePhotoObserver;
+import com.ywl01.jlinfo.observers.PositionObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.DialogUtils;
 import com.ywl01.jlinfo.utils.StringUtils;
@@ -186,6 +191,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
 
     private void setTextViewValue(TextView tv, String txt) {
         if (!StringUtils.isEmpty(txt)) {
+            tv.setVisibility(View.VISIBLE);
             tv.setText(txt);
         } else {
             tv.setVisibility(View.GONE);
@@ -224,7 +230,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     }
 
     //获取人员照片
-    private void getPeoplePhoto(PeopleBean people) {
+    private void getPeoplePhoto(@NonNull PeopleBean people) {
         imageGroup.removeAllViews();
         PeoplePhotoObserver photoObserver = new PeoplePhotoObserver();
         HttpMethods.getInstance().getSqlResult(photoObserver, SqlAction.SELECT, SqlFactory.selectPhotosByPeopleID(people.id));
@@ -283,16 +289,33 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
         }
     }
 
+    private void getUpdateInfo() {
+
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // 点击人员按钮的操作
     ///////////////////////////////////////////////////////////////////////////
     //显示人员住址
     @OnClick(R.id.btn_show_address)
     public void onShowAddress() {
-//        String sql = SqlFactory.selectAddressByPeopleID(data.id);
-//        positionObserver = new PositionObserver();
-//        HttpMethods.getInstance().getResult(positionObserver, SqlAction.SELECT, sql);
-//        positionObserver.setOnNextListener(this);
+        String sql = SqlFactory.selectAddressByPeopleID(data.id);
+        PositionObserver positionObserver = new PositionObserver();
+        HttpMethods.getInstance().getSqlResult(positionObserver, SqlAction.SELECT, sql);
+        positionObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                List<Graphic> positions = (List<Graphic>) data;
+                if (positions != null && positions.size() > 0) {
+                    AppUtils.moveActivityToFront(MainActivity.class);
+                    ShowPositionEvent event = new ShowPositionEvent(ShowPositionEvent.SHOW_ADDRESS);
+                    event.positions = positions;
+                    event.dispatch();
+                } else {
+                    AppUtils.showToast("人员无住址信息");
+                }
+            }
+        });
     }
 
     //显示人员工作单位
@@ -444,10 +467,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                     int rows = (int) data;
                     if (rows > 0) {
                         AppUtils.showToast("删除人员成功。");
-                        ListEvent event = new ListEvent();
-
-                        event.action = ListEvent.remove;
-                        event.position = position;
+                        ListEvent event = new ListEvent(ListEvent.remove,position);
                         event.dispatch();
                     }
                 }
@@ -462,10 +482,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                     int rows = (int) data;
                     if (rows > 0) {
                         AppUtils.showToast("删除人员成功。");
-                        ListEvent event = new ListEvent();
-
-                        event.action = ListEvent.remove;
-                        event.position = position;
+                        ListEvent event = new ListEvent(ListEvent.remove,position);
                         event.dispatch();
                     }
                 }

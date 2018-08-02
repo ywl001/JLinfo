@@ -40,6 +40,7 @@ import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.ShowGraphicMenuEvent;
 import com.ywl01.jlinfo.events.ShowMarkInfoEvent;
+import com.ywl01.jlinfo.events.ShowPositionEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.SqlFactory;
@@ -60,6 +61,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.reactivex.Observer;
 
@@ -85,6 +88,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
     private GraphicsOverlay markOverlay;
     private GraphicsOverlay buildingOverlay;
     private GraphicsOverlay houseOverlay;
+    private GraphicsOverlay positionOverlay;
 
     private Envelope prevExtent;
 
@@ -116,10 +120,12 @@ public class MapListener extends DefaultMapViewOnTouchListener
         markOverlay = new GraphicsOverlay();
         buildingOverlay = new GraphicsOverlay();
         houseOverlay = new GraphicsOverlay();
+        positionOverlay = new GraphicsOverlay();
 
         this.mapView.getGraphicsOverlays().add(markOverlay);
         this.mapView.getGraphicsOverlays().add(buildingOverlay);
         this.mapView.getGraphicsOverlays().add(houseOverlay);
+        this.mapView.getGraphicsOverlays().add(positionOverlay);
 
         EventBus.getDefault().register(this);
         displayScale_building = CommVar.getInstance().level_scale.get(CommVar.buildingDisplayLevel);
@@ -514,6 +520,16 @@ public class MapListener extends DefaultMapViewOnTouchListener
                 break;
         }
     }
+
+    @Subscribe
+    public void showPosition(ShowPositionEvent event) {
+        positionOverlay.getGraphics().clear();
+
+        positionOverlay.getGraphics().addAll(event.positions);
+        mapView.setViewpointGeometryAsync(positionOverlay.getExtent(), 5);
+    }
+
+
 
     //禁止地图旋转
     @Override

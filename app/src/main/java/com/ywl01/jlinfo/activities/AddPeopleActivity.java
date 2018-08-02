@@ -260,6 +260,7 @@ public class AddPeopleActivity extends BaseActivity {
         homeData.put("homeNumber", System.currentTimeMillis() + "");
         homeData.put("relation", "户主");
         homeData.put("insertUser", CommVar.UserID + "");
+        homeData.put("updateUser", CommVar.UserID + "");
         homeData.put("insertTime", "now()");
 
         InsertObserver insertHomeObserver = new InsertObserver();
@@ -287,6 +288,7 @@ public class AddPeopleActivity extends BaseActivity {
         data.put("department", people.department);
         data.put("job", people.job);
         data.put("insertUser", CommVar.UserID + "");
+        data.put("updateUser", CommVar.UserID + "");
         data.put("insertTime", "now()");
 
         InsertObserver insertPMarkObserver = new InsertObserver();
@@ -310,6 +312,7 @@ public class AddPeopleActivity extends BaseActivity {
         data.put("buildingID", graphic.getAttributes().get(KeyName.ID) + "");
         data.put("roomNumber", p.roomNumber);
         data.put("insertUser", CommVar.UserID + "");
+        data.put("updateUser", CommVar.UserID + "");
         data.put("insertTime", "now()");
 
         InsertObserver insertPBuildingObserver = new InsertObserver();

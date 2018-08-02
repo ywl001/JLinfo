@@ -8,6 +8,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import com.ywl01.jlinfo.events.TypeEvent;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 /**
  * Created by ywl01 on 2016/12/26.
  */
@@ -41,6 +46,9 @@ public class SwipeItem extends FrameLayout {
 
     private void init() {
         dragHelper = ViewDragHelper.create(this, dragCallback);
+        if(!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
     }
 
     @Override
@@ -61,7 +69,7 @@ public class SwipeItem extends FrameLayout {
                 float moveY = event.getY();
                 float delatX = moveX - downX;//x方向移动的距离
                 float delatY = moveY - downY;//y方向移动的距离
-                if(Math.abs(delatX)>Math.abs(delatY)){
+                if(Math.abs(delatX) / 2 > Math.abs(delatY)){
                     //表示移动是偏向于水平方向，那么应该SwipeLayout应该处理，请求listview不要拦截
                     System.out.println("水平滑动，不要拦截");
                     requestDisallowInterceptTouchEvent(true);
@@ -209,5 +217,12 @@ public class SwipeItem extends FrameLayout {
     public interface OnSwipeStateChangeListener{
         void open(Object tag);
         void close(Object tag);
+    }
+
+    @Subscribe
+    public void resetState(TypeEvent event) {
+        if (event.type == TypeEvent.RESET_SWIPEITEM_STATE) {
+            close2();
+        }
     }
 }

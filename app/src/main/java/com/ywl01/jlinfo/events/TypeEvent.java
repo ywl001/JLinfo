@@ -18,6 +18,8 @@ public class TypeEvent extends Event {
     public static final int REFRESH_BUILDINGS = 9;
     public static final int REFRESH_HOUSE = 10;
     public static final int CLEAR_BOTTOM_CONTAINER = 11;
+    public static final int RESET_SWIPEITEM_STATE = 12;
+
 
 
     public int type;

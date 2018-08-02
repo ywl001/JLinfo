@@ -161,6 +161,12 @@ public class AppUtils {
         BaseActivity.currentActivity.startActivity(intent);
     }
 
+    public static void moveActivityToFront(Class<?> cls){
+        Intent intent = new Intent(BaseActivity.currentActivity,cls);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        BaseActivity.currentActivity.startActivity(intent);
+    }
+
     public static void playSound(int resID) {
         MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), resID);
         mediaPlayer.setVolume(0.50f, 0.50f);

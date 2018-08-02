@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.ywl01.jlinfo.events.ListEvent;
+import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.views.holds.BaseRecyclerHolder;
 
 import org.greenrobot.eventbus.EventBus;
@@ -110,9 +111,12 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter implements Vie
                 datas.remove(position);
                 notifyItemRemoved(position);
                 notifyItemRangeChanged(position,datas.size());
+                TypeEvent.dispatch(TypeEvent.RESET_SWIPEITEM_STATE);
                 break;
             case update:
                 notifyItemChanged(position);
+                //清除状态
+                TypeEvent.dispatch(TypeEvent.RESET_SWIPEITEM_STATE);
                 break;
         }
     }

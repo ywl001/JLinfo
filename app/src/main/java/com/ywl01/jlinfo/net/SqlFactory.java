@@ -88,13 +88,13 @@ public class SqlFactory {
     //根据人员id获取人员的住址************************************************************
     public static String selectAddressByPeopleID(int peopleID){
         String sql =
-                "SELECT DISTINCT hu.id,hu.name,hu.x,hu.y,hu.displayLevel,'house' as tableName " +
+                "SELECT DISTINCT hu.id,name,roomNumber,x,y,displayLevel,community,'house' as tableName " +
                         "FROM people_house phu LEFT JOIN house hu ON phu.houseID = hu.id " +
                         "WHERE phu.peopleID = " + peopleID  + " union " +
-                        "SELECT DISTINCT b.id,b.buildingName name,b.x,b.y,b.displayLevel,'building' as tableName " +
+                        "SELECT DISTINCT b.id,buildingName name,roomNumber,x,y,displayLevel,community,'building' as tableName " +
                         "FROM people_building pb LEFT JOIN building b ON b.id = pb.buildingID " +
                         "where pb.peopleID = " + peopleID ;
-       // System.out.println(sql);
+       System.out.println(sql);
         return sql;
     }
 

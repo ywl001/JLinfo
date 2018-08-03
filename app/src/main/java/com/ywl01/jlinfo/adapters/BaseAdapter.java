@@ -128,5 +128,4 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter implements Vie
     public interface OnItemClickListener {
         void onItemClick(RecyclerView parent, View itemView, int position);
     }
-
 }

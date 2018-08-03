@@ -40,7 +40,7 @@ public class SqlFactory {
     public static String selectPeopleByBuilding(int buildingID) {
         String sql = "SELECT distinct " +
                 "p.id,p.peopleNumber,p.name,p.sex,p.nation,p.telephone,p.liveType,p.community,pb.isDelete isLeave," +
-                "pb.roomNumber,pb.id pbID,pb.insertUser,pb.insertTime,pb.updateTime," +
+                "pb.roomNumber,pb.id pbID,pb.updateUser,pb.updateTime," +
 //                "phm.id phmID,phm.relation,phm.homeNumber," +
                 "b.buildingName " +
                 "FROM people_building pb LEFT JOIN people p ON pb.peopleID = p.id " +
@@ -52,8 +52,8 @@ public class SqlFactory {
     }
 
     public static String selectPeopleByMark(int markID) {
-        String sql = "select distinct p.id,p.peopleNumber,p.name,p.sex,p.nation,p.telephone,p.liveType,p.community," +
-                "pm.isManager,m.name workPlace,pm.id pmID,pm.isDelete isLeave,pm.insertTime,pm.updateTime,pm.department,pm.job " +
+        String sql = "select distinct p.id,p.peopleNumber,p.name,p.sex,p.nation,p.telephone," +
+                "pm.isManager,m.name workPlace,pm.id pmID,pm.isDelete isLeave,pm.updateUser,pm.updateTime,pm.department,pm.job " +
                 "from people_mark pm " +
                 "left join people p on pm.peopleID = p.id " +
                 "left join mark m on pm.markID = m.id " +
@@ -73,7 +73,7 @@ public class SqlFactory {
                         "p.*," +
                         "phu.isDelete isLeave," +
                         "phu.id phuID," +
-                        "phu.insertTime," +
+                        "phu.updateUser," +
                         "phu.updateTime," +
                         "h.name houseName," +
                         "h.roomNumber " +

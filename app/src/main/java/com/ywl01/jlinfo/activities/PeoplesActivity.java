@@ -57,9 +57,9 @@ public class PeoplesActivity extends BaseActivity {
         System.out.println("peopleActivity initView");
         setContentView(R.layout.activity_peoples);
         ButterKnife.bind(this);
-        peopless = new ArrayList<>();
         peoples = (ArrayList<PeopleBean>) CommVar.getInstance().get("peoples");
-        peopless.add(peoples);
+//        peopless = new ArrayList<>();
+//        peopless.add(peoples);
 
         LinearLayoutManager manager = new LinearLayoutManager(AppUtils.getContext(), LinearLayoutManager.VERTICAL, false);
         adapter = new PeopleListAdapter(peoples);
@@ -106,6 +106,12 @@ public class PeoplesActivity extends BaseActivity {
         super.onDestroy();
         if(EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        TypeEvent.dispatch(TypeEvent.RESET_SWIPEITEM_STATE);
     }
 
     @Override

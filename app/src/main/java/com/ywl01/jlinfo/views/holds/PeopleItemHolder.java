@@ -20,8 +20,10 @@ import com.ywl01.jlinfo.activities.EditPeopleActivity;
 import com.ywl01.jlinfo.activities.ImageActivity;
 import com.ywl01.jlinfo.activities.MainActivity;
 import com.ywl01.jlinfo.activities.PeoplesActivity;
+import com.ywl01.jlinfo.beans.FamilyNode;
 import com.ywl01.jlinfo.beans.ImageBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
+import com.ywl01.jlinfo.beans.User;
 import com.ywl01.jlinfo.consts.CommVar;
 import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.consts.PeopleFlag;
@@ -33,13 +35,16 @@ import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
+import com.ywl01.jlinfo.observers.FamilyDataObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.observers.PeoplePhotoObserver;
 import com.ywl01.jlinfo.observers.PositionObserver;
+import com.ywl01.jlinfo.observers.UserObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.DialogUtils;
 import com.ywl01.jlinfo.utils.StringUtils;
+import com.ywl01.jlinfo.net.QueryFamilyServices;
 import com.ywl01.jlinfo.views.SwipeItem;
 import com.ywl01.jlinfo.views.UploadImageMenuDialog;
 
@@ -84,7 +89,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     TextView tvWorkPlace;//人员工作单位
 
     @BindView(R.id.tv_update_info)
-    TextView tvInsertTime;//插入时间
+    TextView tvUpdateInfo;//插入时间
 
     @BindView(R.id.tv_home)
     TextView tvHome;//与户主关系
@@ -151,6 +156,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
         setBackground();
 
         getPeoplePhoto(data);
+        getUpdateInfo();
     }
 
     private void setMenuButton() {
@@ -274,7 +280,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                         CommVar.getInstance().put("isShowDelBtn", isShowDelBtn);
                         CommVar.getInstance().put("images", photos);
                         CommVar.getInstance().put("position", position);
-                        CommVar.getInstance().put("imageType",ImageType.phpto);
+                        CommVar.getInstance().put("imageType", ImageType.phpto);
 
                         AppUtils.startActivity(ImageActivity.class);
                     }
@@ -290,7 +296,25 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     }
 
     private void getUpdateInfo() {
-
+        if (data.updateUser != 0) {
+            String sql = SqlFactory.selectUser(data.updateUser);
+            UserObserver userObserver = new UserObserver();
+            HttpMethods.getInstance().getSqlResult(userObserver, SqlAction.SELECT, sql);
+            userObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+                @Override
+                public void onNext(Observer observer, Object data1) {
+                    User updateUser = (User) data1;
+                    if (updateUser != null) {
+                        if(data.updateTime != null)
+                            tvUpdateInfo.setText(updateUser.realName + data.updateTime + "更新");
+                    } else {
+                        tvUpdateInfo.setVisibility(View.GONE);
+                    }
+                }
+            });
+        }else{
+            tvUpdateInfo.setVisibility(View.GONE);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -334,7 +358,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                     event.positions = positions;
                     event.dispatch();
                 } else {
-                    AppUtils.showToast("人员无住址信息");
+                    AppUtils.showToast("人员无工作单位信息");
                 }
             }
         });
@@ -343,8 +367,6 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     //显示人员同户人员
     @OnClick(R.id.btn_show_home)
     public void onShowHomePeoples() {
-        rootView.close2();
-
         String sql = SqlFactory.selectHomePeopleByPid(data.id);
         PeopleObserver homePeopleObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
         HttpMethods.getInstance().getSqlResult(homePeopleObserver, SqlAction.SELECT, sql);
@@ -362,10 +384,29 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     //显示人员亲戚信息
     @OnClick(R.id.btn_show_family)
     public void onShowFamilies() {
-//        String sql = SqlFactory.selectAllHomePeopleByPid(data.id);
-//        familyObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
-//        HttpMethods.getInstance().getResult(familyObserver, SqlAction.SELECT, sql);
-//        familyObserver.setOnNextListener(this);
+        String sql = SqlFactory.selectAllHomePeopleByPid(data.id);
+        PeopleObserver familyObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
+        HttpMethods.getInstance().getSqlResult(familyObserver, SqlAction.SELECT, sql);
+        familyObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data;
+            if (peoples.size() > 0) {
+                FamilyNode node = new FamilyNode();
+                node.level = 0;
+                node.homeNumber = peoples.get(0).homeNumber;
+                node.peoples = peoples;
+                node.sign = QueryFamilyServices.BASE;
+
+                QueryFamilyServices services = new QueryFamilyServices();
+                FamilyDataObserver familyDataObserver = new FamilyDataObserver();
+                services.setData(node, familyDataObserver);
+                //familyDataObserver.setOnNextListener(this);
+            } else {
+                AppUtils.showToast("该人员无亲戚信息");
+            }
+            }
+        });
     }
 
     //编辑人员信息
@@ -373,7 +414,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     @OnClick(R.id.btn_edit_people)
     public void onEditPeople() {
         CommVar.getInstance().clear();
-        CommVar.getInstance().put("people",data);
+        CommVar.getInstance().put("people", data);
         AppUtils.startActivity(EditPeopleActivity.class);
     }
 
@@ -383,7 +424,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     public void onUploadPhoto() {
         Map<String, Object> menuData = new HashMap<>();
         menuData.put("imageDir", CommVar.serverPhotoDir);
-        menuData.put("id", data.id );
+        menuData.put("id", data.id);
         menuData.put("imageType", ImageType.phpto);
 
         UploadImageMenuDialog dialog = new UploadImageMenuDialog(BaseActivity.currentActivity);
@@ -483,7 +524,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                     int rows = (int) data;
                     if (rows > 0) {
                         AppUtils.showToast("删除人员成功。");
-                        ListEvent event = new ListEvent(ListEvent.remove,position);
+                        ListEvent event = new ListEvent(ListEvent.remove, position);
                         event.dispatch();
                     }
                 }
@@ -498,7 +539,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                     int rows = (int) data;
                     if (rows > 0) {
                         AppUtils.showToast("删除人员成功。");
-                        ListEvent event = new ListEvent(ListEvent.remove,position);
+                        ListEvent event = new ListEvent(ListEvent.remove, position);
                         event.dispatch();
                     }
                 }
@@ -602,7 +643,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
 
     @Subscribe
     public void refreshImages(TypeEvent event) {
-        if(event.type == TypeEvent.REFRESH_IMAGE){
+        if (event.type == TypeEvent.REFRESH_IMAGE) {
             getPeoplePhoto(data);
             System.out.println("刷新了人员照片");
         }

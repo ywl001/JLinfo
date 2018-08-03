@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -85,7 +87,29 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_map);
         ButterKnife.bind(this);
         getSupportActionBar().hide();
+        getMetrics();
         initMap();
+    }
+
+    //获取手机各种尺寸
+    private void getMetrics() {
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        int statusBarHeight = 0;
+        if (resourceId > 0) {
+            //根据资源ID获取响应的尺寸值
+            statusBarHeight = getResources().getDimensionPixelSize(resourceId);
+        }
+
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        CommVar.screenWidth = dm.widthPixels;
+        int screenHeight = dm.heightPixels;
+        TypedValue tv = new TypedValue();
+        int titleBarHeight = 0;
+        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+            titleBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
+        }
+        CommVar.appHeight = screenHeight - statusBarHeight - titleBarHeight;
     }
 
     /**

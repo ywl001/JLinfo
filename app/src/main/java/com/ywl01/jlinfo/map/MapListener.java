@@ -3,8 +3,11 @@ package com.ywl01.jlinfo.map;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
@@ -12,6 +15,7 @@ import com.esri.arcgisruntime.geometry.Envelope;
 import com.esri.arcgisruntime.geometry.Geometry;
 import com.esri.arcgisruntime.geometry.GeometryEngine;
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.mapping.view.Callout;
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
@@ -29,7 +33,10 @@ import com.esri.arcgisruntime.symbology.Symbol;
 import com.esri.arcgisruntime.symbology.TextSymbol;
 import com.esri.arcgisruntime.util.ListenableList;
 import com.ywl01.jlinfo.R;
+import com.ywl01.jlinfo.activities.BaseActivity;
+import com.ywl01.jlinfo.activities.BuildingPlanActivity;
 import com.ywl01.jlinfo.activities.PeoplesActivity;
+import com.ywl01.jlinfo.beans.BuildingBean;
 import com.ywl01.jlinfo.beans.MarkBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.consts.CommVar;
@@ -53,6 +60,8 @@ import com.ywl01.jlinfo.observers.MarkObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.BeanMapUtils;
+import com.ywl01.jlinfo.utils.DialogUtils;
+import com.ywl01.jlinfo.utils.StringUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -111,7 +120,6 @@ public class MapListener extends DefaultMapViewOnTouchListener
         this.mapView.addViewpointChangedListener(this);
         this.mapView.addNavigationChangedListener(this);
         this.mapView.addMapScaleChangedListener(this);
-
 
 
         markObserver = new MarkObserver();
@@ -275,7 +283,6 @@ public class MapListener extends DefaultMapViewOnTouchListener
     public void viewpointChanged(ViewpointChangedEvent viewpointChangedEvent) {
         if (isFirstLoad) {
             Envelope extent = mapView.getVisibleArea().getExtent();
-            double mapScale = mapView.getMapScale();
             CommVar.mapSpatialReference = mapView.getSpatialReference();
             loadGraphics(markObserver, extent, mapView.getMapScale(), TableName.MARK);
             isFirstLoad = false;
@@ -311,7 +318,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
                 break;
 
             case GraphicFlag.BUILDING:
-                //showBuildingPlan(nowGraphic);
+                showBuildingPlan(nowGraphic);
                 break;
 
             case GraphicFlag.POSITION:
@@ -324,27 +331,10 @@ public class MapListener extends DefaultMapViewOnTouchListener
     private void showPositionInfo() {
         double positionMapScale = (double) nowGraphic.getAttributes().get("mapScale");
         String displayText = (String) nowGraphic.getAttributes().get("displayText");
-        final String tableName = (String) nowGraphic.getAttributes().get("tableName");
         nowGraphic.getGraphicsOverlay().getGraphics().remove(nowGraphic);
-        if (positionMapScale == mapView.getMapScale()) {
-            AppUtils.showToast(displayText);
-        }else{
-            mapView.setViewpointCenterAsync((Point) nowGraphic.getGeometry(), positionMapScale);
-            AppUtils.showToast(displayText);
-        }
-    }
 
-    private Graphic getSameLocationGraphic(List<Graphic> graphics, Graphic graphic) {
-        for (int i = 0; i < graphics.size(); i++) {
-            Point p = (Point) graphic.getGeometry();
-            Point p1 = (Point) graphics.get(i).getGeometry();
-            if (p.equals(p1, 0.000001)) {
-                return graphics.get(i);
-            }
-        }
-        return null;
+        showPositionCallout(mapView, (Point) nowGraphic.getGeometry(), displayText, positionMapScale);
     }
-
 
     //显示markinfo
     private void showMarkInfo() {
@@ -354,6 +344,31 @@ public class MapListener extends DefaultMapViewOnTouchListener
         ShowMarkInfoEvent event = new ShowMarkInfoEvent();
         event.markBean = markBean;
         event.dispatch();
+    }
+
+    private void showBuildingPlan(final Graphic g) {
+        String sql = SqlFactory.selectPeopleByBuilding((int) g.getAttributes().get("id"));
+        PeopleObserver peopleObserver_buildingPlan = new PeopleObserver(PeopleFlag.FROM_BUILDING);
+        HttpMethods.getInstance().getSqlResult(peopleObserver_buildingPlan, SqlAction.SELECT, sql);
+        peopleObserver_buildingPlan.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                List<PeopleBean> peoples = (List<PeopleBean>) data;
+                System.out.println("show building plan");
+                //获取buildingBean
+                BuildingBean buildingBean = new BuildingBean();
+                BeanMapUtils.mapToBean(nowGraphic.getAttributes(), buildingBean);
+                if (buildingBean.countFloor == 0 || buildingBean.countUnit == 0 || buildingBean.countHomesInUnit == 0 || StringUtils.isEmpty(buildingBean.sortType)) {
+                    DialogUtils.showAlert(BaseActivity.currentActivity, "楼房参数不正确，请先修改楼房参数", "确定", null);
+                } else {
+                    CommVar.getInstance().clear();
+                    CommVar.getInstance().put("building", buildingBean);
+                    CommVar.getInstance().put("peoples", peoples);
+
+                    AppUtils.startActivity(BuildingPlanActivity.class);
+                }
+            }
+        });
     }
 
     private void moveGraphic(android.graphics.Point screenPoint) {
@@ -509,7 +524,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
                 ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data;
                 if (peoples.size() > 0) {
                     CommVar.getInstance().clear();
-                    CommVar.getInstance().put("peoples",peoples);
+                    CommVar.getInstance().put("peoples", peoples);
                     AppUtils.startActivity(PeoplesActivity.class);
                 } else {
                     Toast.makeText(AppUtils.getContext(), "无相关人员", Toast.LENGTH_SHORT).show();
@@ -547,19 +562,37 @@ public class MapListener extends DefaultMapViewOnTouchListener
     public void showPosition(ShowPositionEvent event) {
         positionOverlay.getGraphics().clear();
         List<Graphic> positions = event.positions;
-        positionOverlay.getGraphics().addAll(positions);
-
+        if (mapView.getCallout().isShowing()) {
+            mapView.getCallout().dismiss();
+        }
         if (positions.size() == 1) {
             Graphic g = positions.get(0);
             double mapscale = (double) g.getAttributes().get("mapScale");
             String displayText = (String) g.getAttributes().get("displayText");
-            mapView.setViewpointCenterAsync((Point) g.getGeometry(), mapscale);
-            AppUtils.showToast(displayText);
-        }else{
+            showPositionCallout(mapView, (Point) g.getGeometry(), displayText, mapscale);
+        } else {
+            positionOverlay.getGraphics().addAll(positions);
             mapView.setViewpointGeometryAsync(positionOverlay.getExtent(), 20);
         }
     }
 
+    private void showPositionCallout(MapView mapView, Point mapPoint, String displayText, double mapScale) {
+        mapView.setViewpointCenterAsync(mapPoint, mapScale);
+        final Callout callout = mapView.getCallout();
+        TextView calloutContent = new TextView(AppUtils.getContext());
+        calloutContent.setTextColor(Color.BLACK);
+        calloutContent.setSingleLine();
+        calloutContent.setText(displayText);
+        callout.setContent(calloutContent);
+        callout.setLocation(mapPoint);
+        callout.show();
+        calloutContent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                callout.dismiss();
+            }
+        });
+    }
 
 
     //禁止地图旋转

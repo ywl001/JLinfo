@@ -27,6 +27,8 @@ public class CommVar {
     public static User loginUser;
     public static int UserID = 1;
     public static boolean isEdit = true;
+    public static int screenWidth;
+    public static int appHeight;
 
 
     public Map<Integer, Double> level_scale;

@@ -12,6 +12,7 @@ import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.consts.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
 import com.ywl01.jlinfo.utils.AppUtils;
+import com.ywl01.jlinfo.utils.StringUtils;
 
 
 import org.json.JSONArray;
@@ -45,9 +46,9 @@ public class PositionObserver extends BaseObserver {
                     String community = jsonObject.optString("community");
                     String name = jsonObject.optString("name");
                     if ("house".equals(tableName)) {
-                        displayText = community + roomNumber + name;
+                        displayText = StringUtils.checkStr(community) + StringUtils.checkStr(roomNumber) + StringUtils.checkStr(name);
                     } else if ("building".equals(tableName)) {
-                        displayText = name + roomNumber;
+                        displayText = StringUtils.checkStr(name) + StringUtils.checkStr(roomNumber);
                     }else {
                         displayText = name;
                     }

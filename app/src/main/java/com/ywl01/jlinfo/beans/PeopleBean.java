@@ -17,10 +17,10 @@ public class PeopleBean{
     public String liveType;
     public String community;
     public int isDead;
-    public String insertUser;
+    public int insertUser;
     public String insertTime;
-    public String updateUser;
-    public String UpdateTime;
+    public int updateUser;
+    public String updateTime;
 
     //人员附加属性
     public int isLeave;//和地点关联，表示人员是否还在该位置工作和居住

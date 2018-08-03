@@ -53,8 +53,10 @@
 
         <activity android:name=".activities.EditGraphicActivity"></activity>
         <activity android:name=".activities.AddPeopleActivity"/>
-        <activity android:name=".activities.PeoplesActivity" android:launchMode="singleTop"/>
+        <activity android:name=".activities.PeoplesActivity"/>
         <activity android:name=".activities.EditPeopleActivity" />
+        <activity android:name=".activities.BuildingPlanActivity"/>
+        <activity android:name=".activities.FamilyActivity"/>
     </application>
 
 </manifest>

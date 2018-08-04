@@ -39,7 +39,7 @@ public class PositionObserver extends BaseObserver<String,List<Graphic>> {
                     double x = jsonObject.optDouble("x");
                     double y = jsonObject.optDouble("y");
                     int level = jsonObject.optInt("displayLevel");
-                    double mapScale = getScaleBylevel(level);
+                    double mapScale = CommVar.getInstance().getScaleBylevel(level);
                     String displayText = "";
                     String tableName = jsonObject.optString("tableName");
                     String roomNumber = jsonObject.optString("roomNumber");
@@ -74,13 +74,5 @@ public class PositionObserver extends BaseObserver<String,List<Graphic>> {
         return graphics;
     }
 
-    private static double getScaleBylevel(int level) {
-        Map<Integer,Double> levelScale = CommVar.getInstance().level_scale;
-        for (int key : levelScale.keySet()) {
-            if (key == level) {
-                return levelScale.get(level);
-            }
-        }
-        return 128000;
-    }
+
 }

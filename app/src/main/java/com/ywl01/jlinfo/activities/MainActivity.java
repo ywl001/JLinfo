@@ -3,9 +3,16 @@ package com.ywl01.jlinfo.activities;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -15,16 +22,23 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
+import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.layers.ArcGISTiledLayer;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.view.BackgroundGrid;
+import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.MapView;
+import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.ywl01.jlinfo.R;
+import com.ywl01.jlinfo.beans.GraphicItemBean;
 import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.consts.GraphicFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
+import com.ywl01.jlinfo.events.ShowGraphicListEvent;
 import com.ywl01.jlinfo.events.ShowGraphicMenuEvent;
 import com.ywl01.jlinfo.events.ShowMarkInfoEvent;
+import com.ywl01.jlinfo.events.ShowPositionEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.events.UploadImageEvent;
 import com.ywl01.jlinfo.map.MapListener;
@@ -40,12 +54,18 @@ import com.ywl01.jlinfo.utils.PhotoUtils;
 import com.ywl01.jlinfo.views.GraphicMenuView;
 import com.ywl01.jlinfo.views.MarkInfoView;
 import com.ywl01.jlinfo.views.SearchView;
+import com.ywl01.jlinfo.views.adapters.BaseAdapter;
+import com.ywl01.jlinfo.views.adapters.DividerItemDecoration;
+import com.ywl01.jlinfo.views.adapters.GraphicListAdapter;
+import com.ywl01.jlinfo.views.adapters.PeopleListAdapter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -72,6 +92,12 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.bottom_container)
     FrameLayout bottomContainer;
 
+    @BindView(R.id.graphic_list_view)
+    RecyclerView graphicListView;
+
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawerLayout;
+
     private MarkInfoView markInfoView;
     private GraphicMenuView graphicMenuView;
     private UploadImageEvent uploadImageEvent;
@@ -85,6 +111,7 @@ public class MainActivity extends BaseActivity {
         getSupportActionBar().hide();
         getMetrics();
         initMap();
+        drawerLayout.setScrimColor(Color.TRANSPARENT);
     }
 
     //获取手机各种尺寸
@@ -220,6 +247,46 @@ public class MainActivity extends BaseActivity {
             PhotoUtils.selectImage(this);
         else if (event.type == UploadImageEvent.TAKE_IMAGE_FOR_MARK)
             PhotoUtils.takeImage(this);
+    }
+
+    @Subscribe
+    public void showGraphicItemList(ShowGraphicListEvent event) {
+        final List<GraphicItemBean> graphicItems = event.graphicItems;
+        LinearLayoutManager manager = new LinearLayoutManager(AppUtils.getContext(), LinearLayoutManager.VERTICAL, false);
+        GraphicListAdapter adapter = new GraphicListAdapter(graphicItems);
+        graphicListView.setLayoutManager(manager);
+        graphicListView.setAdapter(adapter);
+        graphicListView.addItemDecoration(new DividerItemDecoration(AppUtils.getContext(), LinearLayoutManager.VERTICAL));
+        drawerLayout.openDrawer(Gravity.LEFT, true);
+        hideSoftkey();
+        adapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerView parent, View itemView, int position) {
+                drawerLayout.closeDrawers();
+                GraphicItemBean itemBean = graphicItems.get(position);
+
+                Point mapPoint = new Point(itemBean.x, itemBean.y, CommVar.mapSpatialReference);
+
+                BitmapDrawable drawable = (BitmapDrawable) ContextCompat.getDrawable(AppUtils.getContext(), R.drawable.position);
+                PictureMarkerSymbol pms = new PictureMarkerSymbol(drawable);
+                pms.setHeight(40);
+                pms.setWidth(40);
+                pms.setOffsetY(20);
+
+                Map<String, Object> map = new HashMap<>();
+                double mapScale = CommVar.getInstance().getScaleBylevel(itemBean.displayLevel);
+                map.put("mapScale", mapScale);
+                map.put("displayText", itemBean.name);
+                map.put("graphicFlag", GraphicFlag.POSITION);
+
+                Graphic g = new Graphic(mapPoint,map,pms);
+                List<Graphic> graphics = new ArrayList<>();
+                graphics.add(g);
+                ShowPositionEvent e = new ShowPositionEvent();
+                e.positions = graphics;
+                e.dispatch();
+            }
+        });
     }
 
     ///////////////////////////////////////////////////////////////////////////

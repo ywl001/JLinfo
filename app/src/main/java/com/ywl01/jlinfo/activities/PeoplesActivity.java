@@ -5,10 +5,11 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.ywl01.jlinfo.R;
-import com.ywl01.jlinfo.adapters.DividerItemDecoration;
-import com.ywl01.jlinfo.adapters.PeopleListAdapter;
+import com.ywl01.jlinfo.views.adapters.DividerItemDecoration;
+import com.ywl01.jlinfo.views.adapters.PeopleListAdapter;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.consts.CommVar;
 import com.ywl01.jlinfo.consts.SqlAction;
@@ -47,8 +48,8 @@ public class PeoplesActivity extends BaseActivity {
 
     @BindView(R.id.recycler_view)
     RecyclerView peopleListView;
-    private PeopleListAdapter adapter;
 
+    private PeopleListAdapter adapter;
     private ArrayList<ArrayList<PeopleBean>> peopless;
     private UploadImageEvent uploadPhotoEvent;
 
@@ -99,6 +100,7 @@ public class PeoplesActivity extends BaseActivity {
         super.onStart();
         if(!EventBus.getDefault().isRegistered(this))
              EventBus.getDefault().register(this);
+        //TypeEvent.dispatch(TypeEvent.RESET_SWIPEITEM_STATE);
     }
 
     @Override

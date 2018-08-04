@@ -3,4 +3,21 @@
     <string name="appName">吉利警务信息平台</string>
     <string name="hint_user">请输入用户名</string>
     <string name="hint_password">请输入密码</string>
+
+    <string name="no_people_info">无人员信息</string>
+    <string name="del_title">删除提示</string>
+    <string name="del_message">确定要删除该信息吗？</string>
+    <string name="btn_ok">确定</string>
+    <string name="btn_cancel">取消</string>
+
+    <string name="main_des_drawer_open">打开</string>
+    <string name="main_des_drawer_close">关闭</string>
+    <string name="del_success">删除成功！</string>
+
+    <string name="set_home1">\u3000\u3000设置户信息用来重新设置当前人员的户关系，可以:\n\u3000\u3000一、自立门户，就是从以前户中脱离出来，自己重新建立一个户。\n\u3000\u3000二、加入到其他户中，当前人员脱离当前户，加入到其他户中。\n\u3000\u3000三、其他人员加入本户，其他人员脱离原来户关系，加入当前户中。\n\u3000\u3000根据实际情况选择相应的操作。</string>
+    <string name="set_home3">\u3000\u3000被操作人员<font color='#FF0000'>是否从亲身父母户中分离出来？</font>如果是，系统会维护这种关系，会在查询亲戚列表中显示出来，请根据实际情况选择是或者否。</string>
+    <string name="set_home2a1">\u3000\u3000请查询出待加入户中的任意一名户成员，然后点击选择该成员</string>
+    <string name="add_parent">\u3000\u3000请查询出人员爹娘户中的任意一名成员，然后点击选择：</string>
+    <string name="add_child">\u3000\u3000请查询出人员儿子户中的任意一名成员，然后点击选择：</string>
+
 </resources>

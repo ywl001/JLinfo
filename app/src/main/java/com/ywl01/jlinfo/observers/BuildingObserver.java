@@ -43,6 +43,6 @@ public class BuildingObserver extends GraphicObserver {
     }
 
     public float getSize() {
-        return(float) (4 * CommVar.getInstance().level_scale.get(CommVar.buildingDisplayLevel) / mapScale);
+        return(float) (4 * CommVar.getInstance().getScaleBylevel(CommVar.buildingDisplayLevel) / mapScale);
     }
 }

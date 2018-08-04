@@ -57,6 +57,7 @@
         <activity android:name=".activities.EditPeopleActivity" />
         <activity android:name=".activities.BuildingPlanActivity"/>
         <activity android:name=".activities.FamilyActivity"/>
+        <activity android:name=".activities.SetHomeActivity"/>
     </application>
 
 </manifest>

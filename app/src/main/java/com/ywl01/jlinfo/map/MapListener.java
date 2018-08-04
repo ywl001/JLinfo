@@ -135,8 +135,8 @@ public class MapListener extends DefaultMapViewOnTouchListener
         this.mapView.getGraphicsOverlays().add(positionOverlay);
 
         EventBus.getDefault().register(this);
-        displayScale_building = CommVar.getInstance().level_scale.get(CommVar.buildingDisplayLevel);
-        displayScale_house = CommVar.getInstance().level_scale.get(CommVar.houseDisplayLevel);
+        displayScale_building = CommVar.getInstance().getScaleBylevel(CommVar.buildingDisplayLevel);
+        displayScale_house = CommVar.getInstance().getScaleBylevel(CommVar.houseDisplayLevel);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -246,7 +246,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
     private boolean isGraphicOutExtent(Envelope mapExtent, Graphic g) {
         double currentMapScale = mapView.getMapScale();
         int displayLevel = (int) g.getAttributes().get("displayLevel");
-        double graphicScale = CommVar.getInstance().level_scale.get(displayLevel);
+        double graphicScale = CommVar.getInstance().getScaleBylevel(displayLevel);
         if (!GeometryEngine.contains(mapExtent, g.getGeometry()) || graphicScale < currentMapScale)
             return true;
         return false;
@@ -576,7 +576,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
         }
     }
 
-    private void showPositionCallout(MapView mapView, Point mapPoint, String displayText, double mapScale) {
+    private void showPositionCallout(final MapView mapView, Point mapPoint, String displayText, double mapScale) {
         mapView.setViewpointCenterAsync(mapPoint, mapScale);
         final Callout callout = mapView.getCallout();
         TextView calloutContent = new TextView(AppUtils.getContext());
@@ -590,6 +590,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
             @Override
             public void onClick(View view) {
                 callout.dismiss();
+                mapView.setViewpointScaleAsync(mapView.getMapScale() / 3);
             }
         });
     }

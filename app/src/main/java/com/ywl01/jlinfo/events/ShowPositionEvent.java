@@ -11,14 +11,6 @@ import java.util.List;
  */
 
 public class ShowPositionEvent extends Event{
-    public static final String SHOW_ADDRESS = "showAddress";
-    public static final String SHOW_WORKPLACE = "showWorkplace";
-
-    public String type;
     public List<Graphic> positions;
-
-    public ShowPositionEvent(String type) {
-        this.type = type;
-    }
 
 }

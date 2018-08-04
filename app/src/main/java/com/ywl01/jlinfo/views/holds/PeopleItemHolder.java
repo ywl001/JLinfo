@@ -21,6 +21,7 @@ import com.ywl01.jlinfo.activities.FamilyActivity;
 import com.ywl01.jlinfo.activities.ImageActivity;
 import com.ywl01.jlinfo.activities.MainActivity;
 import com.ywl01.jlinfo.activities.PeoplesActivity;
+import com.ywl01.jlinfo.activities.SetHomeActivity;
 import com.ywl01.jlinfo.beans.FamilyNode;
 import com.ywl01.jlinfo.beans.ImageBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
@@ -124,7 +125,6 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     private int peopleFlag;
     private ImageBean photo;
 
-    private Bundle bundleArgs;
     private SwipeItem rootView;
     private Dialog delPhotoDialog;
     private Dialog delParentDialog;
@@ -333,7 +333,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                 List<Graphic> positions = (List<Graphic>) data;
                 if (positions != null && positions.size() > 0) {
                     AppUtils.moveActivityToFront(MainActivity.class);
-                    ShowPositionEvent event = new ShowPositionEvent(ShowPositionEvent.SHOW_ADDRESS);
+                    ShowPositionEvent event = new ShowPositionEvent();
                     event.positions = positions;
                     event.dispatch();
                 } else {
@@ -355,7 +355,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                 List<Graphic> positions = (List<Graphic>) data;
                 if (positions != null && positions.size() > 0) {
                     AppUtils.moveActivityToFront(MainActivity.class);
-                    ShowPositionEvent event = new ShowPositionEvent(ShowPositionEvent.SHOW_ADDRESS);
+                    ShowPositionEvent event = new ShowPositionEvent();
                     event.positions = positions;
                     event.dispatch();
                 } else {
@@ -456,7 +456,8 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     @Nullable
     @OnClick(R.id.btn_set_home)
     public void onSetHome() {
-//        IntentUtils.startActivity(SetHomeActivity.class, bundleArgs);
+        CommVar.getInstance().put("people",data);
+       AppUtils.startActivity(SetHomeActivity.class);
     }
 
     @Nullable

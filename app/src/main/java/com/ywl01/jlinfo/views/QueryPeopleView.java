@@ -14,8 +14,8 @@ import android.widget.RadioGroup;
 
 import com.github.promeg.pinyinhelper.Pinyin;
 import com.ywl01.jlinfo.R;
-import com.ywl01.jlinfo.adapters.DividerItemDecoration;
-import com.ywl01.jlinfo.adapters.QueryPeopleListAdapter;
+import com.ywl01.jlinfo.views.adapters.DividerItemDecoration;
+import com.ywl01.jlinfo.views.adapters.QueryPeopleListAdapter;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.net.HttpMethods;

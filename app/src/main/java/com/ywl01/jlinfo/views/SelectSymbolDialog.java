@@ -12,8 +12,8 @@ import android.view.View;
 import android.view.WindowManager;
 
 import com.ywl01.jlinfo.R;
-import com.ywl01.jlinfo.adapters.BaseAdapter;
-import com.ywl01.jlinfo.adapters.DividerGridItemDecoration;
+import com.ywl01.jlinfo.views.adapters.BaseAdapter;
+import com.ywl01.jlinfo.views.adapters.DividerGridItemDecoration;
 import com.ywl01.jlinfo.beans.SymbolBean;
 import com.ywl01.jlinfo.events.SelectValueEvent;
 import com.ywl01.jlinfo.utils.AppUtils;

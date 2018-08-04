@@ -42,6 +42,6 @@ public class HouseObserver extends GraphicObserver {
     }
 
     private float getSize() {
-        return (float) (2.5 * CommVar.getInstance().level_scale.get(CommVar.houseDisplayLevel) / mapScale);
+        return (float) (2.5 * CommVar.getInstance().getScaleBylevel(CommVar.houseDisplayLevel) / mapScale);
     }
 }

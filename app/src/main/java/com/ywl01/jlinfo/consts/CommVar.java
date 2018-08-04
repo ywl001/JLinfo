@@ -31,7 +31,7 @@ public class CommVar {
     public static int appHeight;
 
 
-    public Map<Integer, Double> level_scale;
+    private Map<Integer, Double> level_scale;
     public static int buildingDisplayLevel = 4;
     public static int houseDisplayLevel = 5;
 
@@ -69,6 +69,17 @@ public class CommVar {
 
     public void clear(){mMap.clear();}
 
+    public double getScaleBylevel(int level) {
+        return level_scale.get(level);
+    }
 
+    public int getLevelByScale(double mapScale) {
+        for (int key : level_scale.keySet()) {
+            if (mapScale > level_scale.get(key)) {
+                return key-1;
+            }
+        }
+        return 9;
+    }
 
 }

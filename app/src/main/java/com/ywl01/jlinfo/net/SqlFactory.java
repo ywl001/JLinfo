@@ -2,6 +2,7 @@ package com.ywl01.jlinfo.net;
 
 import com.esri.arcgisruntime.geometry.Envelope;
 import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.utils.StringUtils;
 
 import java.util.Map;
 
@@ -12,7 +13,7 @@ import java.util.Map;
 public class SqlFactory {
 
     public static String selectGraphicData(Envelope extent,double mapScale,String table) {
-        int mapLevel = getLevelByScale(mapScale);
+        int mapLevel = CommVar.getInstance().getLevelByScale(mapScale);
         String sql = "select * from " + table + " where" +
                 " x > " + extent.getXMin() +
                 " and x < " + extent.getXMax() +
@@ -22,18 +23,18 @@ public class SqlFactory {
         return sql;
     }
 
-    private static int getLevelByScale(double mapScale) {
-        Map<Integer,Double> levelScale = CommVar.getInstance().level_scale;
-        for (int key : levelScale.keySet()) {
-            if (mapScale > levelScale.get(key)) {
-                return key-1;
-            }
-        }
-        return 9;
-    }
-
     public static String selectUser(int userID) {
         String sql = "select * from user where id = " + userID;
+        return sql;
+    }
+
+    public static String selectGraphicByName(String name) {
+        String sql = "select id,name,x,y,displayLevel,community,category type,telephone,'mark' as tableName from mark where name like '%" + name + "%' " +
+                    " union " +
+                    "select id,buildingName name,x,y,displayLevel,community,'楼房' as type,'' as telephone,'building' as tableName from building where buildingName like '%" + name + "%' " +
+                    "union " +
+                    "select id,name,x,y,displayLevel,community,'民房' as type,'' as telephone,'house' as tableName from house where name like '%" + name + "%'";
+        System.out.println(sql);
         return sql;
     }
 

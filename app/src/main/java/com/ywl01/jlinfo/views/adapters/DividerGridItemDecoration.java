@@ -1,4 +1,4 @@
-package com.ywl01.jlinfo.adapters;
+package com.ywl01.jlinfo.views.adapters;
 
 import android.content.Context;
 import android.content.res.TypedArray;

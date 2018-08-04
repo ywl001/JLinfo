@@ -1,4 +1,4 @@
-package com.ywl01.jlinfo.adapters;
+package com.ywl01.jlinfo.views.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

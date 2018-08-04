@@ -13,7 +13,7 @@ import java.util.List;
  * Created by ywl01 on 2017/1/24.
  */
 
-public class MarkImageObserver extends BaseObserver {
+public class MarkImageObserver extends BaseObserver<String,List<ImageBean>> {
     @Override
     protected List<ImageBean> convert(String data) {
         List<ImageBean> images = new ArrayList<>();

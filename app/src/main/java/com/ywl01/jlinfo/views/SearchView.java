@@ -6,6 +6,7 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -14,6 +15,9 @@ import android.widget.TextView;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.utils.AppUtils;
+import com.ywl01.jlinfo.utils.IdcardUtils;
+
+import java.util.regex.Pattern;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,6 +33,10 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
 
     public static final int search_type_people = 1;
     public static final int search_type_geo = 2;
+
+    private static final int num_phone = 1;
+    private static final int num_idcard = 2;
+    private static final int num_other = 3;
 
     @BindView(R.id.et_search)
     EditText etSearch;
@@ -61,6 +69,7 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
         LayoutInflater.from(context).inflate(R.layout.view_search, this, true);
         ButterKnife.bind(this);
         etSearch.addTextChangedListener(this);
+        etSearch.setOnEditorActionListener(this);
     }
 
     @OnClick(R.id.btn_clear)
@@ -88,7 +97,10 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
     }
 
     @Override
-    public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+    public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+
+        }
         return false;
     }
 
@@ -111,32 +123,52 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
 
     }
 
+    @OnClick(R.id.btn_search1)
+    public void onSearch() {
+        System.out.println("fffffffffffffff");
+    }
 
-//    @Override
-//    public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-//        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-//            if("".equals(etSearch.getText().toString().trim())){
-//                AppUtils.showToast("请输入查询内容。。。");
-//                return false;
-//            }
-//
-//            CamerasObserver camerasObserver = new CamerasObserver();
-//            String keyword = etSearch.getText().toString().trim();
-////            String[] keywords = keyword.split(" ");
-//            String sql = SqlFactory.selectMarkerBySearch(keyword);
-//            HttpMethods.getInstance().getSqlResult(camerasObserver, SqlAction.SELECT,sql);
-//            textView.setText("");
-//            camerasObserver.setOnNextListener(new BaseObserver.OnNextListener() {
-//                @Override
-//                public void onNext(Object data, Observer observer) {
-//                    List<CameraBean> markers = (List<CameraBean>) data;
-//                    CamerasEvent event = new CamerasEvent();
-//                    event.cameraBeans = markers;
-//                    event.dispatch();
-//                }
-//            });
-//            return true;
-//        }
-//        return false;
-//    }
+    private String getSql(String input) {
+        String sql = "";
+        if (searchType == 1) {
+            if (AppUtils.isNumeric(input)) {
+                int numType = getNumType(input);
+                switch (numType) {
+                    case num_phone:
+                        sql = "select * from people where telephone = '" + input + "'";
+                        break;
+                    case num_idcard:
+                        sql = "select * from people where peopleNumber = '" + input + "'";
+                        break;
+                    case num_other:
+                        sql = "select * from people where (peopleNumber like '%" + input + "%' or telephoen like '%" + input +"%'";
+                        break;
+                }
+            } else if (AppUtils.isChinese(input)) {
+                sql = "select * from people where name like '%" + input + "%'";
+            }
+        } else if (searchType == 2) {
+            if (AppUtils.isChinese(input)) {
+                sql = "select * from mark where name like '%" + input + "%'";
+            }
+        }
+        return sql;
+    }
+
+    private void search(){
+        String sql = getSql(etSearch.getText().toString().trim());
+        if (sql != "") {
+
+        }
+    }
+
+    private int getNumType(String num) {
+        if (AppUtils.isMobile(num) || AppUtils.isPhone(num)) {
+            return num_phone;
+        } else if (IdcardUtils.validateCard(num)) {
+            return num_idcard;
+        }else{
+            return num_other;
+        }
+    }
 }

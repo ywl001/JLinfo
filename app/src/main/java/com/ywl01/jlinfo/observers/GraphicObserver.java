@@ -16,7 +16,7 @@ import java.util.Map;
  * Created by ywl01 on 2017/1/21.
  */
 
-public abstract class GraphicObserver extends BaseObserver{
+public abstract class GraphicObserver extends BaseObserver<String,List<Graphic>>{
 
     @Override
     protected List<Graphic> convert(String data) {
@@ -64,4 +64,5 @@ public abstract class GraphicObserver extends BaseObserver{
      * @return
      */
     protected abstract Symbol getSymbol(GraphicBean bean);
+
 }

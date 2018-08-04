@@ -1,6 +1,8 @@
 package com.ywl01.jlinfo;
 
 import com.github.promeg.pinyinhelper.Pinyin;
+import com.ywl01.jlinfo.utils.AppUtils;
+import com.ywl01.jlinfo.utils.IdcardUtils;
 
 import org.junit.Test;
 
@@ -19,7 +21,7 @@ public class ExampleUnitTest {
 
     @Test
     public void test() {
-        System.out.println(Pinyin.toPinyin("张重明",""));
+        System.out.println(IdcardUtils.validateCard("410306197401270516"));
     }
 
 }

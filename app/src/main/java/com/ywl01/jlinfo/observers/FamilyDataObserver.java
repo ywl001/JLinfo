@@ -15,28 +15,9 @@ import io.reactivex.disposables.Disposable;
  * Created by ywl01 on 2017/2/7.
  */
 
-public class FamilyDataObserver implements Observer {
-
+public class FamilyDataObserver extends BaseObserver<List<FamilyNode>,List<FamilyNode>> {
     @Override
-    public void onSubscribe(Disposable d) {
-
-    }
-
-    @Override
-    public void onNext(Object o) {
-        System.out.println(o);
-        ArrayList<FamilyNode> familyNodes = (ArrayList<FamilyNode>) o;
-        FamilyActivity.familyNodes = familyNodes;
-        AppUtils.startActivity(FamilyActivity.class);
-    }
-
-    @Override
-    public void onError(Throwable e) {
-
-    }
-
-    @Override
-    public void onComplete() {
-
+    protected List<FamilyNode> convert(List<FamilyNode> data) {
+        return data;
     }
 }

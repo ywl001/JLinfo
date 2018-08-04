@@ -6,7 +6,7 @@ import com.ywl01.jlinfo.beans.User;
 
 import java.util.List;
 
-public class UserObserver extends BaseObserver {
+public class UserObserver extends BaseObserver<String,User> {
     @Override
     protected User convert(String data) {
         List<User> users = new Gson().fromJson(data, new TypeToken<List<User>>() {}.getType());

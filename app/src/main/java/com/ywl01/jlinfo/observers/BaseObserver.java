@@ -10,7 +10,7 @@ import io.reactivex.disposables.Disposable;
  * Created by ywl01 on 2017/12/10.
  */
 
-public abstract class BaseObserver<T> implements Observer<String> {
+public abstract class BaseObserver<T,E> implements Observer<T> {
 
     protected Disposable disposable;
 
@@ -30,9 +30,9 @@ public abstract class BaseObserver<T> implements Observer<String> {
      * 在onNext方法中将服务器端数据转换后给回调接口
      */
     @Override
-    public void onNext(@NonNull String data) {
+    public void onNext(@NonNull T data) {
         //System.out.println("on next");
-        T newData = convert(data);
+        E newData = convert(data);
         if (onNextListener != null) {
             onNextListener.onNext(this,newData);
         }
@@ -53,7 +53,7 @@ public abstract class BaseObserver<T> implements Observer<String> {
      * @param data 服务器端数据
      * @return 新数据
      */
-    protected abstract T convert(String data);
+    protected abstract E convert(T data);
 
     public interface OnNextListener<T>{
        void onNext(Observer observer, T data);

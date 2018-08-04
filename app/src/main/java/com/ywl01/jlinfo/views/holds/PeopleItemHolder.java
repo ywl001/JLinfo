@@ -17,6 +17,7 @@ import com.squareup.picasso.Picasso;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.BaseActivity;
 import com.ywl01.jlinfo.activities.EditPeopleActivity;
+import com.ywl01.jlinfo.activities.FamilyActivity;
 import com.ywl01.jlinfo.activities.ImageActivity;
 import com.ywl01.jlinfo.activities.MainActivity;
 import com.ywl01.jlinfo.activities.PeoplesActivity;
@@ -401,7 +402,14 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                 QueryFamilyServices services = new QueryFamilyServices();
                 FamilyDataObserver familyDataObserver = new FamilyDataObserver();
                 services.setData(node, familyDataObserver);
-                //familyDataObserver.setOnNextListener(this);
+                familyDataObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+                    @Override
+                    public void onNext(Observer observer, Object data) {
+                        ArrayList<FamilyNode> familyNodes = (ArrayList<FamilyNode>) data;
+                        FamilyActivity.familyNodes = familyNodes;
+                        AppUtils.startActivity(FamilyActivity.class);
+                    }
+                });
             } else {
                 AppUtils.showToast("该人员无亲戚信息");
             }

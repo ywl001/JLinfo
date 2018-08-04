@@ -5,7 +5,7 @@ package com.ywl01.jlinfo.observers;
  * 上传成功后返回图片在服务器端的相对路径
  */
 
-public class UploadObserver extends BaseObserver<String> {
+public class UploadObserver extends BaseObserver<String,String> {
     @Override
     protected String convert(String data) {
 //        String imgUrl = objectMap.substring(12);

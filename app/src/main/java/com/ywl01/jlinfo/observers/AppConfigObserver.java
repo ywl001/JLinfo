@@ -15,10 +15,10 @@ import com.ywl01.jlinfo.consts.CommVar;
  */
 
 
-public class AppConfigObserver extends BaseObserver {
+public class AppConfigObserver<String,Integer> extends BaseObserver {
 
-    @Override
-    protected CommVar convert(String data) {
+//    @Override
+//    protected Integer convert(String data) {
 ////        CommVar appConfig = CommVar;
 ////        try {
 ////            XmlPullParser parser = XmlPullParserFactory.newInstance().newPullParser();
@@ -51,6 +51,11 @@ public class AppConfigObserver extends BaseObserver {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
+////        return null;
+//    }
+
+    @Override
+    protected Object convert(Object data) {
         return null;
     }
 }

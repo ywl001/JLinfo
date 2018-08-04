@@ -28,6 +28,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by ywl01 on 2018/3/8.
@@ -161,8 +163,8 @@ public class AppUtils {
         BaseActivity.currentActivity.startActivity(intent);
     }
 
-    public static void moveActivityToFront(Class<?> cls){
-        Intent intent = new Intent(BaseActivity.currentActivity,cls);
+    public static void moveActivityToFront(Class<?> cls) {
+        Intent intent = new Intent(BaseActivity.currentActivity, cls);
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         BaseActivity.currentActivity.startActivity(intent);
     }
@@ -200,7 +202,7 @@ public class AppUtils {
             boolean aaa = dir.mkdir();
         }
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String fname = "jlinfo_" + timeStamp + ".jpg";
+        String fname = imgDir + "_" + timeStamp + ".jpg";
 
         File file = new File(dir, fname);
         if (file.exists()) file.delete();
@@ -210,7 +212,7 @@ public class AppUtils {
             finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
             out.flush();
             out.close();
-            showToast("图片保存在jlinfo文件夹下面的" + fname);
+            showToast("图片保存在" + imgDir + "文件夹下面的" + fname);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -229,5 +231,42 @@ public class AppUtils {
         Cursor cursor = getContext().getContentResolver().query(uri, new String[]{MediaStore.Images.Media.DATA}, null, null, null);
         cursor.moveToNext();
         return cursor.getString(0);
+    }
+
+    //字符是否都是数字
+    public static boolean isNumeric(String str) {
+        Pattern pattern = Pattern.compile("[0-9]*");
+        return pattern.matcher(str).matches();
+    }
+
+    //字符是否是汉子
+    public static boolean isChinese(String str) {
+        String regEx = "[\\u4e00-\\u9fa5]+";
+        return str.matches(regEx);
+    }
+
+    //是否是手机号
+    public static boolean isMobile(String cellphone) {
+        String regex = "^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,1,2,5-9])|(177))\\d{8}$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(cellphone);
+        return matcher.matches();
+    }
+
+    //是否是电话号码
+    public static boolean isPhone(String str) {
+        Pattern p1 = null, p2 = null;
+        Matcher m = null;
+        boolean b = false;
+        p1 = Pattern.compile("^[0][1-9]{2,3}-[0-9]{5,10}$");  // 验证带区号的
+        p2 = Pattern.compile("^[1-9]{1}[0-9]{5,8}$");         // 验证没有区号的
+        if (str.length() > 9) {
+            m = p1.matcher(str);
+            b = m.matches();
+        } else {
+            m = p2.matcher(str);
+            b = m.matches();
+        }
+        return b;
     }
 }

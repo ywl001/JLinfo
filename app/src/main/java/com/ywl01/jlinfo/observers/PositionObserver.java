@@ -27,7 +27,7 @@ import java.util.Map;
 /**
  * Created by ywl01 on 2017/2/5.
  */
-public class PositionObserver extends BaseObserver {
+public class PositionObserver extends BaseObserver<String,List<Graphic>> {
     @Override
     protected List<Graphic> convert(String data) {
         List<Graphic> graphics = new ArrayList<>();

@@ -21,7 +21,7 @@ import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.ProgressRequestBody;
 import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
-import com.ywl01.jlinfo.observers.InsertObserver;
+import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.observers.UploadObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.ImageUtils;
@@ -183,7 +183,7 @@ public class PeoplesActivity extends BaseActivity {
                 String[] temp = imgUrl.split("\\.");
                 String thumbUrl = temp[0] + "_thumb.jpg";
 
-                InsertObserver insertObserver = new InsertObserver();
+                IntObserver insertObserver = new IntObserver();
                 Map<String, String> tableData = new HashMap<String, String>();
                 int id = uploadPhotoEvent.id;
 

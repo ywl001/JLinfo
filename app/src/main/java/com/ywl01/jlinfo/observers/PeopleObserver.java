@@ -10,7 +10,7 @@ import java.util.List;
  * Created by ywl01 on 2017/1/22.
  */
 
-public class PeopleObserver extends BaseObserver {
+public class PeopleObserver extends BaseObserver<String,List<PeopleBean>> {
 
     private int peopleFlag;
     public PeopleObserver(int peopleFlag) {

@@ -1,8 +1,8 @@
 package com.ywl01.jlinfo.observers;
 
-public class IntObserver extends BaseObserver {
+public class IntObserver extends BaseObserver<String,Integer> {
     @Override
-    protected Object convert(String data) {
+    protected Integer convert(String data) {
         return Integer.parseInt(data);
     }
 }

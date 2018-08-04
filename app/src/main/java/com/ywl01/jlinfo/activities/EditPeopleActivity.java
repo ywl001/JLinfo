@@ -113,10 +113,9 @@ public class EditPeopleActivity extends BaseActivity{
             buildingGroup.setVisibility(View.VISIBLE);
             etRoomNumber.setText(people.roomNumber);
         }else if (flag == PeopleFlag.FROM_HOME) {
-
             etRelation.setText(people.relation);
         }
-        isDeadGroup.setVisibility(View.VISIBLE);
+        //isDeadGroup.setVisibility(View.VISIBLE);
     }
 
     @OnClick(R.id.btn_cancel)

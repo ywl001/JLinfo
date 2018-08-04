@@ -18,7 +18,6 @@ import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import com.esri.arcgisruntime.layers.ArcGISTiledLayer;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.view.BackgroundGrid;
-import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.consts.CommVar;
@@ -26,16 +25,14 @@ import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.ShowGraphicMenuEvent;
 import com.ywl01.jlinfo.events.ShowMarkInfoEvent;
-import com.ywl01.jlinfo.events.ShowPositionEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.events.UploadImageEvent;
 import com.ywl01.jlinfo.map.MapListener;
-import com.ywl01.jlinfo.map.SymbolManager;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.ProgressRequestBody;
 import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
-import com.ywl01.jlinfo.observers.InsertObserver;
+import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.observers.UploadObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.ImageUtils;
@@ -49,7 +46,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -270,7 +266,7 @@ public class MainActivity extends BaseActivity {
                 String[] temp = imgUrl.split("\\.");
                 String thumbUrl = temp[0] + "_thumb.jpg";
 
-                InsertObserver insertObserver = new InsertObserver();
+                IntObserver insertObserver = new IntObserver();
                 Map<String, String> tableData = new HashMap<String, String>();
                 int id = uploadImageEvent.id;
 

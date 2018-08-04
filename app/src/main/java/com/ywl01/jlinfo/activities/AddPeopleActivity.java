@@ -20,7 +20,7 @@ import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
-import com.ywl01.jlinfo.observers.InsertObserver;
+import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.DialogUtils;
@@ -238,7 +238,7 @@ public class AddPeopleActivity extends BaseActivity {
         peopleData.put("insertTime", "now()");
 
         String sql = SqlFactory.insert(TableName.PEOPLE, peopleData);
-        InsertObserver insertPeopleObserver = new InsertObserver();
+        IntObserver insertPeopleObserver = new IntObserver();
         HttpMethods.getInstance().getSqlResult(insertPeopleObserver, SqlAction.INSERT, sql);
         insertPeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
@@ -263,7 +263,7 @@ public class AddPeopleActivity extends BaseActivity {
         homeData.put("updateUser", CommVar.UserID + "");
         homeData.put("insertTime", "now()");
 
-        InsertObserver insertHomeObserver = new InsertObserver();
+        IntObserver insertHomeObserver = new IntObserver();
         String sql = SqlFactory.insert(TableName.PEOPLE_HOME, homeData);
         HttpMethods.getInstance().getSqlResult(insertHomeObserver, SqlAction.INSERT, sql);
         insertHomeObserver.setOnNextListener(new BaseObserver.OnNextListener() {
@@ -291,7 +291,7 @@ public class AddPeopleActivity extends BaseActivity {
         data.put("updateUser", CommVar.UserID + "");
         data.put("insertTime", "now()");
 
-        InsertObserver insertPMarkObserver = new InsertObserver();
+        IntObserver insertPMarkObserver = new IntObserver();
         String sql = SqlFactory.insert(TableName.PEOPLE_MARK, data);
         HttpMethods.getInstance().getSqlResult(insertPMarkObserver, SqlAction.INSERT, sql);
         insertPMarkObserver.setOnNextListener(new BaseObserver.OnNextListener() {
@@ -315,7 +315,7 @@ public class AddPeopleActivity extends BaseActivity {
         data.put("updateUser", CommVar.UserID + "");
         data.put("insertTime", "now()");
 
-        InsertObserver insertPBuildingObserver = new InsertObserver();
+        IntObserver insertPBuildingObserver = new IntObserver();
         String sql = SqlFactory.insert(TableName.PEOPLE_BUILDING, data);
         HttpMethods.getInstance().getSqlResult(insertPBuildingObserver, SqlAction.INSERT, sql);
         insertPBuildingObserver.setOnNextListener(new BaseObserver.OnNextListener() {
@@ -337,7 +337,7 @@ public class AddPeopleActivity extends BaseActivity {
         data.put("insertUser", CommVar.UserID + "");
         data.put("insertTime", "now()");
 
-        InsertObserver insertPHouseObserver = new InsertObserver();
+        IntObserver insertPHouseObserver = new IntObserver();
         String sql = SqlFactory.insert(TableName.PEOPLE_HOUSE, data);
         HttpMethods.getInstance().getSqlResult(insertPHouseObserver, SqlAction.INSERT, sql);
         insertPHouseObserver.setOnNextListener(new BaseObserver.OnNextListener() {

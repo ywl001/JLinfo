@@ -1,5 +1,6 @@
 package com.ywl01.jlinfo.views.holds;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -21,6 +22,7 @@ import com.ywl01.jlinfo.activities.FamilyActivity;
 import com.ywl01.jlinfo.activities.ImageActivity;
 import com.ywl01.jlinfo.activities.MainActivity;
 import com.ywl01.jlinfo.activities.PeoplesActivity;
+import com.ywl01.jlinfo.activities.RelationHomeActivity;
 import com.ywl01.jlinfo.activities.SetHomeActivity;
 import com.ywl01.jlinfo.beans.FamilyNode;
 import com.ywl01.jlinfo.beans.ImageBean;
@@ -114,23 +116,10 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     @BindView(R.id.btn_set_home)
     Button btnSetPeopleHome;
 
-
-    //操作的各种观察者
-    //private PositionObserver positionObserver;//显示位置观察者
-    // private FamilyDataObserver familyDataObserver;//亲戚数据观察者
-    private PeopleObserver familyObserver;//显示亲戚信息观察者
-    private IntObserver delPhotoOberver;//删除照片观察者
-    private IntObserver delParentObserver;
-
     private int peopleFlag;
     private ImageBean photo;
 
     private SwipeItem rootView;
-    private Dialog delPhotoDialog;
-    private Dialog delParentDialog;
-    private Dialog delPeopleDialog;
-    private IntObserver setPeopleLeaveObserver;
-    private IntObserver delPeopleObserver;
 
     public PeopleItemHolder(View itemView) {
         super(itemView);
@@ -306,14 +295,14 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                 public void onNext(Observer observer, Object data1) {
                     User updateUser = (User) data1;
                     if (updateUser != null) {
-                        if(data.updateTime != null)
+                        if (data.updateTime != null)
                             tvUpdateInfo.setText(updateUser.realName + data.updateTime + "更新");
                     } else {
                         tvUpdateInfo.setVisibility(View.GONE);
                     }
                 }
             });
-        }else{
+        } else {
             tvUpdateInfo.setVisibility(View.GONE);
         }
     }
@@ -392,33 +381,32 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
             @Override
             public void onNext(Observer observer, Object data) {
                 ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data;
-            if (peoples.size() > 0) {
-                FamilyNode node = new FamilyNode();
-                node.level = 0;
-                node.homeNumber = peoples.get(0).homeNumber;
-                node.peoples = peoples;
-                node.sign = QueryFamilyServices.BASE;
+                if (peoples.size() > 0) {
+                    FamilyNode node = new FamilyNode();
+                    node.level = 0;
+                    node.homeNumber = peoples.get(0).homeNumber;
+                    node.peoples = peoples;
+                    node.sign = QueryFamilyServices.BASE;
 
-                QueryFamilyServices services = new QueryFamilyServices();
-                FamilyDataObserver familyDataObserver = new FamilyDataObserver();
-                services.setData(node, familyDataObserver);
-                familyDataObserver.setOnNextListener(new BaseObserver.OnNextListener() {
-                    @Override
-                    public void onNext(Observer observer, Object data) {
-                        ArrayList<FamilyNode> familyNodes = (ArrayList<FamilyNode>) data;
-                        FamilyActivity.familyNodes = familyNodes;
-                        AppUtils.startActivity(FamilyActivity.class);
-                    }
-                });
-            } else {
-                AppUtils.showToast("该人员无亲戚信息");
-            }
+                    QueryFamilyServices services = new QueryFamilyServices();
+                    FamilyDataObserver familyDataObserver = new FamilyDataObserver();
+                    services.setData(node, familyDataObserver);
+                    familyDataObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+                        @Override
+                        public void onNext(Observer observer, Object data) {
+                            ArrayList<FamilyNode> familyNodes = (ArrayList<FamilyNode>) data;
+                            FamilyActivity.familyNodes = familyNodes;
+                            AppUtils.startActivity(FamilyActivity.class);
+                        }
+                    });
+                } else {
+                    AppUtils.showToast("该人员无亲戚信息");
+                }
             }
         });
     }
 
     //编辑人员信息
-    @Nullable
     @OnClick(R.id.btn_edit_people)
     public void onEditPeople() {
         CommVar.getInstance().clear();
@@ -427,7 +415,6 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     }
 
     //上传人员照片
-    @Nullable
     @OnClick(R.id.btn_upload_photo)
     public void onUploadPhoto() {
         Map<String, Object> menuData = new HashMap<>();
@@ -443,44 +430,50 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
             EventBus.getDefault().register(this);
     }
 
-    @Subscribe
-    public void onUploadComplete(TypeEvent e) {
-//        if (EventBus.getDefault().isRegistered(this))
-//            EventBus.getDefault().unregister(this);
-//        ListEvent event = new ListEvent();
-//        event.action = ListEvent.update;
-//        event.position = position;
-//        event.dispatch();
-    }
-
-    @Nullable
     @OnClick(R.id.btn_set_home)
     public void onSetHome() {
-        CommVar.getInstance().put("people",data);
-       AppUtils.startActivity(SetHomeActivity.class);
+        CommVar.getInstance().put("people", data);
+        AppUtils.startActivity(SetHomeActivity.class);
     }
 
-    @Nullable
     @OnClick(R.id.btn_create_relation)
     public void addRelationHome() {
-//        IntentUtils.startActivity(RelationHomeActivity.class, bundleArgs);
+        CommVar.getInstance().clear();
+        CommVar.getInstance().put("people", data);
+        AppUtils.startActivity(RelationHomeActivity.class);
     }
 
-    @Nullable
     @OnClick(R.id.btn_break_realtion)
     public void breakRelationHome() {
-//        delParentDialog = DialogUtils.showAlert(BaseActivity.currentActivity, "删除警告：", "你确定要断开和父级的联系吗？", "确定", this, "取消", this);
+        AlertDialog delParentDialog = DialogUtils.showAlert(BaseActivity.currentActivity,
+                "删除警告：",
+                "你确定要断开和父级的联系吗？",
+                "确定",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        breakParentHomeRelation();
+                    }
+                },
+                "取消",
+                null);
     }
 
-//    private void breakParentHomeRelation() {
-//        String sql = "delete from people_home where peopleID = '" + data.id + "' and isDelete = 1";
-//        delParentObserver = new IntObserver();
-//        HttpMethods.getInstance().getResult(delParentObserver, SqlAction.DELETE, sql);
-//        delParentObserver.setOnNextListener(this);
-//    }
+    private void breakParentHomeRelation() {
+        String sql = "delete from people_home where peopleID = '" + data.id + "' and isDelete = 1";
+        IntObserver delParentObserver = new IntObserver();
+        HttpMethods.getInstance().getSqlResult(delParentObserver, SqlAction.DELETE, sql);
+        delParentObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                int rows = (int) data;
+                if (rows > 0) {
+                    AppUtils.showToast("解除父子关系成功");
+                }
+            }
+        });
+    }
 
-    //删除人员的关联位置
-    @Nullable
     @OnClick(R.id.btn_del_people)
     public void onDelpeople() {
         String txtInfo = "确定要从这里删除人员吗？";
@@ -495,7 +488,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                 txtInfo = "确认要从" + data.workPlace + "删除" + data.name + "吗？";
                 break;
         }
-        delPeopleDialog = DialogUtils.showAlert(BaseActivity.currentActivity,
+        DialogUtils.showAlert(BaseActivity.currentActivity,
                 "删除警告：", txtInfo,
                 "确定",
                 new DialogInterface.OnClickListener() {
@@ -526,7 +519,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
             map.put("isDelete", "1");
 
             String sql = SqlFactory.update(tableName, map, tableID);
-            setPeopleLeaveObserver = new IntObserver();
+            IntObserver setPeopleLeaveObserver = new IntObserver();
             setPeopleLeaveObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                 @Override
                 public void onNext(Observer observer, Object data) {
@@ -540,7 +533,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
             });
             HttpMethods.getInstance().getSqlResult(setPeopleLeaveObserver, SqlAction.UPDATE, sql);
         } else if (data.isLeave == 1) {
-            delPeopleObserver = new IntObserver();
+            IntObserver delPeopleObserver = new IntObserver();
             String sql = SqlFactory.delete(tableName, tableID);
             delPeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                 @Override
@@ -556,99 +549,6 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
             HttpMethods.getInstance().getSqlResult(delPeopleObserver, SqlAction.DELETE, sql);
         }
     }
-
-
-// else if (observer == positionObserver) {
-//            List<Graphic> positions = (List<Graphic>) data;
-//            if (positions != null && positions.size() > 0) {
-//                IntentUtils.moveActivityToFront(MapActivity.class);
-//                ShowPositionEvent event = new ShowPositionEvent(ShowPositionEvent.SHOW_ADDRESS);
-//                event.positions = positions;
-//                event.dispatch();
-//            } else {
-//                ToastUtils.show("人员无住址信息");
-//            }
-//        } else if (observer == homePeopleObserver) {
-//            ArrayList<PeopleBean> homePeoples = (ArrayList<PeopleBean>) data;
-//            Bundle args = new Bundle();
-//            args.putParcelableArrayList(KeyName.DATA, homePeoples);
-//            IntentUtils.startActivity(PeoplesActivity.class, args);
-//
-//        } else if (observer == familyObserver) {
-//            ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data;
-//            if (peoples.size() > 0) {
-//                FamilyNode node = new FamilyNode();
-//                node.level = 0;
-//                node.homeNumber = peoples.get(0).homeNumber;
-//                node.peoples = peoples;
-//                node.sign = QueryFamilyServices.BASE;
-//
-//                QueryFamilyServices services = new QueryFamilyServices();
-//                familyDataObserver = new FamilyDataObserver();
-//                services.setData(node, familyDataObserver);
-//                familyDataObserver.setOnNextListener(this);
-//            } else {
-//                ToastUtils.show("该人员无亲戚信息");
-//            }
-//        } else if (observer == familyDataObserver) {
-//            ArrayList<FamilyNode> familyNodes = (ArrayList<FamilyNode>) data;
-//            //此处用类的静态变量传值，用parceable死循环。
-//            FamilyActivity.familyNodes = familyNodes;
-//            IntentUtils.startActivity(FamilyActivity.class);
-//        } else if (observer == delParentObserver) {
-//            int rows = (int) data;
-//            if (rows > 0) {
-//                ToastUtils.show("解除父子关系成功。");
-//            }
-//        }
-//    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // 拖动人员照片的回调,下载或删除
-    ///////////////////////////////////////////////////////////////////////////
-//    @Override
-//    public void onDrag(Object data, int action) {
-////        photo = (PeoplePhotoBean) data;
-////        if (action == ImageGroup.DOWNLOAD_IMAGE) {
-////            ToastUtils.show("下载图像");
-////        } else if (action == ImageGroup.DELETE_IMAGE) {
-////            delPhotoDialog = DialogUtils.showAlert(BaseActivity.currentActivity,
-////                    UIUtils.getResString(R.string.del_title),
-////                    UIUtils.getResString(R.string.del_message),
-////                    UIUtils.getResString(R.string.btn_ok),
-////                    this,
-////                    UIUtils.getResString(R.string.btn_cancel),
-////                    this);
-////        }
-//    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // 点击确认对话框的回调
-    ///////////////////////////////////////////////////////////////////////////
-
-//    public void onClick(DialogInterface dialog, int which) {
-//        if (dialog == delPhotoDialog) {
-//            if (which == DialogInterface.BUTTON_POSITIVE) {
-//                long id = photo.id;
-//                delPhotoOberver = new IntObserver();
-//                String sql = SqlFactory.delete(TableName.PEOPLE_PHOTO, id);
-//                System.out.println(sql);
-//                HttpMethods.getInstance().getSqlResult(delPhotoOberver, SqlAction.DELETE, sql);
-//                delPhotoOberver.setOnNextListener(this);
-//            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-//                getPeoplePhoto(data);
-//            }
-//        } else if (dialog == delParentDialog) {
-//            if (which == DialogInterface.BUTTON_POSITIVE) {
-//                //breakParentHomeRelation();
-//            }
-//        } else if (dialog == delPeopleDialog) {
-//            if (which == DialogInterface.BUTTON_POSITIVE) {
-//                delPeople();
-//            }
-//        }
-//    }
-
 
     @Subscribe
     public void refreshImages(TypeEvent event) {

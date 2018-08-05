@@ -58,6 +58,7 @@
         <activity android:name=".activities.BuildingPlanActivity"/>
         <activity android:name=".activities.FamilyActivity"/>
         <activity android:name=".activities.SetHomeActivity"/>
+        <activity android:name=".activities.RelationHomeActivity"/>
     </application>
 
 </manifest>

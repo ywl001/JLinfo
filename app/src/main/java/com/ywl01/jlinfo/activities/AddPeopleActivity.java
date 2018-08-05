@@ -297,7 +297,7 @@ public class AddPeopleActivity extends BaseActivity {
         insertPMarkObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
-                Long returnID = (Long) data;
+                int returnID = (int) data;
                 if (returnID > 0) {
                     AppUtils.showToast("插入人员工作场所成功");
                     finish();
@@ -321,7 +321,7 @@ public class AddPeopleActivity extends BaseActivity {
         insertPBuildingObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
-                Long returnID = (Long) data;
+                int returnID = (int) data;
                 if (returnID > 0) {
                     AppUtils.showToast("插入人员住所成功");
                     finish();
@@ -343,7 +343,7 @@ public class AddPeopleActivity extends BaseActivity {
         insertPHouseObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
-                Long returnID = (Long) data;
+                int returnID = (int) data;
                 if (returnID > 0) {
                     AppUtils.showToast("插入人员住所成功");
                     finish();

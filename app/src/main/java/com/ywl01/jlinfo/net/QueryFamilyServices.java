@@ -176,7 +176,7 @@ public class QueryFamilyServices implements BaseObserver.OnNextListener{
 
                 for (int i = 0; i < waitCheckPeoples.size(); i++) {
                     PeopleBean p = waitCheckPeoples.get(i);
-                    long currentPeopleID = currentNode.peoples.get(pidIndex).id;
+                    int currentPeopleID = currentNode.peoples.get(pidIndex).id;
                     if (p.id != currentPeopleID && p.isLeave == 0 && i > pidIndex) {
                         times++;
                         System.out.println("少查" + times+"次" + p.name);

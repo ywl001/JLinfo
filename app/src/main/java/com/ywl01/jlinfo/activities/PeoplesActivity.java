@@ -200,7 +200,7 @@ public class PeoplesActivity extends BaseActivity {
                 insertObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                     @Override
                     public void onNext(Observer observer, Object data) {
-                        Long returnData = (Long) data;
+                        int returnData = (int) data;
                         if (returnData > 0) {
                             AppUtils.showToast("上传图片成功");
                             //派发事件，让cameraInfoView刷新图片

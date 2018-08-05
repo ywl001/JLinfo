@@ -5,6 +5,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 
+import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.beans.BuildingBean;
@@ -38,7 +39,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observer;
 
-public class EditGraphicActivity extends BaseActivity {
+public class AddGraphicActivity extends BaseActivity {
 
     @BindView(R.id.et_name)
     EditText etName;
@@ -70,7 +71,6 @@ public class EditGraphicActivity extends BaseActivity {
     @BindView(R.id.et_building_community)
     EditText etBuildingCommunity;
 
-
     @BindView(R.id.et_count_floor)
     EditText etCountFloor;
 
@@ -99,74 +99,35 @@ public class EditGraphicActivity extends BaseActivity {
     EditText etHouseAngle;
 
     //----------公共变量-------------------
-    private Graphic graphic;
-    private MarkBean markBean;
-    private BuildingBean buildingBean;
-    private HouseBean houseBean;
     private int graphicFlag;
-
-    @Override
-    protected void initData() {
-        super.initData();
-        graphic = (Graphic) CommVar.getInstance().get("graphic");
-    }
+    private double x;
+    private double y;
 
     @Override
     protected void initView() {
         setContentView(R.layout.activity_graphic);
         ButterKnife.bind(this);
 
-        graphicFlag = getGraphicFlag(graphic);
+        graphicFlag = (int) CommVar.getInstance().get("graphicFlag");
+        Point mapPoint= (Point) CommVar.getInstance().get("mapPoint");
+        x = mapPoint.getX();
+        y = mapPoint.getY();
 
         switch (graphicFlag) {
             case GraphicFlag.MARK:
                 markContainer.setVisibility(View.VISIBLE);
-                markBean = new MarkBean();
-                BeanMapUtils.mapToBean(graphic.getAttributes(), markBean);
-                etName.setText(markBean.name);
-                setTitle("编辑" + markBean.name + "的基本信息");
-                etRegistName.setText(markBean.registerName);
-                etDisplayLevel.setText(markBean.displayLevel + "");
-                etSymbol.setText(markBean.symbol);
-                etTelephone.setText(markBean.telephone);
-                etType.setText(markBean.category);
-//                etSymbol.setOnFocusChangeListener(this);
-
                 break;
             case GraphicFlag.BUILDING:
                 buildingContainer.setVisibility(View.VISIBLE);
-                buildingBean = new BuildingBean();
-                BeanMapUtils.mapToBean(graphic.getAttributes(), buildingBean);
-                setTitle("编辑" + buildingBean.buildingName + "的基本信息");
-                etName.setText(buildingBean.name);
-                etBuildingName.setText(buildingBean.buildingName);
-                etBuildingCommunity.setText(buildingBean.community);
-                etCountFloor.setText(buildingBean.countFloor + "");
-                etCountUnit.setText(buildingBean.countUnit + "");
-                etCountUnitHomes.setText(buildingBean.countHomesInUnit + "");
-                etBuildingAngle.setText(buildingBean.angle + "");
-                rgSortType.check("a".equals(buildingBean.sortType) ? R.id.rb_lianxu : R.id.rb_danyuan);
                 break;
             case GraphicFlag.HOUSE:
                 houseContainer.setVisibility(View.VISIBLE);
-                houseBean = new HouseBean();
-                BeanMapUtils.mapToBean(graphic.getAttributes(), houseBean);
-                setTitle("编辑" + houseBean.name + "家的基本信息");
-                etName.setText(houseBean.name);
-                etCommunity.setText(houseBean.community);
-                etRoomNumber.setText(houseBean.roomNumber);
-                etHouseAngle.setText(houseBean.angle + "");
                 break;
         }
 
     }
 
-    private int getGraphicFlag(Graphic graphic) {
-        return (int) graphic.getAttributes().get("graphicFlag");
-    }
-
-    private String getTableNameByGraphic(Graphic graphic) {
-        int graphicFlag = (int) graphic.getAttributes().get("graphicFlag");
+    private String getTableNameByGraphicFlag(int graphicFlag) {
         if (graphicFlag == GraphicFlag.MARK) {
             return TableName.MARK;
         } else if (graphicFlag == GraphicFlag.HOUSE) {
@@ -207,6 +168,8 @@ public class EditGraphicActivity extends BaseActivity {
         Map<String, String> data = new HashMap<>();
         data.put("name", etName.getText().toString().trim());
         data.put("updateUser", CommVar.UserID + "");
+        data.put("x", x+"");
+        data.put("y",y+"");
         int id = 0;
         if (graphicFlag == GraphicFlag.MARK) {
             data.put("registerName", etRegistName.getText().toString().trim());
@@ -214,7 +177,6 @@ public class EditGraphicActivity extends BaseActivity {
             data.put("category", etType.getText().toString().trim());
             data.put("displayLevel", etDisplayLevel.getText().toString().trim());
             data.put("symbol", etSymbol.getText().toString().trim());
-            id = markBean.id;
         } else if (graphicFlag == GraphicFlag.BUILDING) {
             data.put("buildingName", etBuildingName.getText().toString().trim());
             data.put("community", etBuildingCommunity.getText().toString().trim());
@@ -223,23 +185,21 @@ public class EditGraphicActivity extends BaseActivity {
             data.put("countUnit", etCountUnit.getText().toString().trim());
             data.put("countHomesInUnit", etCountUnitHomes.getText().toString().trim());
             data.put("angle", etBuildingAngle.getText().toString().trim());
-            id = buildingBean.id;
         } else if (graphicFlag == GraphicFlag.HOUSE) {
             data.put("community", etCommunity.getText().toString().trim());
             data.put("roomNumber", etRoomNumber.getText().toString().trim());
             data.put("angle", etHouseAngle.getText().toString().trim());
-            id = houseBean.id;
         }
 
         IntObserver observer = new IntObserver();
-        String sql = SqlFactory.update(getTableNameByGraphic(graphic), data, id);
-        HttpMethods.getInstance().getSqlResult(observer, SqlAction.UPDATE,sql);
+        String sql = SqlFactory.insert(getTableNameByGraphicFlag(graphicFlag), data);
+        HttpMethods.getInstance().getSqlResult(observer, SqlAction.INSERT,sql);
         observer.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
                 int rows = (int) data;
                 if (rows > 0) {
-                    AppUtils.showToast("修改成功");
+                    AppUtils.showToast("添加成功");
                     finish();
                     TypeEvent event = null;
                     if (graphicFlag == GraphicFlag.MARK) {

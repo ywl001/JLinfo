@@ -4,13 +4,10 @@ import com.ywl01.jlinfo.beans.FamilyNode;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
-import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.FamilyDataObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +51,19 @@ public class QueryFamilyServices implements BaseObserver.OnNextListener{
         _data = value;
         nodes.add(_data);
         currentNode = _data;
-        waitCheckPeoples = getManPeoples(_data.peoples);
+        waitCheckPeoples = getStartCheckedPeople(_data.peoples, _data.focusPeople);
         queryNodeByPeople(waitCheckPeoples,0);
+    }
+
+    private List<PeopleBean> getStartCheckedPeople(List<PeopleBean> peoples,PeopleBean focusPeople){
+        List<PeopleBean> arr = new ArrayList<>();
+        for (int i = 0; i < peoples.size(); i++) {
+            PeopleBean p = peoples.get(i);
+            if (p.isLeave == 1 || p.id == focusPeople.id) {
+                arr.add(p);
+            }
+        }
+        return arr;
     }
 
     private void queryNodeByPeople(List<PeopleBean> peoples,int index)

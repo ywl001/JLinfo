@@ -17,6 +17,7 @@ public class FamilyNode{
     public FamilyNode parentNode ;//存放父节点列表
     public int sign ;//标识上查得到的节点，还是下查得到的节点
     public List<FamilyNode> childNodes;
+    public PeopleBean focusPeople;
 
     public FamilyNode() {
         childNodes = new ArrayList<>();

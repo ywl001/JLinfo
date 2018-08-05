@@ -21,6 +21,9 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import com.baidu.location.BDLocation;
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.CoordinateConverter;
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.layers.ArcGISTiledLayer;
@@ -41,6 +44,7 @@ import com.ywl01.jlinfo.events.ShowMarkInfoEvent;
 import com.ywl01.jlinfo.events.ShowPositionEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.events.UploadImageEvent;
+import com.ywl01.jlinfo.map.Location;
 import com.ywl01.jlinfo.map.MapListener;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.ProgressRequestBody;
@@ -103,6 +107,7 @@ public class MainActivity extends BaseActivity {
     private UploadImageEvent uploadImageEvent;
 
     private ArcGISTiledLayer tiledLayer;
+    private Location location;
 
     @Override
     protected void initView() {
@@ -112,6 +117,7 @@ public class MainActivity extends BaseActivity {
         getMetrics();
         initMap();
         drawerLayout.setScrimColor(Color.TRANSPARENT);
+        location = new Location(this);
     }
 
     //获取手机各种尺寸
@@ -176,6 +182,19 @@ public class MainActivity extends BaseActivity {
     public void onZoomOut() {
         double scale = mapView.getMapScale();
         mapView.setViewpointScaleAsync(scale * 2);
+    }
+
+    @OnClick(R.id.btn_location)
+    public void onLocation() {
+        location.requestLocation();
+        location.setOnGetLocationListener(new Location.OnGetLocationListener() {
+            @Override
+            public void getLocationInfo(BDLocation locationInfo) {
+                System.out.println(locationInfo.getLongitude()+"__________" + locationInfo.getLatitude());
+                CoordinateConverter converter = new CoordinateConverter();
+                
+            }
+        });
     }
 
     ///////////////////////////////////////////////////////////////////////////

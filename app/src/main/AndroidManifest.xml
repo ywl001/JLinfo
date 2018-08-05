@@ -33,6 +33,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light">
 
+        <!--使用百度定位-->
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="MfDF3nsZnLjFtBHrrvAq6Iw9Y8EYY52F" />
+
+        <service
+            android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":remote" />
+
         <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,7 +50,17 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.ImageActivity" />
+        <activity android:name=".activities.EditGraphicActivity"></activity>
+        <activity android:name=".activities.AddPeopleActivity"/>
+        <activity android:name=".activities.PeoplesActivity"/>
+        <activity android:name=".activities.EditPeopleActivity" />
+        <activity android:name=".activities.BuildingPlanActivity"/>
+        <activity android:name=".activities.FamilyActivity"/>
+        <activity android:name=".activities.SetHomeActivity"/>
+        <activity android:name=".activities.RelationHomeActivity"/>
+        <activity android:name=".activities.AddGraphicActivity"/>
 
+        <!--安卓7.0以后的文件系统-->
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.ywl01.jlinfo.fileprovider"
@@ -50,15 +70,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
-        <activity android:name=".activities.EditGraphicActivity"></activity>
-        <activity android:name=".activities.AddPeopleActivity"/>
-        <activity android:name=".activities.PeoplesActivity"/>
-        <activity android:name=".activities.EditPeopleActivity" />
-        <activity android:name=".activities.BuildingPlanActivity"/>
-        <activity android:name=".activities.FamilyActivity"/>
-        <activity android:name=".activities.SetHomeActivity"/>
-        <activity android:name=".activities.RelationHomeActivity"/>
     </application>
 
 </manifest>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:background="@color/alpha0"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/btn_add_mark"
+        android:layout_width="200dp"
+        android:layout_height="120dp"
+        android:text="添加单位场所"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:background="@drawable/btn_bg1" />
+    <Button
+        android:id="@+id/btn_add_building"
+        android:layout_width="200dp"
+        android:layout_height="120dp"
+        android:text="添加住宅楼"
+        android:layout_marginTop="20dp"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+
+        android:background="@drawable/btn_bg2" />
+    <Button
+        android:id="@+id/btn_add_house"
+        android:layout_width="200dp"
+        android:layout_height="120dp"
+        android:text="添加民房"
+        android:textColor="@color/white"
+        android:layout_marginTop="20dp"
+        android:textSize="16sp"
+        android:background="@drawable/btn_bg3" />
+
+</LinearLayout>

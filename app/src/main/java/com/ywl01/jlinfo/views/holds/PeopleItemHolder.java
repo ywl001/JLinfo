@@ -1,11 +1,8 @@
 package com.ywl01.jlinfo.views.holds;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -37,6 +34,7 @@ import com.ywl01.jlinfo.events.ListEvent;
 import com.ywl01.jlinfo.events.ShowPositionEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
+import com.ywl01.jlinfo.net.QueryFamilyServices;
 import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.FamilyDataObserver;
@@ -48,7 +46,6 @@ import com.ywl01.jlinfo.observers.UserObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.DialogUtils;
 import com.ywl01.jlinfo.utils.StringUtils;
-import com.ywl01.jlinfo.net.QueryFamilyServices;
 import com.ywl01.jlinfo.views.SwipeItem;
 import com.ywl01.jlinfo.views.UploadImageMenuDialog;
 
@@ -379,14 +376,15 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
         HttpMethods.getInstance().getSqlResult(familyObserver, SqlAction.SELECT, sql);
         familyObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
-            public void onNext(Observer observer, Object data) {
-                ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data;
+            public void onNext(Observer observer, Object data1) {
+                ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data1;
                 if (peoples.size() > 0) {
                     FamilyNode node = new FamilyNode();
                     node.level = 0;
                     node.homeNumber = peoples.get(0).homeNumber;
                     node.peoples = peoples;
                     node.sign = QueryFamilyServices.BASE;
+                    node.focusPeople = data;
 
                     QueryFamilyServices services = new QueryFamilyServices();
                     FamilyDataObserver familyDataObserver = new FamilyDataObserver();
@@ -395,8 +393,12 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                         @Override
                         public void onNext(Observer observer, Object data) {
                             ArrayList<FamilyNode> familyNodes = (ArrayList<FamilyNode>) data;
-                            FamilyActivity.familyNodes = familyNodes;
-                            AppUtils.startActivity(FamilyActivity.class);
+                            if (familyNodes.size() > 1) {
+                                FamilyActivity.familyNodes = familyNodes;
+                                AppUtils.startActivity(FamilyActivity.class);
+                            }else{
+                                AppUtils.showToast("该人员无亲戚信息");
+                            }
                         }
                     });
                 } else {

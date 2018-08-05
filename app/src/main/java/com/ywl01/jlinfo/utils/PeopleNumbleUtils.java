@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 public class PeopleNumbleUtils {
     public static String errorMessage;
     private final static int[] FACTOR = new int[]{7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2};
+
     /**
      * 功能：设置地区编码
      */
@@ -209,6 +210,83 @@ public class PeopleNumbleUtils {
             sum += FACTOR[i] * Integer.parseInt(String.valueOf(id17.charAt(i)));
         }
         return sum;
+    }
+
+
+    public static String CreateRandomPeopleNumber(String sex) {
+//			trace(getCheckNumber("41030619760917052"));
+        String peopleNumber;
+
+        String areaNumber = "410000";
+
+        String birthdayNumber = getBirthday();
+
+        String orderNumber = getOrderNumber();
+
+        String sexNumber = getSexNumber(sex);
+
+        String seventeenNumber = areaNumber + birthdayNumber + orderNumber + sexNumber;
+
+        String checkNumber = getLastNumOfID(seventeenNumber);
+
+        peopleNumber = seventeenNumber + checkNumber;
+
+        return peopleNumber;
+    }
+
+    //获取生日
+    private static String getBirthday() {
+
+        //返回1800-1900之间的日期，表示死去的人。
+
+        int year = 1800 + (int)(100 * Math.random());
+        int month = 1 + (int)(12 * Math.random());
+        int day = 1 + (int)(31 * Math.random());
+
+        //日期判断
+        if (day > 28) {
+            if ((month == 4 || month == 6 || month == 9 || month == 11) && day > 30)
+                day = 30;
+            else if (month == 2 && isLeapYear(year) && day > 29)
+                day = 29;
+            else if (month == 2 && day > 28)
+                day = 28;
+        }
+
+        String str_month = month < 10 ? "0" + month : month+"";
+        String str_day = day < 10 ? "0" + day : day+"";
+
+        String birthday = year+"" + str_month + str_day;
+        return birthday;
+    }
+
+
+    private static String getSexNumber(String sex)
+    {
+        if (sex == "男")
+            return "1";
+        else if (sex == "女")
+            return "2";
+
+        return (int)(1 + Math.random() * 2)+"";
+    }
+
+    //生成随机顺序码
+    private static String getOrderNumber(){
+        int num = (int )Math.random() * 100;
+        String orderNumber = num+"";
+        if(orderNumber.length() == 1)
+            orderNumber = "0" + orderNumber;
+        return orderNumber;
+    }
+
+    //四年一闰，百年不闰，四百年闰
+    private static boolean isLeapYear(int year)
+    {
+        if  ( (year%4 == 0 && year %100 != 0) || year % 400 == 0 )
+            return true;
+        else
+            return false;
     }
 }
 

@@ -41,6 +41,7 @@ import com.ywl01.jlinfo.beans.MarkBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.consts.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
+import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.consts.KeyName;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
@@ -62,6 +63,8 @@ import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.BeanMapUtils;
 import com.ywl01.jlinfo.utils.DialogUtils;
 import com.ywl01.jlinfo.utils.StringUtils;
+import com.ywl01.jlinfo.views.AddGraphicMenuDialog;
+import com.ywl01.jlinfo.views.UploadImageMenuDialog;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -477,12 +480,35 @@ public class MapListener extends DefaultMapViewOnTouchListener
         android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
         nowGraphic = getSelectGraphic(screenPoint);
 
-        changeGraphicSymbol();
+        //长按空白区域
+        if (nowGraphic == null) {
+            showAddGraphicDialog(mapView.screenToLocation(screenPoint));
+        }
+        //符号上面长按
+        else{
+            showGraphicMenu();
+        }
 
+        super.onLongPress(e);
+    }
+
+    //显示graphic菜单
+    private void showGraphicMenu() {
+        changeGraphicSymbol();
         ShowGraphicMenuEvent event = new ShowGraphicMenuEvent();
         event.graphic = nowGraphic;
         event.dispatch();
-        super.onLongPress(e);
+    }
+
+    //显示添加graphic菜单
+    private void showAddGraphicDialog(Point point) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("mapScale", mapView.getMapScale());
+        data.put("mapPoint", point);
+
+        AddGraphicMenuDialog dialog = new AddGraphicMenuDialog(BaseActivity.currentActivity, R.style.DialogBackgroundNull);
+        dialog.data = data;
+        dialog.show();
     }
 
     ///////////////////////////////////////////////////////////////////////////

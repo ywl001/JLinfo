@@ -27,7 +27,7 @@ import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.GraphicItemsObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
-import com.ywl01.jlinfo.utils.IdcardUtils;
+import com.ywl01.jlinfo.utils.PeopleNumbleUtils;
 
 import java.util.List;
 
@@ -211,7 +211,7 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
             return num_date;
         } else if (AppUtils.isMobile(num)) {
             return num_phone;
-        } else if (IdcardUtils.validateCard(num)) {
+        } else if (PeopleNumbleUtils.validate(num)) {
             return num_idcard;
         } else {
             return num_other;

@@ -15,6 +15,9 @@ android {
                 includeCompileClasspath = true
             }
         }
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
+        }
     }
     buildTypes {
         release {
@@ -52,6 +55,6 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:26.1.0'
     implementation 'com.github.chrisbanes:PhotoView:2.1.4'
     implementation files('libs/universal-image-loader-1.9.5.jar')
-
     implementation 'com.github.promeg:tinypinyin:2.0.3'
+    implementation files('libs/BaiduLBS_Android.jar')
 }

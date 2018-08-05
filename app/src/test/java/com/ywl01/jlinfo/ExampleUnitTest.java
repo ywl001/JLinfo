@@ -1,9 +1,5 @@
 package com.ywl01.jlinfo;
 
-import com.github.promeg.pinyinhelper.Pinyin;
-import com.ywl01.jlinfo.utils.AppUtils;
-import com.ywl01.jlinfo.utils.IdcardUtils;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

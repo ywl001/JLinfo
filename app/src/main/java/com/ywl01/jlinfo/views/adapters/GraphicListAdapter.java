@@ -6,10 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.ywl01.jlinfo.R;
-import com.ywl01.jlinfo.events.ShowPositionEvent;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.views.holds.GraphicItemHolder;
-import com.ywl01.jlinfo.views.holds.PeopleItemHolder;
 
 import java.util.List;
 

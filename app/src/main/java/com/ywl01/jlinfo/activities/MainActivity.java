@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,9 +20,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.baidu.location.BDLocation;
-import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.utils.CoordinateConverter;
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.layers.ArcGISTiledLayer;
@@ -41,10 +37,10 @@ import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.ShowGraphicListEvent;
 import com.ywl01.jlinfo.events.ShowGraphicMenuEvent;
 import com.ywl01.jlinfo.events.ShowMarkInfoEvent;
-import com.ywl01.jlinfo.events.ShowPositionEvent;
+import com.ywl01.jlinfo.events.ShowGraphicLocationEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.events.UploadImageEvent;
-import com.ywl01.jlinfo.map.Location;
+import com.ywl01.jlinfo.map.LocationService;
 import com.ywl01.jlinfo.map.MapListener;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.ProgressRequestBody;
@@ -61,7 +57,6 @@ import com.ywl01.jlinfo.views.SearchView;
 import com.ywl01.jlinfo.views.adapters.BaseAdapter;
 import com.ywl01.jlinfo.views.adapters.DividerItemDecoration;
 import com.ywl01.jlinfo.views.adapters.GraphicListAdapter;
-import com.ywl01.jlinfo.views.adapters.PeopleListAdapter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -102,12 +97,13 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
 
-    private MarkInfoView markInfoView;
-    private GraphicMenuView graphicMenuView;
+    private MarkInfoView     markInfoView;
+    private GraphicMenuView  graphicMenuView;
     private UploadImageEvent uploadImageEvent;
 
     private ArcGISTiledLayer tiledLayer;
-    private Location location;
+    private LocationService  locationListener;
+    private boolean          isShowLocation;
 
     @Override
     protected void initView() {
@@ -117,7 +113,7 @@ public class MainActivity extends BaseActivity {
         getMetrics();
         initMap();
         drawerLayout.setScrimColor(Color.TRANSPARENT);
-        location = new Location(this);
+        locationListener = new LocationService(this);
     }
 
     //获取手机各种尺寸
@@ -186,15 +182,13 @@ public class MainActivity extends BaseActivity {
 
     @OnClick(R.id.btn_location)
     public void onLocation() {
-        location.requestLocation();
-        location.setOnGetLocationListener(new Location.OnGetLocationListener() {
-            @Override
-            public void getLocationInfo(BDLocation locationInfo) {
-                System.out.println(locationInfo.getLongitude()+"__________" + locationInfo.getLatitude());
-                CoordinateConverter converter = new CoordinateConverter();
-                
-            }
-        });
+        if(isShowLocation){
+            locationListener.requestLocation();
+        }else {
+            locationListener.closeLocation();
+            TypeEvent.dispatch(TypeEvent.CLEAR_LOCATION);
+        }
+        isShowLocation = !isShowLocation;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -218,18 +212,18 @@ public class MainActivity extends BaseActivity {
         bottomContainer.removeAllViews();
         bottomContainer.addView(markInfoView);
 
-        setAnmation(bottomContainer,markInfoView.getHeight(),0);
+        setAnmation(bottomContainer, markInfoView.getHeight(), 0);
     }
 
     @Subscribe
     public void showGraphicMenu(ShowGraphicMenuEvent event) {
-        if(graphicMenuView == null)
+        if (graphicMenuView == null)
             graphicMenuView = new GraphicMenuView(this);
         graphicMenuView.setData(event.graphic);
         bottomContainer.removeAllViews();
         bottomContainer.addView(graphicMenuView);
 
-        setAnmation(bottomContainer, graphicMenuView.getHeight(),0);
+        setAnmation(bottomContainer, graphicMenuView.getHeight(), 0);
     }
 
 
@@ -253,7 +247,7 @@ public class MainActivity extends BaseActivity {
         });
     }
 
-    private void setAnmation(View target,float fromY,float toY) {
+    private void setAnmation(View target, float fromY, float toY) {
         TranslateAnimation animation = new TranslateAnimation(0, 0, fromY, toY);
         animation.setDuration(500);
         target.startAnimation(animation);
@@ -298,10 +292,10 @@ public class MainActivity extends BaseActivity {
                 map.put("displayText", itemBean.name);
                 map.put("graphicFlag", GraphicFlag.POSITION);
 
-                Graphic g = new Graphic(mapPoint,map,pms);
+                Graphic g = new Graphic(mapPoint, map, pms);
                 List<Graphic> graphics = new ArrayList<>();
                 graphics.add(g);
-                ShowPositionEvent e = new ShowPositionEvent();
+                ShowGraphicLocationEvent e = new ShowGraphicLocationEvent();
                 e.positions = graphics;
                 e.dispatch();
             }
@@ -356,7 +350,7 @@ public class MainActivity extends BaseActivity {
                 Map<String, String> tableData = new HashMap<String, String>();
                 int id = uploadImageEvent.id;
 
-                tableData.put("markID", id+"");
+                tableData.put("markID", id + "");
                 tableData.put("imageUrl", imgUrl);
                 tableData.put("thumbUrl", thumbUrl);
                 tableData.put("insertUser", CommVar.UserID + "");
@@ -380,7 +374,7 @@ public class MainActivity extends BaseActivity {
     }
 
     private boolean isPressBack;
-    private int clickBackTimes;
+    private int     clickBackTimes;
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -406,7 +400,7 @@ public class MainActivity extends BaseActivity {
                 clickBackTimes = 0;
             } else if (clickBackTimes == 1) {
                 AppUtils.showToast("再按一次退出");
-            }else{
+            } else {
                 super.finish();
             }
         }

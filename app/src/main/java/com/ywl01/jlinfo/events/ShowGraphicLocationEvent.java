@@ -10,7 +10,7 @@ import java.util.List;
  * Created by ywl01 on 2017/2/5.
  */
 
-public class ShowPositionEvent extends Event{
+public class ShowGraphicLocationEvent extends Event{
     public List<Graphic> positions;
 
 }

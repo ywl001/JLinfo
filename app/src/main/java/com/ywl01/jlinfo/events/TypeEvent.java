@@ -7,19 +7,19 @@ package com.ywl01.jlinfo.events;
 
 public class TypeEvent extends Event {
 
-    public static final int CHANGE_PANORAMA_ICON = 1;
-    public static final int DEL_MONITOR = 2;
-    public static final int LOGIN = 3;
-    public static final int MOVE_GRAPHIC = 4;
-    public static final int SHOW_PANORRMA = 6;
-    public static final int REFRESH_IMAGE = 7;
-    public static final int SHOW_BTN_CONTAINER = 8;
-    public static final int REFRESH_MARKERS = 5;
-    public static final int REFRESH_BUILDINGS = 9;
-    public static final int REFRESH_HOUSE = 10;
+    public static final int CHANGE_PANORAMA_ICON   = 1;
+    public static final int DEL_MONITOR            = 2;
+    public static final int LOGIN                  = 3;
+    public static final int MOVE_GRAPHIC           = 4;
+    public static final int SHOW_PANORRMA          = 6;
+    public static final int REFRESH_IMAGE          = 7;
+    public static final int SHOW_BTN_CONTAINER     = 8;
+    public static final int REFRESH_MARKERS        = 5;
+    public static final int REFRESH_BUILDINGS      = 9;
+    public static final int REFRESH_HOUSE          = 10;
     public static final int CLEAR_BOTTOM_CONTAINER = 11;
-    public static final int RESET_SWIPEITEM_STATE = 12;
-
+    public static final int RESET_SWIPEITEM_STATE  = 12;
+    public static final int CLEAR_LOCATION         = 13;
 
 
     public int type;

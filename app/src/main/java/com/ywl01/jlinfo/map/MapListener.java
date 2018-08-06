@@ -3,7 +3,6 @@ package com.ywl01.jlinfo.map;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,6 +28,7 @@ import com.esri.arcgisruntime.mapping.view.ViewpointChangedEvent;
 import com.esri.arcgisruntime.mapping.view.ViewpointChangedListener;
 import com.esri.arcgisruntime.symbology.CompositeSymbol;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
+import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import com.esri.arcgisruntime.symbology.Symbol;
 import com.esri.arcgisruntime.symbology.TextSymbol;
 import com.esri.arcgisruntime.util.ListenableList;
@@ -41,14 +41,14 @@ import com.ywl01.jlinfo.beans.MarkBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.consts.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
-import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.consts.KeyName;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
+import com.ywl01.jlinfo.events.LocationEvent;
 import com.ywl01.jlinfo.events.ShowGraphicMenuEvent;
 import com.ywl01.jlinfo.events.ShowMarkInfoEvent;
-import com.ywl01.jlinfo.events.ShowPositionEvent;
+import com.ywl01.jlinfo.events.ShowGraphicLocationEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.SqlFactory;
@@ -64,7 +64,6 @@ import com.ywl01.jlinfo.utils.BeanMapUtils;
 import com.ywl01.jlinfo.utils.DialogUtils;
 import com.ywl01.jlinfo.utils.StringUtils;
 import com.ywl01.jlinfo.views.AddGraphicMenuDialog;
-import com.ywl01.jlinfo.views.UploadImageMenuDialog;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -73,8 +72,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import io.reactivex.Observer;
 
@@ -99,7 +96,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
     private GraphicsOverlay markOverlay;
     private GraphicsOverlay buildingOverlay;
     private GraphicsOverlay houseOverlay;
-    private GraphicsOverlay positionOverlay;
+    private GraphicsOverlay locationOverlay;
 
     private Envelope prevExtent;
 
@@ -130,12 +127,12 @@ public class MapListener extends DefaultMapViewOnTouchListener
         markOverlay = new GraphicsOverlay();
         buildingOverlay = new GraphicsOverlay();
         houseOverlay = new GraphicsOverlay();
-        positionOverlay = new GraphicsOverlay();
+        locationOverlay = new GraphicsOverlay();
 
         this.mapView.getGraphicsOverlays().add(markOverlay);
         this.mapView.getGraphicsOverlays().add(buildingOverlay);
         this.mapView.getGraphicsOverlays().add(houseOverlay);
-        this.mapView.getGraphicsOverlays().add(positionOverlay);
+        this.mapView.getGraphicsOverlays().add(locationOverlay);
 
         EventBus.getDefault().register(this);
         displayScale_building = CommVar.getInstance().getScaleBylevel(CommVar.buildingDisplayLevel);
@@ -581,12 +578,15 @@ public class MapListener extends DefaultMapViewOnTouchListener
                 isMoveGraphic = true;
                 AppUtils.showToast("请在要移动的位置上单击");
                 break;
+            case TypeEvent.CLEAR_LOCATION:
+                locationOverlay.getGraphics().clear();
+                break;
         }
     }
 
     @Subscribe
-    public void showPosition(ShowPositionEvent event) {
-        positionOverlay.getGraphics().clear();
+    public void showGraphicLocation(ShowGraphicLocationEvent event) {
+        locationOverlay.getGraphics().clear();
         List<Graphic> positions = event.positions;
         if (mapView.getCallout().isShowing()) {
             mapView.getCallout().dismiss();
@@ -597,8 +597,8 @@ public class MapListener extends DefaultMapViewOnTouchListener
             String displayText = (String) g.getAttributes().get("displayText");
             showPositionCallout(mapView, (Point) g.getGeometry(), displayText, mapscale);
         } else {
-            positionOverlay.getGraphics().addAll(positions);
-            mapView.setViewpointGeometryAsync(positionOverlay.getExtent(), 20);
+            locationOverlay.getGraphics().addAll(positions);
+            mapView.setViewpointGeometryAsync(locationOverlay.getExtent(), 20);
         }
     }
 
@@ -621,7 +621,14 @@ public class MapListener extends DefaultMapViewOnTouchListener
         });
     }
 
-
+    @Subscribe
+    public void showLocation(LocationEvent event) {
+        Point p = new Point(event.x, event.y, CommVar.mapSpatialReference);
+        SimpleMarkerSymbol sms = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 12);
+        Graphic g = new Graphic(p,sms);
+        locationOverlay.getGraphics().clear();
+        locationOverlay.getGraphics().add(g);
+    }
     //禁止地图旋转
     @Override
     public boolean onRotate(MotionEvent event, double rotationAngle) {

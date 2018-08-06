@@ -31,7 +31,7 @@ import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.ListEvent;
-import com.ywl01.jlinfo.events.ShowPositionEvent;
+import com.ywl01.jlinfo.events.ShowGraphicLocationEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.QueryFamilyServices;
@@ -319,7 +319,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                 List<Graphic> positions = (List<Graphic>) data;
                 if (positions != null && positions.size() > 0) {
                     AppUtils.moveActivityToFront(MainActivity.class);
-                    ShowPositionEvent event = new ShowPositionEvent();
+                    ShowGraphicLocationEvent event = new ShowGraphicLocationEvent();
                     event.positions = positions;
                     event.dispatch();
                 } else {
@@ -341,7 +341,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                 List<Graphic> positions = (List<Graphic>) data;
                 if (positions != null && positions.size() > 0) {
                     AppUtils.moveActivityToFront(MainActivity.class);
-                    ShowPositionEvent event = new ShowPositionEvent();
+                    ShowGraphicLocationEvent event = new ShowGraphicLocationEvent();
                     event.positions = positions;
                     event.dispatch();
                 } else {

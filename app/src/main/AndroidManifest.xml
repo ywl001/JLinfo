@@ -33,15 +33,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light">
 
-        <!--使用百度定位-->
-        <meta-data
-            android:name="com.baidu.lbsapi.API_KEY"
-            android:value="MfDF3nsZnLjFtBHrrvAq6Iw9Y8EYY52F" />
-
-        <service
-            android:name="com.baidu.location.f"
-            android:enabled="true"
-            android:process=":remote" />
 
         <activity android:name=".activities.MainActivity">
             <intent-filter>

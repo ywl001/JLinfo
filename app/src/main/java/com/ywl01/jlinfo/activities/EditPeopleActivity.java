@@ -9,9 +9,7 @@ import android.widget.RadioGroup;
 
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.beans.PeopleBean;
-import com.ywl01.jlinfo.beans.User;
 import com.ywl01.jlinfo.consts.CommVar;
-import com.ywl01.jlinfo.consts.KeyName;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;

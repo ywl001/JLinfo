@@ -14,6 +14,7 @@ import android.widget.RadioGroup;
 
 import com.github.promeg.pinyinhelper.Pinyin;
 import com.ywl01.jlinfo.R;
+import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.views.adapters.DividerItemDecoration;
 import com.ywl01.jlinfo.views.adapters.QueryPeopleListAdapter;
 import com.ywl01.jlinfo.beans.PeopleBean;
@@ -67,9 +68,6 @@ public class QueryPeopleView extends LinearLayout implements RadioGroup.OnChecke
     private PeopleBean newPeople;
     private boolean isAddNewPeople;
 
-
-    private int peopleFlag;
-
     private OnItemSelectListener onItemSelectListener;
     private onClickBtnCancelListener onClickBtnCancelListener;
 
@@ -110,15 +108,10 @@ public class QueryPeopleView extends LinearLayout implements RadioGroup.OnChecke
         this.isAddNewPeople = isAddNewPeople;
     }
 
-    public void setPeopleFlag(int peopleFlag) {
-        this.peopleFlag = peopleFlag;
-    }
-
-
     @OnClick(R.id.btn_submit)
     public void onSubmit() {
         String sql = createSql();
-        PeopleObserver peopleObserver = new PeopleObserver(peopleFlag);
+        PeopleObserver peopleObserver = new PeopleObserver(PeopleFlag.FROM_QUERY);
         HttpMethods.getInstance().getSqlResult(peopleObserver, SqlAction.SELECT, sql);
         peopleObserver.setOnNextListener(this);
     }

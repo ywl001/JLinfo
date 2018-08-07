@@ -70,6 +70,7 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnLongClick;
 import io.reactivex.Observer;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -97,12 +98,15 @@ public class MainActivity extends BaseActivity {
     @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
 
+    @BindView(R.id.btn_location)
+    Button btnLocation;
+
     private MarkInfoView     markInfoView;
     private GraphicMenuView  graphicMenuView;
     private UploadImageEvent uploadImageEvent;
 
     private ArcGISTiledLayer tiledLayer;
-    private LocationService  locationListener;
+    private LocationService locationService;
     private boolean          isShowLocation;
 
     @Override
@@ -113,7 +117,7 @@ public class MainActivity extends BaseActivity {
         getMetrics();
         initMap();
         drawerLayout.setScrimColor(Color.TRANSPARENT);
-        locationListener = new LocationService(this);
+        locationService = new LocationService(this);
     }
 
     //获取手机各种尺寸
@@ -168,6 +172,12 @@ public class MainActivity extends BaseActivity {
         searchView.setVisibility(View.VISIBLE);
     }
 
+    @OnLongClick(R.id.btn_search)
+    public boolean onSearch2() {
+        AppUtils.startActivity(SearchActivity.class);
+        return true;
+    }
+
     @OnClick(R.id.btn_zoom_in)
     public void onZoomIn() {
         double scale = mapView.getMapScale();
@@ -182,13 +192,23 @@ public class MainActivity extends BaseActivity {
 
     @OnClick(R.id.btn_location)
     public void onLocation() {
+        if (locationService == null) {
+            return;
+        }
         if(isShowLocation){
-            locationListener.requestLocation();
+            locationService.requestLocation();
+            btnLocation.setBackground(AppUtils.getResDrawable(R.drawable.location_press));
         }else {
-            locationListener.closeLocation();
+            locationService.closeLocation();
+            btnLocation.setBackground(AppUtils.getResDrawable(R.drawable.location));
             TypeEvent.dispatch(TypeEvent.CLEAR_LOCATION);
         }
         isShowLocation = !isShowLocation;
+    }
+
+    @OnClick({R.id.btn_add})
+    public void addPeople() {
+        AppUtils.startActivity(AddPeopleActivity.class);
     }
 
     ///////////////////////////////////////////////////////////////////////////

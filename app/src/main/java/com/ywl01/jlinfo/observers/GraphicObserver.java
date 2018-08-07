@@ -5,7 +5,6 @@ import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.symbology.Symbol;
 import com.ywl01.jlinfo.beans.GraphicBean;
 import com.ywl01.jlinfo.consts.CommVar;
-import com.ywl01.jlinfo.consts.KeyName;
 import com.ywl01.jlinfo.utils.BeanMapUtils;
 
 import java.util.ArrayList;
@@ -41,7 +40,7 @@ public abstract class GraphicObserver extends BaseObserver<String,List<Graphic>>
     private Map<String, Object> getAttributes(GraphicBean bean) {
         Map<String, Object> attributes = BeanMapUtils.beanToMap(bean);
         int flag = getFlag();
-        attributes.put(KeyName.GRAPHIC_FLAG, flag);
+        attributes.put("graphicFlag", flag);
         return attributes;
     }
 

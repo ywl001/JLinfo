@@ -3,7 +3,6 @@ package com.ywl01.jlinfo.views;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,7 +14,6 @@ import com.ywl01.jlinfo.activities.PeoplesActivity;
 import com.ywl01.jlinfo.beans.BuildingBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.consts.CommVar;
-import com.ywl01.jlinfo.consts.KeyName;
 import com.ywl01.jlinfo.utils.AppUtils;
 
 import java.util.ArrayList;

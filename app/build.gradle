@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'key_ywl'
+            keyPassword '410306'
+            storeFile file('D:/android-studio/ywl.jks')
+            storePassword '410306'
+        }
+    }
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.ywl01.jlinfo"

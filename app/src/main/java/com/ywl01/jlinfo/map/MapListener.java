@@ -41,7 +41,6 @@ import com.ywl01.jlinfo.beans.MarkBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.consts.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
-import com.ywl01.jlinfo.consts.KeyName;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
@@ -308,7 +307,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
         }
 
         changeGraphicSymbol();
-        int graphicFlag = (int) nowGraphic.getAttributes().get(KeyName.GRAPHIC_FLAG);
+        int graphicFlag = (int) nowGraphic.getAttributes().get("graphicFlag");
 
         switch (graphicFlag) {
             case GraphicFlag.MARK:
@@ -525,8 +524,8 @@ public class MapListener extends DefaultMapViewOnTouchListener
     }
 
     private void showPeoples(Graphic g) {
-        int graphicFlag = (int) g.getAttributes().get(KeyName.GRAPHIC_FLAG);
-        int id = (int) g.getAttributes().get(KeyName.ID);
+        int graphicFlag = (int) g.getAttributes().get("graphicFlag");
+        int id = (int) g.getAttributes().get("id");
         String sql = "";
         int peopleFlag = -1;
         if (graphicFlag == GraphicFlag.MARK) {

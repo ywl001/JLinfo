@@ -177,6 +177,8 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
             address = getString(data.buildingName) + getString(data.roomNumber);
         } else if (peopleFlag == PeopleFlag.FROM_HOUSE) {
             address = getString(data.community) + getString(data.roomNumber);
+        } else if (peopleFlag == PeopleFlag.FROM_SEARCH) {
+            address= getString(data.buildingName) + getString(data.roomNumber) + getString(data.community);
         }
 
         setTextViewValue(tvAddress, address);

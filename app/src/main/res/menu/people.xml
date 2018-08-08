@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/now_people"
+        android:title="现有人员" />
+
+    <item
+        android:id="@+id/leave_people"
+        android:title="离去人员" />
+
+    <item
+        android:id="@+id/all_people"
+        android:title="所有人员" />
+</menu>

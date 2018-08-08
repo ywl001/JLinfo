@@ -102,7 +102,7 @@ public class AddPeopleActivity extends BaseActivity {
 
         addPeopleFlag = -1;
         if (graphic != null) {
-            addPeopleFlag = (int) graphic.getAttributes().get("grahpicFlag");
+            addPeopleFlag = (int) graphic.getAttributes().get("graphicFlag");
         } else
             addPeopleFlag = GraphicFlag.NONE;
 

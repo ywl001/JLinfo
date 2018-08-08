@@ -55,8 +55,8 @@ public class SearchItemView extends FrameLayout implements RadioGroup.OnCheckedC
     @BindView(R.id.btn_remove)
     Button btnRemove;
 
-    private Map<String, String> operatorMap;
-    private Map<String, String> fieldMap;
+    private Map<String, String>  operatorMap;
+    private Map<String, String>  fieldMap;
     private OnItemChangeListener onItemChangeListener;
 
     public void setOnItemChangeListener(OnItemChangeListener onItemChangeListener) {
@@ -90,13 +90,15 @@ public class SearchItemView extends FrameLayout implements RadioGroup.OnCheckedC
         operatorMap.put("不包含", "noContain");
 
         fieldMap = new HashMap<>();
-        fieldMap.put("姓名", "name");
+        fieldMap.put("姓名", "p.name");
         fieldMap.put("性别", "sex");
         fieldMap.put("身份证号", "peopleNumber");
         fieldMap.put("出生日期", "birthday");
-        fieldMap.put("联系电话", "telephone");
-        fieldMap.put("居住类型", "liveType");
-        fieldMap.put("社区村庄", "community");
+        fieldMap.put("联系电话", "p.telephone");
+        fieldMap.put("工作单位", "pm.name");
+        fieldMap.put("楼栋名称", "pb.buildName");
+        fieldMap.put("村庄名称", "h.community");
+        fieldMap.put("社区名称", "b.community");
 
         View view = View.inflate(context, R.layout.search_item, this);
         //requestFocus();
@@ -130,7 +132,7 @@ public class SearchItemView extends FrameLayout implements RadioGroup.OnCheckedC
         data.put("field", fieldMap.get(field));
         data.put("operator", operatorMap.get(operator));
         data.put("keyword", keyword);
-        if (rgLogic.getCheckedRadioButtonId() > 0) {
+        if (rgLogic.getCheckedRadioButtonId() != -1) {
             data.put("logic", logic);
         }
         return data;
@@ -173,11 +175,12 @@ public class SearchItemView extends FrameLayout implements RadioGroup.OnCheckedC
     @OnClick(R.id.et_keyword)
     public void onClickKeyword() {
         System.out.println("click keyword");
-        if (etField.getText().toString().equals("监控类型")) {
-            showCameraTypeDialog();
-        } else if (etField.getText().toString().equals("运行状态")) {
-            showIsRunningDialog();
-        }
+         if (etField.getText().toString().equals("性别")) {
+             etKeyword.setInputType(InputType.TYPE_NULL);
+            showSexDialog();
+        }else {
+             etKeyword.setInputType(InputType.TYPE_CLASS_TEXT);
+         }
     }
 
     @OnClick(R.id.btn_remove)
@@ -207,14 +210,14 @@ public class SearchItemView extends FrameLayout implements RadioGroup.OnCheckedC
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("请选择查询字段：");
 
-        final String[] items = AppUtils.getResArray(R.array.camera);
+        final String[] items = new String[]{"姓名","性别","身份证号","出生日期","联系电话","村庄名称","社区名称","工作单位"};
 
         builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
                 etField.setText(items[i]);
                 String type = items[i];
-                if ("监控类型".equals(type) || "运行状态".equals(type)) {
+                if ("性别".equals(type)) {
                     etOperator.setText("等于");
                     etOperator.setEnabled(false);
                     etKeyword.setInputType(InputType.TYPE_NULL);
@@ -242,7 +245,7 @@ public class SearchItemView extends FrameLayout implements RadioGroup.OnCheckedC
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("请选择查询字段：");
 
-        if ("录入时间".equals(etField.getText().toString().trim())) {
+        if ("出生日期".equals(etField.getText().toString().trim())) {
             builder.setSingleChoiceItems(items1, -1, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int i) {
@@ -263,16 +266,9 @@ public class SearchItemView extends FrameLayout implements RadioGroup.OnCheckedC
     }
 
     //运行状态对话框
-    private void showIsRunningDialog() {
-        String title = AppUtils.getResString(R.string.dialog_select_camera_isrunning_title);
-        String[] items = AppUtils.getResArray(R.array.isRunning);
-        showSelectDialog(title, items);
-    }
-
-    //监控类型对话框
-    private void showCameraTypeDialog() {
-        String title = AppUtils.getResString(R.string.dialog_select_camera_type_title);
-        String[] items = AppUtils.getResArray(R.array.cameraType);
+    private void showSexDialog() {
+        String title = "选择性别：";
+        String[] items = new String[]{"男","女"};
         showSelectDialog(title, items);
     }
 
@@ -296,7 +292,6 @@ public class SearchItemView extends FrameLayout implements RadioGroup.OnCheckedC
     //对外监听接口
     public interface OnItemChangeListener {
         void onAdd(SearchItemView view);//监听单选按钮变化，用来添加一个条目
-
         void onRemove(SearchItemView view);//监听删除按钮，删除一个条目
     }
 }

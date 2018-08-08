@@ -14,7 +14,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <com.ywl01.baidu.views.SearchItemView
+            <com.ywl01.jlinfo.views.SearchItemView
                 android:id="@+id/search_item"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>

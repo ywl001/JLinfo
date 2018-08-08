@@ -6,10 +6,15 @@ import android.text.TextUtils;
 import android.widget.LinearLayout;
 
 import com.ywl01.jlinfo.R;
+import com.ywl01.jlinfo.beans.PeopleBean;
+import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.observers.BaseObserver;
+import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
+import com.ywl01.jlinfo.views.SearchItemView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +30,7 @@ import io.reactivex.Observer;
  * Created by ywl01 on 2018/5/29.
  */
 
-public class SearchActivity extends BaseActivity implements SearchItemView.OnItemChangeListener, BaseObserver.OnNextListener {
+public class SearchActivity extends BaseActivity implements SearchItemView.OnItemChangeListener {
 
     @BindView(R.id.root_view)
     LinearLayout rootView;
@@ -44,11 +49,6 @@ public class SearchActivity extends BaseActivity implements SearchItemView.OnIte
         firstItem.setBtnRemoveEnable(false);
         items.add(firstItem);
         firstItem.setBtnRemoveVisible(false);
-    }
-
-    @Override
-    protected void initActionBar() {
-        setTitle("综合查询：");
     }
 
     @Override
@@ -88,13 +88,31 @@ public class SearchActivity extends BaseActivity implements SearchItemView.OnIte
             return;
         }
 
-        sql = "select m.*,u.realName insertUser from monitor m left join user u on m.userID = u.id where " + sql;
+        sql = "select p.id,p.name,sex,peopleNumber,p.telephone,m.name workPlace,buildingName,pb.roomNumber,h.community " +
+                "from people p left join people_house ph on p.id = ph.peopleID " +
+                "left join house h on ph.houseID = h.id " +
+                "left join people_building pb on p.id = pb.peopleID " +
+                "left join building b on pb.buildingID = b.id " +
+                "left join people_mark pm on p.id = pm.peopleID " +
+                "left join mark m on pm.markID = m.id " +
+                "where " + sql + " group by peopleNumber";
 
         System.out.println(sql);
 
-        CamerasObserver camerasObserver = new CamerasObserver();
-        camerasObserver.setOnNextListener(this);
-        HttpMethods.getInstance().getSqlResult(camerasObserver, SqlAction.SELECT, sql);
+        PeopleObserver observer = new PeopleObserver(PeopleFlag.FROM_SEARCH);
+        observer.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                List<PeopleBean> peoples = (List<PeopleBean>) data;
+                if (peoples.size() > 0) {
+                    CommVar.getInstance().put("peoples",data);
+                    AppUtils.startActivity(PeoplesActivity.class);
+                }else{
+                    AppUtils.showToast("没有符号条件的人员");
+                }
+            }
+        });
+        HttpMethods.getInstance().getSqlResult(observer, SqlAction.SELECT, sql);
     }
 
     @OnClick(R.id.btn_cancel)
@@ -152,20 +170,5 @@ public class SearchActivity extends BaseActivity implements SearchItemView.OnIte
         String str = "";
         str = field + str1 + keyword + str2 + logic + " ";
         return str;
-    }
-
-    @Override
-    public void onNext(Object data, Observer observer) {
-        ArrayList<CameraBean> cameras = (ArrayList<CameraBean>) data;
-        if (cameras.size() > 0) {
-            Bundle args = new Bundle();
-            args.putParcelableArrayList("cameras",cameras);
-            Intent intent = new Intent();
-            intent.putExtras(args);
-            setResult(RESULT_OK,intent);
-            finish();
-        }else{
-            AppUtils.showToast("没有符号条件的人员");
-        }
     }
 }

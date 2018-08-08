@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.ywl01.jlinfo.R;
@@ -93,6 +95,26 @@ public class PeoplesActivity extends BaseActivity {
 //            finish();
 //        }
 //    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.people,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.now_people:
+                break;
+            case R.id.leave_people:
+                break;
+            case R.id.all_people:
+                break;
+        }
+        return true;
+    }
 
     @Override
     public void onStart() {

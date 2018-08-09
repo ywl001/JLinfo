@@ -524,6 +524,8 @@ public class MapListener extends DefaultMapViewOnTouchListener
     }
 
     private void showPeoples(Graphic g) {
+        //显示忙碌图标
+        TypeEvent.dispatch(TypeEvent.SHOW_PROGRESS_BAR);
         int graphicFlag = (int) g.getAttributes().get("graphicFlag");
         int id = (int) g.getAttributes().get("id");
         String sql = "";
@@ -543,6 +545,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
         peopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
+                TypeEvent.dispatch(TypeEvent.HIDE_PROGRESS_BAR);
                 ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data;
                 if (peoples.size() > 0) {
                     CommVar.getInstance().clear();

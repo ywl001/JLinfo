@@ -2,6 +2,7 @@ package com.ywl01.jlinfo.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -18,6 +19,7 @@ import com.ywl01.jlinfo.consts.CommVar;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.net.HttpMethods;
+import com.ywl01.jlinfo.net.QueryFamilyServices;
 import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
@@ -30,7 +32,7 @@ import java.util.List;
 import io.reactivex.Observer;
 
 /**
- * Created by ywl01 on 2017/2/6.
+ * 生产一个home的item
  */
 
 public class FamilyItem extends LinearLayout {
@@ -61,36 +63,6 @@ public class FamilyItem extends LinearLayout {
         initFace();
     }
 
-    public FamilyNode getData() {
-        return data;
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        Paint outerLinePaint = createLinePaint(0xff000000, 2);
-        Paint innerLinePaint = createLinePaint(0xff000000, 1);
-        canvas.drawColor(0xffCEE5F7);
-        canvas.drawRect(1, 1, getMeasuredWidth() - 1, getMeasuredHeight() - 1, outerLinePaint);
-
-        for (int i = 1; i < peoples.size(); i++) {
-            int stepWidth = getMeasuredWidth() / peoples.size();
-            canvas.drawLine(i * stepWidth, 0, i * stepWidth, getMeasuredHeight(), innerLinePaint);
-        }
-        canvas.drawLine(0, AppUtils.dip2px(35), getMeasuredWidth(), AppUtils.dip2px(35), innerLinePaint);
-    }
-
-    private Paint createLinePaint(int color, float strokeWidth) {
-        Paint paint = new Paint();
-        paint.setColor(color);
-        paint.setStrokeWidth(strokeWidth);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeJoin(Paint.Join.BEVEL);
-        paint.setTextSize(30);
-        paint.setAntiAlias(true);
-        return paint;
-    }
-
     private void initFace() {
         for (int i = 0; i < peoples.size(); i++) {
             PeopleBean p = peoples.get(i);
@@ -114,6 +86,43 @@ public class FamilyItem extends LinearLayout {
             tvRelation.setText(p.relation);
             addView(view);
         }
+    }
+
+    public FamilyNode getData() {
+        return data;
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        Paint outerLinePaint = createLinePaint(0xff000000, 2);
+        Paint innerLinePaint = createLinePaint(0xff000000, 1);
+
+        if (data.sign == QueryFamilyServices.BASE) {
+            canvas.drawColor(AppUtils.getResColor(R.color.light_blue));
+        }
+        //绘制外边框
+        canvas.drawRect(1, 1, getMeasuredWidth() - 1, getMeasuredHeight() - 1, outerLinePaint);
+
+        //绘制竖线
+        int stepWidth = getMeasuredWidth() / peoples.size();
+        for (int i = 1; i < peoples.size(); i++) {
+            canvas.drawLine(i * stepWidth, 0, i * stepWidth, getMeasuredHeight(), innerLinePaint);
+        }
+
+        //绘制横线
+        canvas.drawLine(0, AppUtils.dip2px(35), getMeasuredWidth(), AppUtils.dip2px(35), innerLinePaint);
+    }
+
+    private Paint createLinePaint(int color, float strokeWidth) {
+        Paint paint = new Paint();
+        paint.setColor(color);
+        paint.setStrokeWidth(strokeWidth);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeJoin(Paint.Join.BEVEL);
+        paint.setTextSize(30);
+        paint.setAntiAlias(true);
+        return paint;
     }
 
     @Override

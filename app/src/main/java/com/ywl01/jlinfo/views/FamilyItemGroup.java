@@ -6,6 +6,7 @@ import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 /**
@@ -22,7 +23,7 @@ public class FamilyItemGroup extends FrameLayout {
     public FamilyItemGroup(Context context) {
         super(context);
 //        setBackgroundColor(0x44ff0000);
-        LayoutParams params = new LayoutParams(-2, -2);
+        LayoutParams params = new LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         setLayoutParams(params);
         initDragHelper();
     }
@@ -44,7 +45,6 @@ public class FamilyItemGroup extends FrameLayout {
 
             @Override
             public int clampViewPositionHorizontal(View child, int left, int dx) {
-                System.out.println("dddddddddddddddddffffffffffffffffffffff");
                 int minLeft = 0;
                 if (dx < 0) {
                     for (int i = 0; i < getChildCount(); i++) {
@@ -130,11 +130,13 @@ public class FamilyItemGroup extends FrameLayout {
 
         measureChildren(widthMeasureSpec, heightMeasureSpec);
 
+        //计算高度
+        int height = getChildAt(0).getMeasuredHeight();
+
+        //计算宽度
+        int width = 0;
         int countChild = getChildCount();
         FamilyItem item = null;
-        int height = getChildAt(0).getMeasuredHeight();
-        ;
-        int width = 0;
         for (int i = 0; i < countChild; i++) {
             item = (FamilyItem) getChildAt(i);
             LayoutParams params = (LayoutParams) item.getLayoutParams();

@@ -20,6 +20,8 @@ public class TypeEvent extends Event {
     public static final int CLEAR_BOTTOM_CONTAINER = 11;
     public static final int RESET_SWIPEITEM_STATE  = 12;
     public static final int CLEAR_LOCATION         = 13;
+    public static final int SHOW_PROGRESS_BAR = 14;
+    public static final int HIDE_PROGRESS_BAR = 15;
 
 
     public int type;

@@ -19,6 +19,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import com.esri.arcgisruntime.geometry.Point;
@@ -100,6 +101,9 @@ public class MainActivity extends BaseActivity {
 
     @BindView(R.id.btn_location)
     Button btnLocation;
+
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
 
     private MarkInfoView     markInfoView;
     private GraphicMenuView  graphicMenuView;
@@ -220,6 +224,10 @@ public class MainActivity extends BaseActivity {
             btnContainer.setVisibility(View.VISIBLE);
         else if (event.type == TypeEvent.CLEAR_BOTTOM_CONTAINER) {
             clearBottomContainer();
+        }else if(event.type == TypeEvent.SHOW_PROGRESS_BAR){
+            progressBar.setVisibility(View.VISIBLE);
+        } else if (event.type == TypeEvent.HIDE_PROGRESS_BAR) {
+            progressBar.setVisibility(View.GONE);
         }
     }
 

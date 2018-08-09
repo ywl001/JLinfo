@@ -75,6 +75,8 @@ public class ImageActivity extends BaseActivity implements ViewPager.OnPageChang
         setContentView(R.layout.activity_image);
         ButterKnife.bind(this);
 
+        getSupportActionBar().hide();
+
         tvCountPage.setText((position + 1) + "/" + images.size());
         pagerAdapter = new ImagePageAdapter(images);
 

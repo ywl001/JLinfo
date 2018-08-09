@@ -1,15 +1,17 @@
-package com.ywl01.jlinfo.views;
+package com.ywl01.jlinfo.views.holds;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.FrameLayout;
 
 import com.ywl01.jlinfo.beans.FamilyNode;
 import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.views.FamilyItem;
+import com.ywl01.jlinfo.views.FamilyItemGroup;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +20,7 @@ import java.util.List;
  * Created by ywl01 on 2017/2/7.
  */
 
-public class FamilyView extends FrameLayout{
+public class FamilyView2 extends FrameLayout implements ScaleGestureDetector.OnScaleGestureListener{
     private List<FamilyNode> data;
     private List<Integer> levels;
     private List<FamilyNode> nodes;
@@ -30,7 +32,7 @@ public class FamilyView extends FrameLayout{
     private int downX;
     private int downY;
 
-    public FamilyView(Context context) {
+    public FamilyView2(Context context) {
         super(context);
         this.context = context;
         setBackgroundColor(0xffCEE8F2);
@@ -384,4 +386,18 @@ public class FamilyView extends FrameLayout{
         return super.onInterceptTouchEvent(event);
     }
 
+    @Override
+    public boolean onScale(ScaleGestureDetector scaleGestureDetector) {
+        return false;
+    }
+
+    @Override
+    public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
+        return false;
+    }
+
+    @Override
+    public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
+
+    }
 }

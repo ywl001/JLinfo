@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Filter;
 
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.views.adapters.DividerItemDecoration;
@@ -36,7 +37,9 @@ import org.greenrobot.eventbus.Subscribe;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,7 +47,7 @@ import io.reactivex.Observer;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 
-public class PeoplesActivity extends BaseActivity {
+public class PeoplesActivity extends BaseActivity implements Filter.FilterListener {
 
     private ArrayList<PeopleBean> peoples;
 
@@ -52,7 +55,6 @@ public class PeoplesActivity extends BaseActivity {
     RecyclerView peopleListView;
 
     private PeopleListAdapter adapter;
-    private ArrayList<ArrayList<PeopleBean>> peopless;
     private UploadImageEvent uploadPhotoEvent;
 
     @Override
@@ -61,45 +63,19 @@ public class PeoplesActivity extends BaseActivity {
         setContentView(R.layout.activity_peoples);
         ButterKnife.bind(this);
         peoples = (ArrayList<PeopleBean>) CommVar.getInstance().get("peoples");
-//        peopless = new ArrayList<>();
-//        peopless.add(peoples);
 
         LinearLayoutManager manager = new LinearLayoutManager(AppUtils.getContext(), LinearLayoutManager.VERTICAL, false);
         adapter = new PeopleListAdapter(peoples);
+        adapter.getFilter().filter("0", this);
+//        setTitle("现有" + adapter.getItemCount() + "人");
         peopleListView.setLayoutManager(manager);
         peopleListView.setAdapter(adapter);
         peopleListView.addItemDecoration(new DividerItemDecoration(AppUtils.getContext(), LinearLayoutManager.VERTICAL));
     }
 
-//    @Override
-//    protected void onNewIntent(Intent intent) {
-//        System.out.println("peopleActivity on new intent......");
-//        super.onNewIntent(intent);
-//        peoples = (ArrayList<PeopleBean>) CommVar.getInstance().get("peoples");
-//        peopless.add(peoples);
-//        adapter = new PeopleListAdapter(peoples);
-//        peopleListView.setAdapter(adapter);
-////        adapter.notifyDataSetChanged();
-//    }
-
-//    @Override
-//    public void onBackPressed() {
-//        //super.onBackPressed();
-//        System.out.println("on back pressed................" + peopless.size());
-//        peopless.remove(peopless.size() - 1);
-//        if (peopless.size() > 0) {
-//            peoples = peopless.get(peopless.size() - 1);
-//            adapter = new PeopleListAdapter(peoples);
-//            peopleListView.setAdapter(adapter);
-//        }else{
-//            finish();
-//        }
-//    }
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.people,menu);
+        getMenuInflater().inflate(R.menu.people, menu);
         return true;
     }
 
@@ -107,10 +83,15 @@ public class PeoplesActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.now_people:
+                adapter.getFilter().filter("0", this);
+//                setTitle("现有" + adapter.getItemCount() + "人");
                 break;
             case R.id.leave_people:
+                adapter.getFilter().filter("1", this);
+//                setTitle("离开" + adapter.getItemCount() + "人");
                 break;
             case R.id.all_people:
+                adapter.getFilter().filter(null, this);
                 break;
         }
         return true;
@@ -120,15 +101,14 @@ public class PeoplesActivity extends BaseActivity {
     public void onStart() {
         System.out.println("people activity on start");
         super.onStart();
-        if(!EventBus.getDefault().isRegistered(this))
-             EventBus.getDefault().register(this);
-        //TypeEvent.dispatch(TypeEvent.RESET_SWIPEITEM_STATE);
+        if (!EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().register(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(EventBus.getDefault().isRegistered(this))
+        if (EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().unregister(this);
     }
 
@@ -151,7 +131,7 @@ public class PeoplesActivity extends BaseActivity {
         for (int i = 0; i < countPeople; i++) {
             if (peoples.get(i).id == p.id) {
                 peoples.set(i, p);
-                ListEvent e = new ListEvent(ListEvent.update,i);
+                ListEvent e = new ListEvent(ListEvent.update, i);
                 e.dispatch();
                 break;
             }
@@ -211,7 +191,7 @@ public class PeoplesActivity extends BaseActivity {
                 Map<String, String> tableData = new HashMap<String, String>();
                 int id = uploadPhotoEvent.id;
 
-                tableData.put("peopleID", id+"");
+                tableData.put("peopleID", id + "");
                 tableData.put("photoUrl", imgUrl);
                 tableData.put("thumbUrl", thumbUrl);
                 tableData.put("insertUser", CommVar.UserID + "");
@@ -234,4 +214,9 @@ public class PeoplesActivity extends BaseActivity {
         });
     }
 
+    @Override
+    public void onFilterComplete(int i) {
+        System.out.println("filter complete:-----" + i);
+        setTitle(i + "人");
+    }
 }

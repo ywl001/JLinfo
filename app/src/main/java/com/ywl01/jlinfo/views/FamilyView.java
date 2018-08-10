@@ -1,6 +1,7 @@
 package com.ywl01.jlinfo.views;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
+import com.nineoldandroids.view.ViewHelper;
 import com.ywl01.jlinfo.activities.BaseActivity;
 import com.ywl01.jlinfo.beans.FamilyNode;
 import com.ywl01.jlinfo.consts.CommVar;
@@ -143,7 +145,8 @@ public class FamilyView extends FrameLayout implements ScaleGestureDetector.OnSc
             }
             height += child.getMeasuredHeight() + 50;
         }
-        setMeasuredDimension(width, height);
+        //包含缩放后重新measure
+        setMeasuredDimension((int) (width* mScaleFactor), (int) (height*mScaleFactor));
     }
 
     @Override
@@ -164,6 +167,13 @@ public class FamilyView extends FrameLayout implements ScaleGestureDetector.OnSc
     @Override
     protected void onDraw(Canvas canvas) {
         System.out.println("family veiw on draw");
+
+        //缩放整个布局
+        if (mScaleFactor != 1) {
+            canvas.scale(mScaleFactor,mScaleFactor);
+            requestLayout();
+        }
+
         int countItem = items.size();
         Paint linePaint = createLinePaint(0xff000000, 1);
 
@@ -384,36 +394,20 @@ public class FamilyView extends FrameLayout implements ScaleGestureDetector.OnSc
         return super.onInterceptTouchEvent(event);
     }
 
-    private float scale;
-    private float preScale = 1;// 默认前一次缩放比例为1
+
+    //对布局进行缩放，但缩放后无法双击显示户成员
+    private float mScaleFactor = 1.f;
     @Override
     public boolean onScale(ScaleGestureDetector detector) {
         System.out.println("on scale");
-        float previousSpan = detector.getPreviousSpan();// 前一次双指间距
-        float currentSpan = detector.getCurrentSpan();// 本次双指间距
-
-        if (currentSpan < previousSpan) {
-            // 缩小
-            // scale = preScale-detector.getScaleFactor()/3;
-            scale = preScale - (previousSpan - currentSpan) / 1000;
-        } else {
-            // 放大
-            // scale = preScale+detector.getScaleFactor()/3;
-            scale = preScale + (currentSpan - previousSpan) / 1000;
-        }
-
-        if (scale > 0.5) {
-           // ViewHelper.setScaleX(PowerfulLayout.this, scale);// x方向上缩放
-          //  ViewHelper.setScaleY(PowerfulLayout.this, scale);// y方向上缩放
-            setScaleX(scale);
-            setScaleY(scale);
-        }
-
+        mScaleFactor *= detector.getScaleFactor();
+        mScaleFactor = Math.max(0.3f, Math.min(mScaleFactor, 2.0f));
+        invalidate();
         return true;
     }
 
     @Override
-    public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
+    public boolean onScaleBegin(ScaleGestureDetector detector) {
         System.out.println("on Scale begin");
         return true;
     }

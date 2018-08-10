@@ -61,4 +61,5 @@ dependencies {
     implementation 'com.github.chrisbanes:PhotoView:2.1.4'
     implementation files('libs/universal-image-loader-1.9.5.jar')
     implementation 'com.github.promeg:tinypinyin:2.0.3'
+    implementation files('libs/android-zoom-view.jar')
 }

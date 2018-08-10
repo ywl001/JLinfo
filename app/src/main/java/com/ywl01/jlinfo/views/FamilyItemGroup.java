@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 /**
- * Created by ywl01 on 2017/2/7.
+ * 同级人员的group，实现item的横向拖动
  */
 
 public class FamilyItemGroup extends FrameLayout {

@@ -2,14 +2,18 @@ package com.ywl01.jlinfo.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 
+import com.ywl01.jlinfo.activities.BaseActivity;
 import com.ywl01.jlinfo.beans.FamilyNode;
 import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.utils.AppUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,17 +22,21 @@ import java.util.List;
  * Created by ywl01 on 2017/2/7.
  */
 
-public class FamilyView extends FrameLayout{
+public class FamilyView extends FrameLayout implements ScaleGestureDetector.OnScaleGestureListener {
     private List<FamilyNode> data;
     private List<Integer> levels;
     private List<FamilyNode> nodes;
 
+    //familygroup集合
     private List<FamilyItemGroup> levelGroups;
+    //所有familyItem集合
     private List<FamilyItem> items;
 
     private Context context;
     private int downX;
     private int downY;
+
+    private ScaleGestureDetector scaleGestureDetector;
 
     public FamilyView(Context context) {
         super(context);
@@ -38,7 +46,6 @@ public class FamilyView extends FrameLayout{
         nodes = new ArrayList<>();
         levelGroups = new ArrayList<>();
         items = new ArrayList<>();
-
     }
 
     public void setData(List<FamilyNode> data) {
@@ -47,20 +54,9 @@ public class FamilyView extends FrameLayout{
         sortAgain();
         //sort两次之后nodes有值了,levels也有值了；
         addFamilyItem();
+        scaleGestureDetector = new ScaleGestureDetector(AppUtils.getContext(), this);
         System.out.println(data);
     }
-
-    //递归方式排序，获取顶级节点后警醒递归排序
-//
-//    private List<FamilyNode> temp = new ArrayList<>();
-//    private void recursionSort(FamilyNode node) {
-//        nodes.add(node);
-//        temp.addAll(node.childNodes);
-//        temp.remove(0);
-//        if (temp.size() > 0) {
-//            recursionSort(temp.get(0));
-//        }
-//    }
 
     //通过级别对data进行从高到低排序
     private void sortBylevel() {
@@ -117,7 +113,7 @@ public class FamilyView extends FrameLayout{
                     params.rightMargin = 5;
                     items.add(item);
 
-                    //添加父子节点数据
+                    //添加父子节点数据，为连线服务
                     for (int k = 0; k < items.size(); k++) {
                         FamilyItem parentItem = items.get(k);
                         if (parentItem.getData().childNodes.contains(node)) {
@@ -130,6 +126,7 @@ public class FamilyView extends FrameLayout{
         }
     }
 
+    //宽度，选最宽的familyGroup,高度，所有familyGroup相加
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -169,7 +166,6 @@ public class FamilyView extends FrameLayout{
         System.out.println("family veiw on draw");
         int countItem = items.size();
         Paint linePaint = createLinePaint(0xff000000, 1);
-
 
         for (int i = 0; i < countItem; i++) {
             FamilyItem parentItem = items.get(i);
@@ -242,7 +238,7 @@ public class FamilyView extends FrameLayout{
                 System.out.println("重新布局其他Item");
                 otherItem.layout(left + params.leftMargin,
                         otherItem.getTop(),
-                        left+ params.leftMargin + otherItem.getMeasuredWidth(),
+                        left + params.leftMargin + otherItem.getMeasuredWidth(),
                         otherItem.getBottom());
                 left = otherItem.getRight() + params.rightMargin;
             }
@@ -319,42 +315,47 @@ public class FamilyView extends FrameLayout{
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                downX = (int) event.getX();
-                downY = (int) event.getY();
-                break;
-            case MotionEvent.ACTION_UP:
-                break;
-            case MotionEvent.ACTION_MOVE:
-                int moveX = (int) event.getX();
-                int dx = (int) (moveX - downX);
-                int newScrollX = getScrollX() - dx;
+        int pointerCount = event.getPointerCount(); // 获得多少点
+        if (pointerCount > 1) {
+            System.out.println("多点触控");
+            return scaleGestureDetector.onTouchEvent(event);
+        } else {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    downX = (int) event.getX();
+                    downY = (int) event.getY();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    int moveX = (int) event.getX();
+                    int dx = (int) (moveX - downX);
+                    int newScrollX = getScrollX() - dx;
 
-                int moveY = (int) event.getY();
-                int dy = moveY - downY;
-                int newScrollY = getScrollY() - dy;
+                    int moveY = (int) event.getY();
+                    int dy = moveY - downY;
+                    int newScrollY = getScrollY() - dy;
 
-                if (newScrollX < 0 || getMeasuredWidth() <= CommVar.screenWidth) {
-                    newScrollX = 0;
-                } else if (newScrollX > getMeasuredWidth() - CommVar.screenWidth) {
-                    newScrollX = getMeasuredWidth() - CommVar.screenWidth;
-                }
+                    if (newScrollX < 0 || getMeasuredWidth() <= CommVar.screenWidth) {
+                        newScrollX = 0;
+                    } else if (newScrollX > getMeasuredWidth() - CommVar.screenWidth) {
+                        newScrollX = getMeasuredWidth() - CommVar.screenWidth;
+                    }
 
-                if (newScrollY < 0 || getMeasuredHeight() <= CommVar.appHeight) {
-                    newScrollY = 0;
-                } else if (newScrollY > getMeasuredHeight() - CommVar.appHeight) {
-                    newScrollY = getMeasuredHeight() - CommVar.appHeight;
-                }
+                    if (newScrollY < 0 || getMeasuredHeight() <= CommVar.appHeight) {
+                        newScrollY = 0;
+                    } else if (newScrollY > getMeasuredHeight() - CommVar.appHeight) {
+                        newScrollY = getMeasuredHeight() - CommVar.appHeight;
+                    }
 
-                scrollTo(newScrollX, newScrollY);
+                    scrollTo(newScrollX, newScrollY);
 
-                downX = moveX;
-                downY = moveY;
-
-                break;
+                    downX = moveX;
+                    downY = moveY;
+                    break;
+            }
+            return true;
         }
-        return true;
     }
 
     @Override
@@ -379,9 +380,46 @@ public class FamilyView extends FrameLayout{
                 break;
             case MotionEvent.ACTION_UP:
                 break;
-
         }
         return super.onInterceptTouchEvent(event);
     }
 
+    private float scale;
+    private float preScale = 1;// 默认前一次缩放比例为1
+    @Override
+    public boolean onScale(ScaleGestureDetector detector) {
+        System.out.println("on scale");
+        float previousSpan = detector.getPreviousSpan();// 前一次双指间距
+        float currentSpan = detector.getCurrentSpan();// 本次双指间距
+
+        if (currentSpan < previousSpan) {
+            // 缩小
+            // scale = preScale-detector.getScaleFactor()/3;
+            scale = preScale - (previousSpan - currentSpan) / 1000;
+        } else {
+            // 放大
+            // scale = preScale+detector.getScaleFactor()/3;
+            scale = preScale + (currentSpan - previousSpan) / 1000;
+        }
+
+        if (scale > 0.5) {
+           // ViewHelper.setScaleX(PowerfulLayout.this, scale);// x方向上缩放
+          //  ViewHelper.setScaleY(PowerfulLayout.this, scale);// y方向上缩放
+            setScaleX(scale);
+            setScaleY(scale);
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
+        System.out.println("on Scale begin");
+        return true;
+    }
+
+    @Override
+    public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
+
+    }
 }

@@ -7,12 +7,15 @@ import com.ywl01.jlinfo.views.FamilyView;
 
 import java.util.List;
 
+import pl.polidea.view.ZoomView;
+
 /**
  * Created by ywl01 on 2017/2/23.
  */
 
 public class FamilyActivity extends BaseActivity {
     public static List<FamilyNode> familyNodes;
+
     @Override
     protected void initView() {
         FamilyView familyView = new FamilyView(AppUtils.getContext());

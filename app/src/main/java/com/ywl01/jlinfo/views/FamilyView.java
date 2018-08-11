@@ -8,10 +8,8 @@ import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.FrameLayout;
 
-import com.nineoldandroids.view.ViewHelper;
 import com.ywl01.jlinfo.activities.BaseActivity;
 import com.ywl01.jlinfo.beans.FamilyNode;
 import com.ywl01.jlinfo.consts.CommVar;
@@ -401,7 +399,7 @@ public class FamilyView extends FrameLayout implements ScaleGestureDetector.OnSc
     public boolean onScale(ScaleGestureDetector detector) {
         System.out.println("on scale");
         mScaleFactor *= detector.getScaleFactor();
-        mScaleFactor = Math.max(0.3f, Math.min(mScaleFactor, 2.0f));
+        mScaleFactor = Math.max(0.2f, Math.min(mScaleFactor, 3.0f));//缩放倍数限制
         invalidate();
         return true;
     }

@@ -460,4 +460,5 @@ public class MainActivity extends BaseActivity {
         if (EventBus.getDefault().isRegistered(this))
             EventBus.getDefault().unregister(this);
     }
+
 }

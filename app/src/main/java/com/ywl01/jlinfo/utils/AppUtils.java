@@ -22,6 +22,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.ywl01.jlinfo.BaseApplication;
+import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.BaseActivity;
 
 import java.io.File;
@@ -155,6 +156,7 @@ public class AppUtils {
     public static void startActivity(Class<?> cls) {
         Intent intent = new Intent(BaseActivity.currentActivity, cls);
         BaseActivity.currentActivity.startActivity(intent);
+        BaseActivity.currentActivity.overridePendingTransition(R.anim.acticity_in,R.anim.activity_out);
     }
 
     public static void startActivity(Class<?> cls, Bundle args) {

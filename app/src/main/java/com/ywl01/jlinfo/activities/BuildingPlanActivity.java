@@ -22,5 +22,6 @@ public class BuildingPlanActivity extends BaseActivity {
 
         buildingPlan.setData(building,peoples);
         setContentView(buildingPlan);
+        getSupportActionBar().hide();
     }
 }

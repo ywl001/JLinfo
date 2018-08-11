@@ -551,6 +551,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
                     CommVar.getInstance().clear();
                     CommVar.getInstance().put("peoples", peoples);
                     AppUtils.startActivity(PeoplesActivity.class);
+
                 } else {
                     Toast.makeText(AppUtils.getContext(), "无相关人员", Toast.LENGTH_SHORT).show();
                 }

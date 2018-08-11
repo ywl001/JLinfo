@@ -1,6 +1,7 @@
 package com.ywl01.jlinfo.activities;
 
 import android.view.View;
+import android.view.ViewDebug;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -80,6 +81,10 @@ public class EditPeopleActivity extends BaseActivity{
     @BindView(R.id.et_room_number)
     EditText etRoomNumber;
 
+    //人员户信息
+    @BindView(R.id.home_group)
+    LinearLayout homeGroup;
+
     @BindView(R.id.et_relation)
     EditText etRelation;
 
@@ -110,10 +115,11 @@ public class EditPeopleActivity extends BaseActivity{
         } else if (flag == PeopleFlag.FROM_BUILDING) {
             buildingGroup.setVisibility(View.VISIBLE);
             etRoomNumber.setText(people.roomNumber);
-        }else if (flag == PeopleFlag.FROM_HOME) {
+        }else if (flag == PeopleFlag.FROM_HOME || flag == PeopleFlag.FROM_FAMILY) {
+            homeGroup.setVisibility(View.VISIBLE);
             etRelation.setText(people.relation);
         }
-        //isDeadGroup.setVisibility(View.VISIBLE);
+        isDeadGroup.setVisibility(View.VISIBLE);
     }
 
     @OnClick(R.id.btn_cancel)
@@ -176,7 +182,7 @@ public class EditPeopleActivity extends BaseActivity{
             otherData.put("roomNumber", etRoomNumber.getText().toString().trim());
             otherData.put("updateUser", CommVar.UserID + "");
             people.roomNumber = otherData.get("roomNumber");
-        } else if (flag == PeopleFlag.FROM_HOME && relationIsChange()) {
+        } else if ((flag == PeopleFlag.FROM_HOME || flag == PeopleFlag.FROM_FAMILY) && relationIsChange()) {
             otherData = new HashMap<>();
             otherData.put("relation", etRelation.getText().toString().trim());
             otherData.put("updateUser", CommVar.UserID + "");
@@ -190,7 +196,7 @@ public class EditPeopleActivity extends BaseActivity{
                 sql = SqlFactory.update(TableName.PEOPLE_MARK, otherData, people.pmID);
             } else if (flag == PeopleFlag.FROM_BUILDING) {
                 sql = SqlFactory.update(TableName.PEOPLE_BUILDING, otherData, people.pbID);
-            } else if (flag == PeopleFlag.FROM_HOME) {
+            } else if (flag == PeopleFlag.FROM_HOME || flag == PeopleFlag.FROM_FAMILY) {
                 sql = SqlFactory.update(TableName.PEOPLE_HOME, otherData, people.phmID);
             }
 

@@ -8,8 +8,11 @@ import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
+import com.nostra13.universalimageloader.utils.L;
 import com.ywl01.jlinfo.activities.BaseActivity;
 import com.ywl01.jlinfo.beans.FamilyNode;
 import com.ywl01.jlinfo.consts.CommVar;
@@ -26,6 +29,7 @@ public class FamilyView extends FrameLayout implements ScaleGestureDetector.OnSc
     private List<FamilyNode> data;
     private List<Integer> levels;
     private List<FamilyNode> nodes;
+    private int familyItemGap = 10;
 
     //familygroup集合
     private List<FamilyItemGroup> levelGroups;
@@ -109,8 +113,8 @@ public class FamilyView extends FrameLayout implements ScaleGestureDetector.OnSc
                     item.setData(node);
                     itemGroup.addView(item);
                     LayoutParams params = (LayoutParams) item.getLayoutParams();
-                    params.leftMargin = 5;
-                    params.rightMargin = 5;
+                    params.leftMargin = familyItemGap;
+                    params.rightMargin = familyItemGap;
                     items.add(item);
 
                     //添加父子节点数据，为连线服务
@@ -413,5 +417,10 @@ public class FamilyView extends FrameLayout implements ScaleGestureDetector.OnSc
     @Override
     public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
 
+    }
+
+    public void resetZoom() {
+        mScaleFactor = 1;
+        invalidate();
     }
 }

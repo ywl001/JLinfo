@@ -406,6 +406,7 @@ public class BuildingPlan extends ViewGroup implements View.OnClickListener {
             ArrayList<PeopleBean> roomPeoples = getRoomPeoples(tv.getTag().toString());
 
             CommVar.getInstance().put("peoples",roomPeoples);
+            CommVar.getInstance().put("hostName",tv.getTag().toString());
             AppUtils.startActivity(PeoplesActivity.class);
         }
     }

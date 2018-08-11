@@ -70,11 +70,11 @@ public class FamilyItem extends LinearLayout {
             TextView tvName = (TextView) view.findViewById(R.id.tv_name);
             TextView tvRelation = (TextView) view.findViewById(R.id.tv_relation);
             tvName.setText(p.name);
-            if (p.sex.equals("男")) {
-                tvName.setBackgroundColor(0xffFAA090);
-            } else if (p.sex.equals("女")) {
-                tvName.setBackgroundColor(0xff67BCA5);
-            }
+//            if (p.sex.equals("男")) {
+//                tvName.setBackgroundColor(0xffFAA090);
+//            } else if (p.sex.equals("女")) {
+//                tvName.setBackgroundColor(0xff67BCA5);
+//            }
 
             if (p.isLeave == 1) {
                 tvName.setTextColor(0xbbbbbbbb);
@@ -95,8 +95,8 @@ public class FamilyItem extends LinearLayout {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Paint outerLinePaint = createLinePaint(0xff000000, 2);
-        Paint innerLinePaint = createLinePaint(0xff000000, 1);
+        Paint outerLinePaint = createLinePaint(0xff000000, 3);
+        Paint innerLinePaint = createLinePaint(0x88000000, 1);
 
         if (data.sign == QueryFamilyServices.BASE) {
             canvas.drawColor(AppUtils.getResColor(R.color.light_blue));
@@ -139,17 +139,19 @@ public class FamilyItem extends LinearLayout {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             System.out.println("double click");
-            String sql = SqlFactory.selectHomePeopleByHomeNumber(data.homeNumber);
-            PeopleObserver homePeopleObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
-            HttpMethods.getInstance().getSqlResult(homePeopleObserver, SqlAction.SELECT, sql);
-            homePeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
-                @Override
-                public void onNext(Observer observer,Object data) {
-                    ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data;
-                    CommVar.getInstance().put("peoples",peoples);
-                    AppUtils.startActivity(PeoplesActivity.class);
-                }
-            });
+//            String sql = SqlFactory.selectHomePeopleByHomeNumber(data.homeNumber);
+//            PeopleObserver homePeopleObserver = new PeopleObserver(PeopleFlag.FROM_FAMILY);
+//            HttpMethods.getInstance().getSqlResult(homePeopleObserver, SqlAction.SELECT, sql);
+//            homePeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+//                @Override
+//                public void onNext(Observer observer,Object data) {
+//                    ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data;
+//                    CommVar.getInstance().put("peoples",peoples);
+//                    AppUtils.startActivity(PeoplesActivity.class);
+//                }
+//            });
+            CommVar.getInstance().put("peoples",peoples);
+            AppUtils.startActivity(PeoplesActivity.class);
             return super.onDoubleTap(e);
         }
     }

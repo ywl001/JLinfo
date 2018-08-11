@@ -526,7 +526,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
     private void showPeoples(Graphic g) {
         //显示忙碌图标
         TypeEvent.dispatch(TypeEvent.SHOW_PROGRESS_BAR);
-        int graphicFlag = (int) g.getAttributes().get("graphicFlag");
+        final int graphicFlag = (int) g.getAttributes().get("graphicFlag");
         int id = (int) g.getAttributes().get("id");
         String sql = "";
         int peopleFlag = -1;
@@ -548,10 +548,16 @@ public class MapListener extends DefaultMapViewOnTouchListener
                 TypeEvent.dispatch(TypeEvent.HIDE_PROGRESS_BAR);
                 ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data;
                 if (peoples.size() > 0) {
+                    String hostName;
+                    if (graphicFlag == GraphicFlag.BUILDING) {
+                        hostName = (String) nowGraphic.getAttributes().get("buildingName");
+                    }else{
+                        hostName = (String) nowGraphic.getAttributes().get("name");
+                    }
                     CommVar.getInstance().clear();
                     CommVar.getInstance().put("peoples", peoples);
+                    CommVar.getInstance().put("hostName", hostName);
                     AppUtils.startActivity(PeoplesActivity.class);
-
                 } else {
                     Toast.makeText(AppUtils.getContext(), "无相关人员", Toast.LENGTH_SHORT).show();
                 }

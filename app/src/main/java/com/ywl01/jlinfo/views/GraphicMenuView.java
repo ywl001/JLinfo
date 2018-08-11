@@ -1,6 +1,7 @@
 package com.ywl01.jlinfo.views;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.View;
 import android.widget.LinearLayout;
 
@@ -12,8 +13,15 @@ import com.ywl01.jlinfo.activities.EditGraphicActivity;
 import com.ywl01.jlinfo.consts.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
 import com.ywl01.jlinfo.consts.ImageType;
+import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.TypeEvent;
+import com.ywl01.jlinfo.net.HttpMethods;
+import com.ywl01.jlinfo.net.SqlFactory;
+import com.ywl01.jlinfo.observers.BaseObserver;
+import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
+import com.ywl01.jlinfo.utils.DialogUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +29,7 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observer;
 
 public class GraphicMenuView extends LinearLayout {
 
@@ -102,6 +111,49 @@ public class GraphicMenuView extends LinearLayout {
 
     @OnClick(R.id.btn_del)
     public void onDelete() {
+        DialogUtils.showAlert(BaseActivity.currentActivity, "删除提示", "确定要删除吗？", "确定",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        confirmDel();
+                    }
+                }, "取消", null);
+    }
 
+    private void confirmDel() {
+        IntObserver delObserver = new IntObserver();
+        final String tableName = getTableNameByGraphic(graphic);
+        Map<String, String> data = new HashMap<>();
+        data.put("isDelete", "1");
+        String sql = SqlFactory.update(tableName, data, (Integer) graphic.getAttributes().get("id"));
+        HttpMethods.getInstance().getSqlResult(delObserver, SqlAction.UPDATE, sql);
+        delObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                int rows = (int) data;
+                if (rows > 0) {
+                    AppUtils.showToast("删除成功");
+                    if (TableName.MARK.equals(tableName)) {
+                        TypeEvent.dispatch(TypeEvent.REFRESH_MARKERS);
+                    } else if (TableName.BUILDING.equals(tableName)) {
+                        TypeEvent.dispatch(TypeEvent.REFRESH_BUILDINGS);
+                    } else if (TableName.HOUSE.equals(tableName)) {
+                        TypeEvent.dispatch(TypeEvent.REFRESH_HOUSE);
+                    }
+                }
+            }
+        });
+    }
+
+    private String getTableNameByGraphic(Graphic graphic) {
+        int graphicFlag = (int) graphic.getAttributes().get("graphicFlag");
+        if (graphicFlag == GraphicFlag.MARK) {
+            return TableName.MARK;
+        } else if (graphicFlag == GraphicFlag.HOUSE) {
+            return TableName.HOUSE;
+        } else if (graphicFlag == GraphicFlag.BUILDING) {
+            return TableName.BUILDING;
+        }
+        return null;
     }
 }

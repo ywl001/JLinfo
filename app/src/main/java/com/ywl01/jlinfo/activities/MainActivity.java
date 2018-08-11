@@ -218,6 +218,7 @@ public class MainActivity extends BaseActivity {
     ///////////////////////////////////////////////////////////////////////////
     // Eventbus事件处理
     ///////////////////////////////////////////////////////////////////////////
+   //显示右上角的按钮组
     @Subscribe
     public void showBtnContainer(TypeEvent event) {
         if (event.type == TypeEvent.SHOW_BTN_CONTAINER)
@@ -231,6 +232,7 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    //显示markInfo
     @Subscribe
     public void showMarkInfo(ShowMarkInfoEvent event) {
         if (markInfoView == null)
@@ -243,6 +245,7 @@ public class MainActivity extends BaseActivity {
         setAnmation(bottomContainer, markInfoView.getHeight(), 0);
     }
 
+    //显示Graphic菜单
     @Subscribe
     public void showGraphicMenu(ShowGraphicMenuEvent event) {
         if (graphicMenuView == null)
@@ -254,7 +257,7 @@ public class MainActivity extends BaseActivity {
         setAnmation(bottomContainer, graphicMenuView.getHeight(), 0);
     }
 
-
+    //清空底部容器
     private void clearBottomContainer() {
         TranslateAnimation animation = new TranslateAnimation(0, 0, 0, bottomContainer.getHeight());
         animation.setDuration(500);
@@ -281,15 +284,7 @@ public class MainActivity extends BaseActivity {
         target.startAnimation(animation);
     }
 
-    @Subscribe
-    public void uploadImage(UploadImageEvent event) {
-        uploadImageEvent = event;
-        if (event.type == UploadImageEvent.SELECT_IMAGE_FOR_MARK)
-            PhotoUtils.selectImage(this);
-        else if (event.type == UploadImageEvent.TAKE_IMAGE_FOR_MARK)
-            PhotoUtils.takeImage(this);
-    }
-
+    //左侧栏显示graphicItemList
     @Subscribe
     public void showGraphicItemList(ShowGraphicListEvent event) {
         final List<GraphicItemBean> graphicItems = event.graphicItems;
@@ -330,10 +325,21 @@ public class MainActivity extends BaseActivity {
         });
     }
 
+    //上传mark的图片
+    @Subscribe
+    public void uploadImage(UploadImageEvent event) {
+        uploadImageEvent = event;
+        if (event.type == UploadImageEvent.SELECT_IMAGE_FOR_MARK)
+            PhotoUtils.selectImage(this);
+        else if (event.type == UploadImageEvent.TAKE_IMAGE_FOR_MARK)
+            PhotoUtils.takeImage(this);
+    }
+
+
     ///////////////////////////////////////////////////////////////////////////
     // 系统方法复写
     ///////////////////////////////////////////////////////////////////////////
-    //系统返回结果
+    //系统返回结果，上传图片后选择图片的结果
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
@@ -389,7 +395,7 @@ public class MainActivity extends BaseActivity {
                 insertObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                     @Override
                     public void onNext(Observer observer, Object data) {
-                        Long returnData = (Long) data;
+                        int returnData = (int) data;
                         if (returnData > 0) {
                             AppUtils.showToast("上传图片成功");
                             //派发事件，让cameraInfoView刷新图片
@@ -422,7 +428,6 @@ public class MainActivity extends BaseActivity {
                     BaseActivity activity = (BaseActivity) activities.get(i);
                     if (activity instanceof PeoplesActivity) {
                         AppUtils.moveActivityToFront(activity.getClass());
-                        System.out.println("activitys size:" + activities.size());
                     }
                 }
                 clickBackTimes = 0;

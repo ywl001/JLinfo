@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Filter;
 
 import com.ywl01.jlinfo.R;
+import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.views.adapters.DividerItemDecoration;
 import com.ywl01.jlinfo.views.adapters.PeopleListAdapter;
 import com.ywl01.jlinfo.beans.PeopleBean;
@@ -56,6 +57,8 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
 
     private PeopleListAdapter adapter;
     private UploadImageEvent uploadPhotoEvent;
+    private int peopleFlag;
+    private String hostName;
 
     @Override
     protected void initView() {
@@ -63,11 +66,17 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
         setContentView(R.layout.activity_peoples);
         ButterKnife.bind(this);
         peoples = (ArrayList<PeopleBean>) CommVar.getInstance().get("peoples");
+        peopleFlag = peoples.get(0).peopleFlag;
+        hostName = (String) CommVar.getInstance().get("hostName");
 
         LinearLayoutManager manager = new LinearLayoutManager(AppUtils.getContext(), LinearLayoutManager.VERTICAL, false);
         adapter = new PeopleListAdapter(peoples);
-        adapter.getFilter().filter("0", this);
-//        setTitle("现有" + adapter.getItemCount() + "人");
+        if (peopleFlag == PeopleFlag.FROM_FAMILY) {
+            adapter.getFilter().filter(null, this);
+        }else {
+            adapter.getFilter().filter("0", this);
+        }
+
         peopleListView.setLayoutManager(manager);
         peopleListView.setAdapter(adapter);
         peopleListView.addItemDecoration(new DividerItemDecoration(AppUtils.getContext(), LinearLayoutManager.VERTICAL));
@@ -76,6 +85,9 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.people, menu);
+        if (peopleFlag == PeopleFlag.FROM_HOME || peopleFlag == PeopleFlag.FROM_FAMILY) {
+            return false;
+        }
         return true;
     }
 
@@ -84,11 +96,9 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
         switch (item.getItemId()) {
             case R.id.now_people:
                 adapter.getFilter().filter("0", this);
-//                setTitle("现有" + adapter.getItemCount() + "人");
                 break;
             case R.id.leave_people:
                 adapter.getFilter().filter("1", this);
-//                setTitle("离开" + adapter.getItemCount() + "人");
                 break;
             case R.id.all_people:
                 adapter.getFilter().filter(null, this);
@@ -217,6 +227,18 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
     @Override
     public void onFilterComplete(int i) {
         System.out.println("filter complete:-----" + i);
-        setTitle(i + "人");
+        if (peopleFlag == PeopleFlag.FROM_MARK ) {
+            setTitle(hostName + "有" + i+ "个工作人员");
+        } else if (peopleFlag == PeopleFlag.FROM_BUILDING) {
+            setTitle(hostName + "有" + i+ "个人");
+        }else if (peopleFlag == PeopleFlag.FROM_HOUSE || peopleFlag == PeopleFlag.FROM_HOME) {
+            setTitle(hostName + "家有" + i+ "个人");
+        }
+        else if (peopleFlag == PeopleFlag.FROM_SEARCH) {
+            setTitle("查询到共有" + i + "个人");
+        } else if (peopleFlag == PeopleFlag.FROM_FAMILY) {
+            PeopleBean p = peoples.get(0);
+            setTitle(p.name + "家所有人员信息");
+        }
     }
 }

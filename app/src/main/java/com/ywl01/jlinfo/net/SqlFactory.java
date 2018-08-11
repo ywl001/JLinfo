@@ -19,7 +19,7 @@ public class SqlFactory {
                 " and x < " + extent.getXMax() +
                 " and y > " + extent.getYMin() +
                 " and y < " + extent.getYMax() +
-                " and displayLevel <= " + mapLevel;
+                " and displayLevel <= " + mapLevel + " and isDelete = 0";
         return sql;
     }
 
@@ -114,7 +114,7 @@ public class SqlFactory {
                         "from people_home " +
                         "where peopleID = " + peopleID  + " and isDelete = 0 limit 1";
         String sql =
-                "select distinct p.*,phm.homeNumber,phm.relation,phm.isDelete isLeave " +
+                "select distinct p.*,phm.id phmID,phm.homeNumber,phm.relation,phm.isDelete isLeave " +
                         "from people_home phm left join people p on phm.peopleID = p.id " +
                         "where homeNumber = (" + childSql + ") and phm.isDelete = 0 and p.isDead = 0" ;
 
@@ -130,7 +130,7 @@ public class SqlFactory {
                         "from people_home " +
                         "where peopleID = " + peopleID  + " and isDelete = 0 limit 1";
         String sql =
-                "select distinct p.*,phm.homeNumber,phm.relation,phm.isDelete isLeave " +
+                "select distinct p.*,phm.id phmId ,phm.homeNumber,phm.relation,phm.isDelete isLeave " +
                         "from people_home phm left join people p on phm.peopleID = p.id " +
                         "where homeNumber = (" + childSql + ")";
 
@@ -148,7 +148,7 @@ public class SqlFactory {
                         " and isDelete = 1 limit 1";
         //根据父级户号查询所有父级中的人员
         String sql =
-                "select p.*,phm.homeNumber,phm.relation,phm.isDelete isLeave " +
+                "select p.*,phm.id phmID,phm.homeNumber,phm.relation,phm.isDelete isLeave " +
                         "from people_home phm left join people p on phm.peopleID = p.id " +
                         "where homeNumber = (" + childSql + ")";
         System.out.println(sql);
@@ -210,7 +210,7 @@ public class SqlFactory {
     }
 
     public static String selectHomePeopleByHomeNumber(String homeNumber) {
-        String sql = "select p.*,phm.relation,phm.isDelete isLeave from people_home phm left join people p on p.id = phm.peopleID where phm.homeNumber = '" + homeNumber + "'";
+        String sql = "select p.*,phm.id phmID,phm.relation,phm.isDelete isLeave from people_home phm left join people p on p.id = phm.peopleID where phm.homeNumber = '" + homeNumber + "'";
         System.out.println(sql);
         return sql;
     }

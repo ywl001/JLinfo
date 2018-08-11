@@ -23,7 +23,7 @@ public class SwipeItemManager {
     }
 
     public void clearItem(SwipeItem item) {
-        System.out.println("family_item manager clear family_item");
+        System.out.println("swipe_item manager clear family_item");
         if(currentItem == item)
             currentItem = null;
     }

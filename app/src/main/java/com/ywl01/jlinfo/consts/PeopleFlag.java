@@ -11,4 +11,5 @@ public interface PeopleFlag {
     int FROM_HOME = 4;
     int FROM_SEARCH = 5;
     int FROM_QUERY = 6;
+    int FROM_FAMILY = 7;
 }

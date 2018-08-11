@@ -43,6 +43,7 @@ public class SearchActivity extends BaseActivity implements SearchItemView.OnIte
     @Override
     protected void initView() {
         setContentView(R.layout.activity_search);
+        setTitle("综合查询");
         ButterKnife.bind(this);
         items = new ArrayList<>();
         firstItem.setOnItemChangeListener(this);
@@ -113,6 +114,7 @@ public class SearchActivity extends BaseActivity implements SearchItemView.OnIte
             }
         });
         HttpMethods.getInstance().getSqlResult(observer, SqlAction.SELECT, sql);
+
     }
 
     @OnClick(R.id.btn_cancel)

@@ -20,6 +20,7 @@ import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.events.RefreshEvent;
+import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
@@ -216,11 +217,10 @@ public class MarkInfoView extends FrameLayout implements View.OnClickListener {
     }
 
     @Subscribe
-    public void refreshImages(RefreshEvent event) {
-        int id = event.id;
-        if (id == markBean.id) {
+    public void refreshImages(TypeEvent event) {
+        if (event.type == TypeEvent.REFRESH_IMAGE) {
+            imageGroup.removeAllViews();
             getMarkImage();
         }
     }
-
 }

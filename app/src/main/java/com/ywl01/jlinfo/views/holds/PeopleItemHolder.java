@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.esri.arcgisruntime.mapping.view.Graphic;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.squareup.picasso.Picasso;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.BaseActivity;
@@ -114,7 +115,6 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     Button btnSetPeopleHome;
 
     private int peopleFlag;
-    private ImageBean photo;
 
     private SwipeItem rootView;
 
@@ -199,6 +199,11 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
         } else {
             setUIAlpha(rootView, 1);
         }
+
+        if (data.isDead == 1) {
+            //设置内容的背景为黑色
+            rootView.getChildAt(0).setBackgroundColor(0x33000000);
+        }
     }
 
     private String getString(String string) {
@@ -226,7 +231,6 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
 
     //获取人员照片
     private void getPeoplePhoto(@NonNull PeopleBean people) {
-        imageGroup.removeAllViews();
         PeoplePhotoObserver photoObserver = new PeoplePhotoObserver();
         HttpMethods.getInstance().getSqlResult(photoObserver, SqlAction.SELECT, SqlFactory.selectPhotosByPeopleID(people.id));
         photoObserver.setOnNextListener(new BaseObserver.OnNextListener() {
@@ -239,6 +243,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     }
 
     private void setPeoplePhoto(final List<ImageBean> photos) {
+        imageGroup.removeAllViews();
         if (photos != null && photos.size() > 0) {
             for (int i = 0; i < photos.size(); i++) {
                 ImageView img = new ImageView(AppUtils.getContext());
@@ -255,7 +260,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                     img.setAlpha(1.0f);
                 }
                 String thumburl = CommVar.serverImageRootUrl + photos.get(i).thumbUrl;
-                Picasso.with(AppUtils.getContext()).load(thumburl).into(img);
+                ImageLoader.getInstance().displayImage(thumburl, img);
                 imageGroup.addView(img);
                 img.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -361,10 +366,11 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
         HttpMethods.getInstance().getSqlResult(homePeopleObserver, SqlAction.SELECT, sql);
         homePeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
-            public void onNext(Observer observer, Object data) {
-                ArrayList<PeopleBean> homePeoples = (ArrayList<PeopleBean>) data;
+            public void onNext(Observer observer, Object data1) {
+                ArrayList<PeopleBean> homePeoples = (ArrayList<PeopleBean>) data1;
                 CommVar.getInstance().clear();
                 CommVar.getInstance().put("peoples", homePeoples);
+                CommVar.getInstance().put("hostName", data.name);
                 AppUtils.startActivity(PeoplesActivity.class);
             }
         });
@@ -374,7 +380,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     @OnClick(R.id.btn_show_family)
     public void onShowFamilies() {
         String sql = SqlFactory.selectAllHomePeopleByPid(data.id);
-        PeopleObserver familyObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
+        PeopleObserver familyObserver = new PeopleObserver(PeopleFlag.FROM_FAMILY);
         HttpMethods.getInstance().getSqlResult(familyObserver, SqlAction.SELECT, sql);
         familyObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
@@ -389,14 +395,15 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                     node.focusPeople = data;
 
                     QueryFamilyServices services = new QueryFamilyServices();
-                    FamilyDataObserver familyDataObserver = new FamilyDataObserver();
+                    final FamilyDataObserver familyDataObserver = new FamilyDataObserver();
                     services.setData(node, familyDataObserver);
                     familyDataObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                         @Override
-                        public void onNext(Observer observer, Object data) {
-                            ArrayList<FamilyNode> familyNodes = (ArrayList<FamilyNode>) data;
+                        public void onNext(Observer observer, Object data1) {
+                            ArrayList<FamilyNode> familyNodes = (ArrayList<FamilyNode>) data1;
                             if (familyNodes.size() > 1) {
                                 FamilyActivity.familyNodes = familyNodes;
+                                FamilyActivity.basePeople = data;
                                 AppUtils.startActivity(FamilyActivity.class);
                             }else{
                                 AppUtils.showToast("该人员无亲戚信息");

@@ -42,7 +42,7 @@ public class QueryFamilyServices implements BaseObserver.OnNextListener{
     public QueryFamilyServices() {
         nodes = new ArrayList<>();
         pidList = new ArrayList<>();
-        peopleObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
+        peopleObserver = new PeopleObserver(PeopleFlag.FROM_FAMILY);
     }
 
     public void setData(FamilyNode value,FamilyDataObserver observer)

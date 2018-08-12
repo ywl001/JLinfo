@@ -291,7 +291,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
 
     private void getUpdateInfo() {
         if (data.updateUser != 0) {
-            String sql = SqlFactory.selectUser(data.updateUser);
+            String sql = SqlFactory.selectUserByID(data.updateUser);
             UserObserver userObserver = new UserObserver();
             HttpMethods.getInstance().getSqlResult(userObserver, SqlAction.SELECT, sql);
             userObserver.setOnNextListener(new BaseObserver.OnNextListener() {

@@ -72,7 +72,7 @@ public class ImagePageViewHolder extends BaseHolder<ImageBean> implements OnPhot
 
     private void getUpdateInfo() {
         UserObserver userObserver = new UserObserver();
-        String sql = SqlFactory.selectUser(markImageBean.insertUser);
+        String sql = SqlFactory.selectUserByID(markImageBean.insertUser);
         HttpMethods.getInstance().getSqlResult(userObserver, SqlAction.SELECT, sql);
         userObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override

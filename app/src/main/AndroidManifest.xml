@@ -32,25 +32,28 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.MainActivity">
+        <activity android:name=".activities.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.ImageActivity" />
-        <activity android:name=".activities.EditGraphicActivity"></activity>
-        <activity android:name=".activities.AddPeopleActivity"/>
-        <activity android:name=".activities.PeoplesActivity"/>
-        <activity android:name=".activities.EditPeopleActivity" />
-        <activity android:name=".activities.BuildingPlanActivity"/>
-        <activity android:name=".activities.FamilyActivity"/>
-        <activity android:name=".activities.SetHomeActivity"/>
-        <activity android:name=".activities.RelationHomeActivity"/>
-        <activity android:name=".activities.AddGraphicActivity"/>
-        <activity android:name=".activities.SearchActivity"/>
+        <activity android:name=".activities.MainActivity">
 
-        <!--安卓7.0以后的文件系统-->
+        </activity>
+        <activity android:name=".activities.ImageActivity" />
+        <activity android:name=".activities.EditGraphicActivity" />
+        <activity android:name=".activities.AddPeopleActivity" />
+        <activity android:name=".activities.PeoplesActivity" />
+        <activity android:name=".activities.EditPeopleActivity" />
+        <activity android:name=".activities.BuildingPlanActivity" />
+        <activity android:name=".activities.FamilyActivity" />
+        <activity android:name=".activities.SetHomeActivity" />
+        <activity android:name=".activities.RelationHomeActivity" />
+        <activity android:name=".activities.AddGraphicActivity" />
+        <activity android:name=".activities.SearchActivity" />
+
+        <!-- 安卓7.0以后的文件系统 -->
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.ywl01.jlinfo.fileprovider"

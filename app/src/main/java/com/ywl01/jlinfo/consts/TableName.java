@@ -15,4 +15,5 @@ public interface TableName {
     public static final String PEOPLE_BUILDING = "people_building";
     public static final String PEOPLE_HOUSE = "people_house";
     public static final String PEOPLE_PHOTO = "people_photo";
+    public static final String USER = "user";
 }

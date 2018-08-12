@@ -23,7 +23,7 @@ public class SqlFactory {
         return sql;
     }
 
-    public static String selectUser(int userID) {
+    public static String selectUserByID(int userID) {
         String sql = "select * from user where id = " + userID;
         return sql;
     }
@@ -212,6 +212,11 @@ public class SqlFactory {
     public static String selectHomePeopleByHomeNumber(String homeNumber) {
         String sql = "select p.*,phm.id phmID,phm.relation,phm.isDelete isLeave from people_home phm left join people p on p.id = phm.peopleID where phm.homeNumber = '" + homeNumber + "'";
         System.out.println(sql);
+        return sql;
+    }
+
+    public static String selectUser(String userName, String password) {
+        String sql = "select * from user where userName = '" + userName + "' and password = '" + password + "' and isValidate = 1";
         return sql;
     }
 }

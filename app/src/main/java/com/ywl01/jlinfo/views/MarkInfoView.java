@@ -19,7 +19,6 @@ import com.ywl01.jlinfo.consts.CommVar;
 import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
-import com.ywl01.jlinfo.events.RefreshEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.SqlFactory;
@@ -122,7 +121,7 @@ public class MarkInfoView extends FrameLayout implements View.OnClickListener {
 
     private void getUpdateInfo() {
         userObserver = new UserObserver();
-        String sql = SqlFactory.selectUser(markBean.updateUser);
+        String sql = SqlFactory.selectUserByID(markBean.updateUser);
         HttpMethods.getInstance().getSqlResult(userObserver, SqlAction.SELECT, sql);
         userObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override

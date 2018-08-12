@@ -27,6 +27,7 @@ public class FamilyActivity extends BaseActivity {
     protected void initView() {
         familyView = new FamilyView(AppUtils.getContext());
         familyView.setData(familyNodes);
+
         setContentView(familyView);
 
         setTitle(basePeople.name + "亲戚关系图");

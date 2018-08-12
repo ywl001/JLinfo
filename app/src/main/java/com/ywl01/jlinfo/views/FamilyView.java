@@ -25,7 +25,7 @@ import java.util.List;
  * Created by ywl01 on 2017/2/7.
  */
 
-public class FamilyView extends FrameLayout implements ScaleGestureDetector.OnScaleGestureListener {
+public class FamilyView extends FrameLayout implements ScaleGestureDetector.OnScaleGestureListener{
     private List<FamilyNode> data;
     private List<Integer> levels;
     private List<FamilyNode> nodes;
@@ -149,6 +149,7 @@ public class FamilyView extends FrameLayout implements ScaleGestureDetector.OnSc
         }
         //包含缩放后重新measure
         setMeasuredDimension((int) (width* mScaleFactor), (int) (height*mScaleFactor));
+        //setMeasuredDimension((int) (width), (int) (height));
     }
 
     @Override
@@ -372,7 +373,6 @@ public class FamilyView extends FrameLayout implements ScaleGestureDetector.OnSc
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 downX = (int) event.getX();
@@ -420,7 +420,7 @@ public class FamilyView extends FrameLayout implements ScaleGestureDetector.OnSc
     }
 
     public void resetZoom() {
-        mScaleFactor = 1;
+        mScaleFactor = 1.0f;
         invalidate();
     }
 }

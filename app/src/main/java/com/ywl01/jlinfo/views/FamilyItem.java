@@ -70,11 +70,6 @@ public class FamilyItem extends LinearLayout {
             TextView tvName = (TextView) view.findViewById(R.id.tv_name);
             TextView tvRelation = (TextView) view.findViewById(R.id.tv_relation);
             tvName.setText(p.name);
-//            if (p.sex.equals("男")) {
-//                tvName.setBackgroundColor(0xffFAA090);
-//            } else if (p.sex.equals("女")) {
-//                tvName.setBackgroundColor(0xff67BCA5);
-//            }
 
             if (p.isLeave == 1) {
                 tvName.setTextColor(0xbbbbbbbb);

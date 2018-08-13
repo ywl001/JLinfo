@@ -18,7 +18,6 @@ import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.UserObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
-import com.ywl01.jlinfo.utils.StringUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -73,11 +72,11 @@ public class LoginFragment extends Fragment {
     private boolean validateInput() {
         String userName = etUser.getText().toString().trim();
         String password = etPasswored.getText().toString().trim();
-        if (StringUtils.isEmpty(userName)) {
+        if (AppUtils.isEmptyString(userName)) {
             AppUtils.showToast("用户名不能为空");
             return false;
         }
-        if (StringUtils.isEmpty(password)) {
+        if (AppUtils.isEmptyString(password)) {
             AppUtils.showToast("密码不能为空");
             return false;
         }

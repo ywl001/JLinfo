@@ -18,6 +18,7 @@ package com.ywl01.jlinfo.utils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.WindowManager;
@@ -157,4 +158,5 @@ public class DialogUtils {
         return showAlert(context, null, message, "OK", null, null, null, null,
                 null, null, true, null, null);
     }
+
 }

@@ -46,7 +46,6 @@ import com.ywl01.jlinfo.observers.PositionObserver;
 import com.ywl01.jlinfo.observers.UserObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.DialogUtils;
-import com.ywl01.jlinfo.utils.StringUtils;
 import com.ywl01.jlinfo.views.SwipeItem;
 import com.ywl01.jlinfo.views.UploadImageMenuDialog;
 
@@ -185,7 +184,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     }
 
     private void setTextViewValue(TextView tv, String txt) {
-        if (!StringUtils.isEmpty(txt)) {
+        if (!AppUtils.isEmptyString(txt)) {
             tv.setVisibility(View.VISIBLE);
             tv.setText(txt);
         } else {

@@ -61,7 +61,6 @@ import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.BeanMapUtils;
 import com.ywl01.jlinfo.utils.DialogUtils;
-import com.ywl01.jlinfo.utils.StringUtils;
 import com.ywl01.jlinfo.views.AddGraphicMenuDialog;
 
 import org.greenrobot.eventbus.EventBus;
@@ -357,7 +356,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
                 //获取buildingBean
                 BuildingBean buildingBean = new BuildingBean();
                 BeanMapUtils.mapToBean(nowGraphic.getAttributes(), buildingBean);
-                if (buildingBean.countFloor == 0 || buildingBean.countUnit == 0 || buildingBean.countHomesInUnit == 0 || StringUtils.isEmpty(buildingBean.sortType)) {
+                if (buildingBean.countFloor == 0 || buildingBean.countUnit == 0 || buildingBean.countHomesInUnit == 0 || AppUtils.isEmptyString(buildingBean.sortType)) {
                     DialogUtils.showAlert(BaseActivity.currentActivity, "楼房参数不正确，请先修改楼房参数", "确定", null);
                 } else {
                     CommVar.getInstance().clear();

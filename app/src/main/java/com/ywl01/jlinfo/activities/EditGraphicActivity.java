@@ -22,7 +22,6 @@ import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.BeanMapUtils;
-import com.ywl01.jlinfo.utils.StringUtils;
 import com.ywl01.jlinfo.views.CompassDialog;
 import com.ywl01.jlinfo.views.SelectLevelDialog;
 import com.ywl01.jlinfo.views.SelectSymbolDialog;
@@ -195,9 +194,9 @@ public class EditGraphicActivity extends BaseActivity {
         CompassDialog dialog = new CompassDialog(this);
         float initAngle;
         if (graphicFlag == GraphicFlag.BUILDING)
-            initAngle = StringUtils.isEmpty(etBuildingAngle.getText().toString()) ? 0 : Float.parseFloat(etBuildingAngle.getText().toString());
+            initAngle = AppUtils.isEmptyString(etBuildingAngle.getText().toString()) ? 0 : Float.parseFloat(etBuildingAngle.getText().toString());
         else
-            initAngle = StringUtils.isEmpty(etHouseAngle.getText().toString()) ? 0 : Float.parseFloat(etHouseAngle.getText().toString());
+            initAngle = AppUtils.isEmptyString(etHouseAngle.getText().toString()) ? 0 : Float.parseFloat(etHouseAngle.getText().toString());
         dialog.setInitAngle(initAngle);
         dialog.show();
     }

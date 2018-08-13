@@ -6,7 +6,7 @@ import android.widget.TextView;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.beans.GraphicItemBean;
 import com.ywl01.jlinfo.consts.TableName;
-import com.ywl01.jlinfo.utils.StringUtils;
+import com.ywl01.jlinfo.utils.AppUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,7 +45,7 @@ public class GraphicItemHolder extends BaseRecyclerHolder<GraphicItemBean> {
     }
 
     private void setTextViewValuc(TextView tv,String value) {
-        if(!StringUtils.isEmpty(value)){
+        if(!AppUtils.isEmptyString(value)){
             tv.setVisibility(View.VISIBLE);
             tv.setText(value);
         }else{

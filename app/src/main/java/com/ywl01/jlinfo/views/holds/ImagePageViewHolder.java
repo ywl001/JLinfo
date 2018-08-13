@@ -1,6 +1,5 @@
 package com.ywl01.jlinfo.views.holds;
 
-import android.Manifest;
 import android.graphics.Bitmap;
 import android.view.View;
 import android.widget.Button;
@@ -24,8 +23,10 @@ import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.UserObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
-import com.ywl01.jlinfo.utils.MPermissionUtils;
-import com.ywl01.jlinfo.utils.StringUtils;
+import com.ywl01.jlinfo.utils.ImageUtils;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -52,8 +53,6 @@ public class ImagePageViewHolder extends BaseHolder<ImageBean> implements OnPhot
     private ImageBean markImageBean;
 
     private Bitmap bitmap;
-
-    private static String[] externalStroagePermissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
 
     @Override
     protected View initView() {
@@ -86,7 +85,7 @@ public class ImagePageViewHolder extends BaseHolder<ImageBean> implements OnPhot
     }
 
     private void setText(TextView tv, String text) {
-        if (!StringUtils.isEmpty(text)) {
+        if (!AppUtils.isEmptyString(text)) {
             tv.setVisibility(View.VISIBLE);
             tv.setText(text);
         } else {
@@ -101,27 +100,9 @@ public class ImagePageViewHolder extends BaseHolder<ImageBean> implements OnPhot
 
     @OnClick(R.id.btn_download)
     public void saveImage() {
-        if (bitmap != null) {
-            if (isHasExternalStoragePermission()) {
-                AppUtils.saveImage(bitmap, "jlinfo");
-            } else {
-                MPermissionUtils.requestPermissionsResult(BaseActivity.currentActivity, 10, externalStroagePermissions, new MPermissionUtils.OnPermissionListener() {
-                    @Override
-                    public void onPermissionGranted() {
-                        saveImage();
-                    }
-
-                    @Override
-                    public void onPermissionDenied() {
-                        MPermissionUtils.showTipsDialog(BaseActivity.currentActivity);
-                    }
-                });
-            }
-        }
-    }
-
-    private boolean isHasExternalStoragePermission() {
-        return MPermissionUtils.checkPermissions(AppUtils.getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddhhmmss");
+        String fileName = sdf.format(new Date());
+        ImageUtils.saveBitmap(AppUtils.getContext(),bitmap,fileName,"jlInfo");
     }
 
     class ImageLoadingListener extends SimpleImageLoadingListener {

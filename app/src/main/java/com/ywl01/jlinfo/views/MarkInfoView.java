@@ -28,7 +28,6 @@ import com.ywl01.jlinfo.observers.MarkImageObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.observers.UserObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
-import com.ywl01.jlinfo.utils.StringUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -111,7 +110,7 @@ public class MarkInfoView extends FrameLayout implements View.OnClickListener {
     }
 
     private void setText(TextView tv, String text) {
-        if (!StringUtils.isEmpty(text)) {
+        if (!AppUtils.isEmptyString(text)) {
             tv.setVisibility(VISIBLE);
             tv.setText(text);
         } else {
@@ -147,7 +146,7 @@ public class MarkInfoView extends FrameLayout implements View.OnClickListener {
                 if (peoples.size() > 0) {
                     PeopleBean people = peoples.get(0);
                     setText(tvManager, people.name);
-                    if (!StringUtils.isEmpty(people.telephone)) {
+                    if (!AppUtils.isEmptyString(people.telephone)) {
                         setText(tvTelephone, people.telephone);
                     }
                 } else {

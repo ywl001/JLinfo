@@ -5,4 +5,9 @@
         android:title="重置缩放"
         android:icon="@drawable/selector_reset"
         app:showAsAction="ifRoom"></item>
+
+    <item android:id="@+id/save_image"
+        android:title="重置缩放"
+        android:icon="@drawable/save"
+        app:showAsAction="ifRoom"></item>
 </menu>

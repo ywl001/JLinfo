@@ -350,11 +350,11 @@ public class MainActivity extends BaseActivity {
                 File file = new File(AppUtils.getPathByUri(uri));
 
                 Bitmap bitmap = ImageUtils.getScaleBitmap(file.getPath());
-                File tempFile = ImageUtils.saveBitmap(bitmap, "temp");
+                File tempFile = ImageUtils.saveBitmapToFile(this,bitmap, "temp","uploadImage");
                 uploadFile(tempFile);
             } else if (requestCode == PhotoUtils.TAKE_PHOTO) {
                 Bitmap bm = ImageUtils.getScaleBitmap(PhotoUtils.tempFile.getPath());
-                File tempFile = ImageUtils.saveBitmap(bm, "temp");
+                File tempFile = ImageUtils.saveBitmapToFile(this,bm, "temp","uploadImage");
                 uploadFile(tempFile);
             }
         }

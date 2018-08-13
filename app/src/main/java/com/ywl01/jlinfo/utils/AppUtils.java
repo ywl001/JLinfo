@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
@@ -195,31 +196,6 @@ public class AppUtils {
         return ContextCompat.getDrawable(getContext(), resDrawableID);
     }
 
-    public static void saveImage(Bitmap finalBitmap, String imgDir) {
-        if (!isExternalStorageWritable())
-            return;
-
-        File dir = new File(Environment.getExternalStorageDirectory(), imgDir);
-        if (!dir.exists()) {
-            boolean aaa = dir.mkdir();
-        }
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String fname = imgDir + "_" + timeStamp + ".jpg";
-
-        File file = new File(dir, fname);
-        if (file.exists()) file.delete();
-
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.flush();
-            out.close();
-            showToast("图片保存在" + imgDir + "文件夹下面的" + fname);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     /* Checks if external storage is available for read and write */
     public static boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
@@ -282,9 +258,27 @@ public class AppUtils {
             format.parse(str);
         } catch (Exception e) {
             // e.printStackTrace();
-        // 如果throw java.text.ParseException或者NullPointerException，就说明格式不对
+           // 如果throw java.text.ParseException或者NullPointerException，就说明格式不对
             convertSuccess=false;
         }
         return convertSuccess;
+    }
+
+    public static boolean isEmptyString(String str) {
+        if (TextUtils.isEmpty(str))
+            return true;
+        else if ("null".equals(str.toLowerCase()))
+            return true;
+        else
+            return false;
+    }
+
+    public static String checkString(String str) {
+        if (TextUtils.isEmpty(str)) {
+            return "";
+        } else if (str.toLowerCase().equals("null")) {
+            return "";
+        } else
+            return str;
     }
 }

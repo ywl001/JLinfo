@@ -1,6 +1,7 @@
 package com.ywl01.jlinfo.activities;
 
 
+import android.graphics.Bitmap;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -8,8 +9,11 @@ import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.beans.FamilyNode;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.utils.AppUtils;
+import com.ywl01.jlinfo.utils.ImageUtils;
 import com.ywl01.jlinfo.views.FamilyView;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import pl.polidea.view.ZoomView;
@@ -45,7 +49,17 @@ public class FamilyActivity extends BaseActivity {
             case R.id.zoom_reset:
                 familyView.resetZoom();
                 break;
+            case R.id.save_image:
+                saveImage();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void saveImage() {
+        Bitmap bitmap = ImageUtils.loadBitmapFromView(familyView);
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddhhmmss");
+        ImageUtils.saveBitmap(this,bitmap, sdf.format(date), "jlInfo");
     }
 }

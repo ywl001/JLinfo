@@ -1,18 +1,15 @@
 package com.ywl01.jlinfo.observers;
 
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.content.ContextCompat;
 
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
-import com.esri.arcgisruntime.symbology.TextSymbol;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.consts.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
 import com.ywl01.jlinfo.utils.AppUtils;
-import com.ywl01.jlinfo.utils.StringUtils;
 
 
 import org.json.JSONArray;
@@ -46,9 +43,9 @@ public class PositionObserver extends BaseObserver<String,List<Graphic>> {
                     String community = jsonObject.optString("community");
                     String name = jsonObject.optString("name");
                     if ("house".equals(tableName)) {
-                        displayText = StringUtils.checkStr(community) + StringUtils.checkStr(roomNumber) + StringUtils.checkStr(name);
+                        displayText = AppUtils.checkString(community) + AppUtils.checkString(roomNumber) + AppUtils.checkString(name);
                     } else if ("building".equals(tableName)) {
-                        displayText = StringUtils.checkStr(name) + StringUtils.checkStr(roomNumber);
+                        displayText = AppUtils.checkString(name) + AppUtils.checkString(roomNumber);
                     }else {
                         displayText = name;
                     }
@@ -73,6 +70,4 @@ public class PositionObserver extends BaseObserver<String,List<Graphic>> {
         }
         return graphics;
     }
-
-
 }

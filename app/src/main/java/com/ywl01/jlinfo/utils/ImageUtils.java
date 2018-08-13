@@ -1,13 +1,22 @@
 package com.ywl01.jlinfo.utils;
 
+import android.Manifest;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.os.Environment;
+import android.view.View;
+import android.widget.Toast;
+
+import com.ywl01.jlinfo.activities.BaseActivity;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by ywl01 on 2017/3/20.
@@ -50,6 +59,7 @@ public class ImageUtils {
         return compressImage(bitmap);//压缩好比例大小后再进行质量压缩
     }
 
+    //压缩
     public static Bitmap compressImage(Bitmap image) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.JPEG, 100, baos);//质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
@@ -65,24 +75,74 @@ public class ImageUtils {
         return bitmap;
     }
 
-    public static File saveBitmap(Bitmap mBitmap,String bitName)  {
-        File dir = new File( Environment.getExternalStorageDirectory(),"uploadImage");
+    private static String[] externalStroagePermissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
+
+    public static void saveBitmap(final Context context,final Bitmap bitmap, final String fileName, final String fileDir)  {
+        if (bitmap != null) {
+            if (isHasExternalStoragePermission(context)) {
+                saveBitmapToFile(context, bitmap, fileName, fileDir);
+            } else {
+                MPermissionUtils.requestPermissionsResult(BaseActivity.currentActivity, 10, externalStroagePermissions, new MPermissionUtils.OnPermissionListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                       saveBitmapToFile(context, bitmap, fileName, fileDir);
+                    }
+
+                    @Override
+                    public void onPermissionDenied() {
+                        MPermissionUtils.showTipsDialog(BaseActivity.currentActivity);
+                    }
+                });
+            }
+        }
+    }
+
+    private static boolean isHasExternalStoragePermission(Context context) {
+        return MPermissionUtils.checkPermissions(context, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE);
+    }
+
+    public static File saveBitmapToFile(Context context,Bitmap mBitmap,String fileName,String fileDir) {
+        File dir = new File( Environment.getExternalStorageDirectory(),fileDir);
         if (!dir.exists()) {
             dir.mkdir();
         }
-        File file = new File(dir, bitName + ".jpg");
+        File file = new File(dir, fileName + ".jpg");
         FileOutputStream fOut = null;
         try {
             fOut = new FileOutputStream(file);
             mBitmap.compress(Bitmap.CompressFormat.JPEG, 80, fOut);
             fOut.flush();
             fOut.close();
-            System.out.println("已经保存");
+            String saveInfo = "图片保存在" + fileDir + "文件夹下面的" + fileName;
+            Toast.makeText(context,saveInfo,Toast.LENGTH_LONG).show();
             return file;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static Bitmap loadBitmapFromView(View view) {
+        // width measure spec
+        int widthSpec = View.MeasureSpec.makeMeasureSpec(
+                view.getMeasuredWidth(), View.MeasureSpec.AT_MOST);
+        // height measure spec
+        int heightSpec = View.MeasureSpec.makeMeasureSpec(
+                view.getMeasuredHeight(), View.MeasureSpec.AT_MOST);
+        // measure the view
+        view.measure(widthSpec, heightSpec);
+        // set the layout sizes
+        view.layout(view.getLeft(), view.getTop(), view.getMeasuredWidth() + view.getLeft(), view.getMeasuredHeight() + view.getTop());
+        // create the bitmap
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        // create a canvas used to get the view's image and draw it on the bitmap
+        Canvas c = new Canvas(bitmap);
+        // position the image inside the canvas
+        c.translate(-view.getScrollX(), -view.getScrollY());
+        // get the canvas
+        view.draw(c);
+
+        return bitmap;
     }
 
 }

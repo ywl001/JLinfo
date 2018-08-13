@@ -14,7 +14,7 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/add_people" />
+            android:src="@drawable/menu_add_people" />
 
         <TextView
             style="@style/text_normal"
@@ -30,7 +30,7 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/icon_upload" />
+            android:src="@drawable/menu_upload_image" />
 
         <TextView
             style="@style/text_normal"
@@ -46,7 +46,7 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/icon_move" />
+            android:src="@drawable/menu_move" />
 
         <TextView
             style="@style/text_normal"
@@ -63,7 +63,7 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/icon_edit" />
+            android:src="@drawable/menu_edit" />
 
         <TextView
             style="@style/text_normal"
@@ -79,7 +79,7 @@
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/icon_delete" />
+            android:src="@drawable/menu_delete" />
 
         <TextView
             style="@style/text_normal"

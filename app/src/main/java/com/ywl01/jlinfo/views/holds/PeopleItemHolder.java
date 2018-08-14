@@ -146,7 +146,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     }
 
     private void setMenuButton() {
-        if (CommVar.isEdit) {
+        if (CommVar.loginUser.isEdit) {
             if (peopleFlag == PeopleFlag.FROM_BUILDING || peopleFlag == PeopleFlag.FROM_MARK || peopleFlag == PeopleFlag.FROM_HOUSE) {
                 btnDelPeople.setVisibility(View.VISIBLE);
             } else {
@@ -167,17 +167,17 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
         setTextViewValue(tvSex, data.sex);
         setTextViewValue(tvTelephone, data.telephone);
         setTextViewValue(tvPeopleNumber, data.peopleNumber);
-        setTextViewValue(tvWorkPlace, getString(data.workPlace) + getString(data.department) + getString(data.job));
+        setTextViewValue(tvWorkPlace, AppUtils.checkString(data.workPlace) + AppUtils.checkString(data.department) + AppUtils.checkString(data.job));
         setTextViewValue(tvHome, data.relation);
 
         String address = "";
 
         if (peopleFlag == PeopleFlag.FROM_BUILDING) {
-            address = getString(data.buildingName) + getString(data.roomNumber);
+            address = AppUtils.checkString(data.buildingName) + AppUtils.checkString(data.roomNumber);
         } else if (peopleFlag == PeopleFlag.FROM_HOUSE) {
-            address = getString(data.community) + getString(data.roomNumber);
+            address = AppUtils.checkString(data.community) + AppUtils.checkString(data.roomNumber);
         } else if (peopleFlag == PeopleFlag.FROM_SEARCH) {
-            address= getString(data.buildingName) + getString(data.roomNumber) + getString(data.community);
+            address= AppUtils.checkString(data.buildingName) + AppUtils.checkString(data.roomNumber) + AppUtils.checkString(data.community);
         }
 
         setTextViewValue(tvAddress, address);
@@ -203,13 +203,6 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
             //设置内容的背景为黑色
             rootView.getChildAt(0).setBackgroundColor(0x33000000);
         }
-    }
-
-    private String getString(String string) {
-        if (string == null || string == "null") {
-            return "";
-        }
-        return string;
     }
 
     private void setUIAlpha(View view, float alpha) {

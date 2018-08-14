@@ -205,7 +205,7 @@ public class EditGraphicActivity extends BaseActivity {
     public void onSubmit() {
         Map<String, String> data = new HashMap<>();
         data.put("name", etName.getText().toString().trim());
-        data.put("updateUser", CommVar.UserID + "");
+        data.put("updateUser", CommVar.loginUser.id + "");
         int id = 0;
         if (graphicFlag == GraphicFlag.MARK) {
             data.put("registerName", etRegistName.getText().toString().trim());

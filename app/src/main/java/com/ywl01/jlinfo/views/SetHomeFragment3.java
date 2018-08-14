@@ -144,7 +144,7 @@ public class SetHomeFragment3 extends Fragment implements BaseObserver.OnNextLis
         map.put("peopleID", setHomeBean.peopleID + "");
         map.put("homeNumber", setHomeBean.newHomeNumber);
         map.put("relation", setHomeBean.relation);
-        map.put("updateUser", CommVar.UserID + "");
+        map.put("updateUser", CommVar.loginUser.id + "");
         map.put("insertTime", "now()");
 
         String sql = SqlFactory.insert(TableName.PEOPLE_HOME, map);

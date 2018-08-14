@@ -161,7 +161,7 @@ public class AddGraphicActivity extends BaseActivity {
     public void onSubmit() {
         Map<String, String> data = new HashMap<>();
         data.put("name", etName.getText().toString().trim());
-        data.put("updateUser", CommVar.UserID + "");
+        data.put("updateUser", CommVar.loginUser.id + "");
         data.put("x", x+"");
         data.put("y",y+"");
         int id = 0;

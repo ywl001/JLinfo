@@ -110,6 +110,7 @@ public class AddPeopleActivity extends BaseActivity {
         queryPeopleView.setLayoutParams(params);
         setContentView(queryPeopleView);
 
+        setTitle("请查询出要添加的人员");
         //点击取消，退出界面
         queryPeopleView.setOnClickBtnCancelListener(new QueryPeopleView.onClickBtnCancelListener() {
             @Override
@@ -167,6 +168,7 @@ public class AddPeopleActivity extends BaseActivity {
     //初始化添加人员的界面
     private void initAddPeopleView() {
         setContentView(R.layout.activity_add_people);
+        setTitle("请完善人员的相应信息：");
         ButterKnife.bind(AddPeopleActivity.this);
 
         if (addPeopleFlag == GraphicFlag.MARK) {
@@ -245,7 +247,7 @@ public class AddPeopleActivity extends BaseActivity {
         peopleData.put("nation", people.nation);
         peopleData.put("community", people.community);
         peopleData.put("liveType", people.liveType);
-        peopleData.put("insertUser", CommVar.UserID + "");
+        peopleData.put("insertUser", CommVar.loginUser.id + "");
         peopleData.put("isDead", people.isDead + "");
         peopleData.put("insertTime", "now()");
 
@@ -270,8 +272,8 @@ public class AddPeopleActivity extends BaseActivity {
         homeData.put("peopleID", peopleID + "");
         homeData.put("homeNumber", System.currentTimeMillis() + "");
         homeData.put("relation", "户主");
-        homeData.put("insertUser", CommVar.UserID + "");
-        homeData.put("updateUser", CommVar.UserID + "");
+        homeData.put("insertUser", CommVar.loginUser.id + "");
+        homeData.put("updateUser", CommVar.loginUser.id + "");
         homeData.put("insertTime", "now()");
 
         IntObserver insertHomeObserver = new IntObserver();
@@ -302,8 +304,8 @@ public class AddPeopleActivity extends BaseActivity {
         data.put("isManager", people.isManager + "");
         data.put("department", people.department);
         data.put("job", people.job);
-        data.put("insertUser", CommVar.UserID + "");
-        data.put("updateUser", CommVar.UserID + "");
+        data.put("insertUser", CommVar.loginUser.id + "");
+        data.put("updateUser", CommVar.loginUser.id + "");
         data.put("insertTime", "now()");
 
         IntObserver insertPMarkObserver = new IntObserver();
@@ -327,8 +329,8 @@ public class AddPeopleActivity extends BaseActivity {
         data.put("peopleID", p.id + "");
         data.put("buildingID", graphic.getAttributes().get("id") + "");
         data.put("roomNumber", p.roomNumber);
-        data.put("insertUser", CommVar.UserID + "");
-        data.put("updateUser", CommVar.UserID + "");
+        data.put("insertUser", CommVar.loginUser.id + "");
+        data.put("updateUser", CommVar.loginUser.id + "");
         data.put("insertTime", "now()");
 
         IntObserver insertPBuildingObserver = new IntObserver();
@@ -351,7 +353,7 @@ public class AddPeopleActivity extends BaseActivity {
         Map<String, String> data = new HashMap<String, String>();
         data.put("peopleID", p.id + "");
         data.put("houseID", graphic.getAttributes().get("id") + "");
-        data.put("insertUser", CommVar.UserID + "");
+        data.put("insertUser", CommVar.loginUser.id + "");
         data.put("insertTime", "now()");
 
         IntObserver insertPHouseObserver = new IntObserver();

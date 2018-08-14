@@ -101,7 +101,7 @@
             android:layout_marginLeft="60dp"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@drawable/icon_delete_light"/>
+            android:background="@drawable/delete"/>
     </LinearLayout>
 
     <ImageView

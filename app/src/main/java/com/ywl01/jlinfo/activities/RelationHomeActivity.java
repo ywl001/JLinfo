@@ -144,8 +144,8 @@ public class RelationHomeActivity extends BaseActivity implements BaseObserver.O
         map.put("homeNumber", parentPeople.homeNumber);
         map.put("relation", relation);
         map.put("isDelete", "1");
-        map.put("insertUser", CommVar.UserID + "");
-        map.put("updateUser", CommVar.UserID + "");
+        map.put("insertUser", CommVar.loginUser.id + "");
+        map.put("updateUser", CommVar.loginUser.id + "");
         map.put("insertTime", "now()");
 
         insertObserver = new IntObserver();

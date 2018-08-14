@@ -18,8 +18,8 @@
             android:id="@+id/btn_zoom_in"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_marginBottom="1dp"
-            android:background="@drawable/selector_zoom_in"
+            android:layout_marginBottom="3dp"
+            android:background="@drawable/selector_zoom_out"
             app:layout_constraintBottom_toTopOf="@id/btn_zoom_out"
             app:layout_constraintRight_toRightOf="@id/btn_zoom_out" />
 
@@ -29,7 +29,7 @@
             android:layout_height="40dp"
             android:layout_marginBottom="30dp"
             android:layout_marginLeft="8dp"
-            android:background="@drawable/selector_zoom_out"
+            android:background="@drawable/selector_zoom_in"
             app:layout_constraintBottom_toTopOf="@id/bottom_container"
             app:layout_constraintLeft_toLeftOf="parent" />
 
@@ -37,7 +37,7 @@
             android:id="@+id/btn_location"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/location"
+            android:background="@drawable/btn_location_normal"
             app:layout_constraintBottom_toTopOf="@id/bottom_container"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent" />
@@ -83,7 +83,7 @@
                 android:id="@+id/btn_layer"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="@drawable/btn_layer_vec" />
+                android:background="@drawable/btn_layers_normal" />
         </LinearLayout>
 
         <FrameLayout

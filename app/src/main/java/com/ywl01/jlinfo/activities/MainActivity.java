@@ -201,10 +201,10 @@ public class MainActivity extends BaseActivity {
         }
         if(isShowLocation){
             locationService.requestLocation();
-            btnLocation.setBackground(AppUtils.getResDrawable(R.drawable.location_press));
+            btnLocation.setBackground(AppUtils.getResDrawable(R.drawable.btn_location_press));
         }else {
             locationService.closeLocation();
-            btnLocation.setBackground(AppUtils.getResDrawable(R.drawable.location));
+            btnLocation.setBackground(AppUtils.getResDrawable(R.drawable.btn_location_normal));
             TypeEvent.dispatch(TypeEvent.CLEAR_LOCATION);
         }
         isShowLocation = !isShowLocation;
@@ -387,7 +387,7 @@ public class MainActivity extends BaseActivity {
                 tableData.put("markID", id + "");
                 tableData.put("imageUrl", imgUrl);
                 tableData.put("thumbUrl", thumbUrl);
-                tableData.put("insertUser", CommVar.UserID + "");
+                tableData.put("insertUser", CommVar.loginUser.id + "");
                 tableData.put("insertTime", "now()");
                 String sql = SqlFactory.insert(TableName.MARK_IMAGE, tableData);
                 HttpMethods.getInstance().getSqlResult(insertObserver, SqlAction.INSERT, sql);

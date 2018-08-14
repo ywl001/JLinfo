@@ -204,7 +204,7 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
                 tableData.put("peopleID", id + "");
                 tableData.put("photoUrl", imgUrl);
                 tableData.put("thumbUrl", thumbUrl);
-                tableData.put("insertUser", CommVar.UserID + "");
+                tableData.put("insertUser", CommVar.loginUser.id + "");
                 tableData.put("insertTime", "now()");
                 String sql = SqlFactory.insert(TableName.PEOPLE_PHOTO, tableData);
                 HttpMethods.getInstance().getSqlResult(insertObserver, SqlAction.INSERT, sql);

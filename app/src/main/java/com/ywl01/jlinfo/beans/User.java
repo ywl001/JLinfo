@@ -6,6 +6,6 @@ public class User {
     public String password;
     public String type;
     public String realName;
-    boolean isEdit;
-    boolean isValidate;
+    public boolean isEdit;
+    public boolean isValidate;
 }

@@ -43,6 +43,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:visibility="gone"
-        android:background="@drawable/icon_download"/>
+        android:background="@drawable/btn_download"/>
 
 </android.support.constraint.ConstraintLayout>

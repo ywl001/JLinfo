@@ -137,7 +137,7 @@ public class EditPeopleActivity extends BaseActivity{
             peopleData.put("peopleNumber", etPeopleNumber.getText().toString().trim());
             peopleData.put("telephone", etTelephone.getText().toString().trim());
             peopleData.put("isDead", isDead.isChecked() ? "1" : "0");
-            peopleData.put("updateUser", CommVar.UserID + "");
+            peopleData.put("updateUser", CommVar.loginUser.id + "");
 
             //获取更新信息，保存，用于视图刷新
             people.name = peopleData.get("name");
@@ -173,19 +173,19 @@ public class EditPeopleActivity extends BaseActivity{
             otherData.put("department", etDepartment.getText().toString().trim());
             otherData.put("job", etJob.getText().toString().trim());
             otherData.put("isManager", isManager.isChecked() ? "1" : "0");
-            otherData.put("updateUser", CommVar.UserID + "");
+            otherData.put("updateUser", CommVar.loginUser.id + "");
             people.department = otherData.get("department");
             people.job = otherData.get("job");
             people.isManager = isManager.isChecked() ? 1 : 0;
         } else if (flag == PeopleFlag.FROM_BUILDING && buildingInfoIsChange()) {
             otherData = new HashMap<>();
             otherData.put("roomNumber", etRoomNumber.getText().toString().trim());
-            otherData.put("updateUser", CommVar.UserID + "");
+            otherData.put("updateUser", CommVar.loginUser.id + "");
             people.roomNumber = otherData.get("roomNumber");
         } else if ((flag == PeopleFlag.FROM_HOME || flag == PeopleFlag.FROM_FAMILY) && relationIsChange()) {
             otherData = new HashMap<>();
             otherData.put("relation", etRelation.getText().toString().trim());
-            otherData.put("updateUser", CommVar.UserID + "");
+            otherData.put("updateUser", CommVar.loginUser.id + "");
             people.relation = otherData.get("relation");
         }
 

@@ -379,7 +379,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
         Map<String, String> data = new HashMap<>();
         data.put("x", mapPoint.getX() + "");
         data.put("y", mapPoint.getY() + "");
-        data.put("updateUser", CommVar.UserID + "");
+        data.put("updateUser", CommVar.loginUser.id + "");
         String sql = SqlFactory.update(tableName, data, id);
 
         IntObserver moveObserver = new IntObserver();
@@ -472,6 +472,9 @@ public class MapListener extends DefaultMapViewOnTouchListener
     ///////////////////////////////////////////////////////////////////////////
     @Override
     public void onLongPress(MotionEvent e) {
+        if(!CommVar.loginUser.isEdit){
+            return;
+        }
         android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
         nowGraphic = getSelectGraphic(screenPoint);
 

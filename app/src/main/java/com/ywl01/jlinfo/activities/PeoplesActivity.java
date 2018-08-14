@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Filter;
+import android.widget.ProgressBar;
 
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.consts.PeopleFlag;
@@ -55,10 +56,13 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
     @BindView(R.id.recycler_view)
     RecyclerView peopleListView;
 
+    @BindView(R.id.progress_bar)
+    ProgressBar progressBar;
+
     private PeopleListAdapter adapter;
-    private UploadImageEvent uploadPhotoEvent;
-    private int peopleFlag;
-    private String hostName;
+    private UploadImageEvent  uploadPhotoEvent;
+    private int               peopleFlag;
+    private String            hostName;
 
     @Override
     protected void initView() {
@@ -73,7 +77,7 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
         adapter = new PeopleListAdapter(peoples);
         if (peopleFlag == PeopleFlag.FROM_FAMILY) {
             adapter.getFilter().filter(null, this);
-        }else {
+        } else {
             adapter.getFilter().filter("0", this);
         }
 
@@ -135,6 +139,15 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
     }
 
     @Subscribe
+    public void showOrHideProgressBar(TypeEvent event) {
+        if (event.type == TypeEvent.SHOW_PROGRESS_BAR) {
+            progressBar.setVisibility(View.VISIBLE);
+        } else if (event.type == TypeEvent.HIDE_PROGRESS_BAR) {
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    @Subscribe
     public void onUpdatePeople(UpdatePeopleEvent event) {
         PeopleBean p = event.people;
         int countPeople = peoples.size();
@@ -167,11 +180,11 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
                 File file = new File(AppUtils.getPathByUri(uri));
 
                 Bitmap bitmap = ImageUtils.getScaleBitmap(file.getPath());
-                File tempFile = ImageUtils.saveBitmapToFile(this,bitmap, "temp","uploadImage");
+                File tempFile = ImageUtils.saveBitmapToFile(this, bitmap, "temp", "uploadImage");
                 uploadFile(tempFile);
             } else if (requestCode == PhotoUtils.TAKE_PHOTO) {
                 Bitmap bm = ImageUtils.getScaleBitmap(PhotoUtils.tempFile.getPath());
-                File tempFile = ImageUtils.saveBitmapToFile(this,bm, "temp","uploadImage");
+                File tempFile = ImageUtils.saveBitmapToFile(this, bm, "temp", "uploadImage");
                 uploadFile(tempFile);
             }
         }
@@ -227,14 +240,13 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
     @Override
     public void onFilterComplete(int i) {
         System.out.println("filter complete:-----" + i);
-        if (peopleFlag == PeopleFlag.FROM_MARK ) {
-            setTitle(hostName + "有" + i+ "个工作人员");
+        if (peopleFlag == PeopleFlag.FROM_MARK) {
+            setTitle(hostName + "有" + i + "个工作人员");
         } else if (peopleFlag == PeopleFlag.FROM_BUILDING) {
-            setTitle(hostName + "有" + i+ "个人");
-        }else if (peopleFlag == PeopleFlag.FROM_HOUSE || peopleFlag == PeopleFlag.FROM_HOME) {
-            setTitle(hostName + "家有" + i+ "个人");
-        }
-        else if (peopleFlag == PeopleFlag.FROM_SEARCH) {
+            setTitle(hostName + "有" + i + "个人");
+        } else if (peopleFlag == PeopleFlag.FROM_HOUSE || peopleFlag == PeopleFlag.FROM_HOME) {
+            setTitle(hostName + "家有" + i + "个人");
+        } else if (peopleFlag == PeopleFlag.FROM_SEARCH) {
             setTitle("查询到共有" + i + "个人");
         } else if (peopleFlag == PeopleFlag.FROM_FAMILY) {
             PeopleBean p = peoples.get(0);

@@ -90,10 +90,10 @@ public class SqlFactory {
         String sql =
                 "SELECT DISTINCT hu.id,name,roomNumber,x,y,displayLevel,community,'house' as tableName " +
                         "FROM people_house phu LEFT JOIN house hu ON phu.houseID = hu.id " +
-                        "WHERE phu.peopleID = " + peopleID  + " union " +
+                        "WHERE phu.peopleID = " + peopleID  + " and hu.isDelete = 0 union " +
                         "SELECT DISTINCT b.id,buildingName name,roomNumber,x,y,displayLevel,community,'building' as tableName " +
                         "FROM people_building pb LEFT JOIN building b ON b.id = pb.buildingID " +
-                        "where pb.peopleID = " + peopleID ;
+                        "where pb.peopleID = " + peopleID + " and b.isDelete  = 0";
        System.out.println(sql);
         return sql;
     }
@@ -101,7 +101,7 @@ public class SqlFactory {
     public static String selectWorkplaceByPeopleID(int peopleID) {
         String sql = "select m.name,x,y,displayLevel,'mark' as tableName " +
                     "from people_mark pm,people p,mark m " +
-                    "where p.id = pm.peopleID and pm.markID = m.id and pm.peopleid =  " + peopleID;
+                    "where p.id = pm.peopleID and pm.markID = m.id and pm.peopleid =  " + peopleID + " and m.isDelete = 0";
         System.out.println(sql);
         return sql;
     }

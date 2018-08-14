@@ -43,9 +43,11 @@ public class LocationService {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private void initLocationManager() {
         listener = new MyLocationListener();
         locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000,0,listener);
     }
 
     @SuppressLint("MissingPermission")

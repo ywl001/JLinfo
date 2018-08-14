@@ -472,7 +472,7 @@ public class MapListener extends DefaultMapViewOnTouchListener
     ///////////////////////////////////////////////////////////////////////////
     @Override
     public void onLongPress(MotionEvent e) {
-        if(!CommVar.loginUser.isEdit){
+        if(CommVar.loginUser.isEdit == 0){
             return;
         }
         android.graphics.Point screenPoint = new android.graphics.Point((int) e.getX(), (int) e.getY());
@@ -526,8 +526,6 @@ public class MapListener extends DefaultMapViewOnTouchListener
     }
 
     private void showPeoples(Graphic g) {
-        //显示忙碌图标
-        TypeEvent.dispatch(TypeEvent.SHOW_PROGRESS_BAR);
         final int graphicFlag = (int) g.getAttributes().get("graphicFlag");
         int id = (int) g.getAttributes().get("id");
         String sql = "";

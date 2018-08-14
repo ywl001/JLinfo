@@ -38,8 +38,7 @@ import io.reactivex.Observer;
 public class ImageActivity extends BaseActivity implements ViewPager.OnPageChangeListener {
 
     private List<ImageBean> images;
-    private int position;
-    private boolean isShowDelBtn;
+    private int             position;
 
     //显示照片的分类，删除照片时的区分
     private int imageType;
@@ -66,7 +65,6 @@ public class ImageActivity extends BaseActivity implements ViewPager.OnPageChang
         super.initData();
         images = (List<ImageBean>) CommVar.getInstance().get("images");
         position = (int) CommVar.getInstance().get("position");
-        isShowDelBtn = (boolean) CommVar.getInstance().get("isShowDelBtn");
         imageType = (int) CommVar.getInstance().get("imageType");
     }
 
@@ -75,11 +73,20 @@ public class ImageActivity extends BaseActivity implements ViewPager.OnPageChang
         setContentView(R.layout.activity_image);
         ButterKnife.bind(this);
 
+        //删除按钮设置
+        if (CommVar.loginUser.isEdit == 1) {
+            btnDel.setVisibility(View.VISIBLE);
+        } else {
+            btnDel.setVisibility(View.GONE);
+        }
+
+        //actiobar设置
         getSupportActionBar().hide();
 
+        //页面信息设置
         tvCountPage.setText((position + 1) + "/" + images.size());
-        pagerAdapter = new ImagePageAdapter(images);
 
+        pagerAdapter = new ImagePageAdapter(images);
         imagePager.setAdapter(pagerAdapter);
         imagePager.setCurrentItem(position);
         imagePager.addOnPageChangeListener(this);
@@ -87,24 +94,28 @@ public class ImageActivity extends BaseActivity implements ViewPager.OnPageChang
 
     @OnClick(R.id.btn_del)
     public void del() {
-        DialogUtils.showAlert(BaseActivity.currentActivity, "删除提示", "确定要删除这张图片吗？", "确定",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        confirmDel();
-                    }
-                }, "取消", null);
-
+        ImageBean imageBean = images.get(position);
+        if (CommVar.loginUser.id == imageBean.insertUser || CommVar.loginUser.type.equals("admin")) {
+            DialogUtils.showAlert(BaseActivity.currentActivity, "删除提示", "确定要删除这张图片吗？", "确定",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            confirmDel();
+                        }
+                    }, "取消", null);
+        }else{
+            AppUtils.showToast("你不是照片的上传者，不能删除。");
+        }
     }
 
     private void confirmDel() {
-        IntObserver delImageObserver = new IntObserver();
         ImageBean imageBean = images.get(position);
+        IntObserver delImageObserver = new IntObserver();
         delImageUrl = imageBean.imageUrl;
         delThumbUrl = imageBean.thumbUrl;
         int id = imageBean.id;
         String sql = "";
-        if(imageType == ImageType.images)
+        if (imageType == ImageType.images)
             sql = SqlFactory.delete(TableName.MARK_IMAGE, id);
         else if (imageType == ImageType.phpto) {
             sql = SqlFactory.delete(TableName.PEOPLE_PHOTO, id);
@@ -203,8 +214,5 @@ public class ImageActivity extends BaseActivity implements ViewPager.OnPageChang
         public int getItemPosition(Object object) {
             return POSITION_NONE;
         }
-
     }
-
-
 }

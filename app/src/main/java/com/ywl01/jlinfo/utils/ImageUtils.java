@@ -85,6 +85,7 @@ public class ImageUtils {
                 MPermissionUtils.requestPermissionsResult(BaseActivity.currentActivity, 10, externalStroagePermissions, new MPermissionUtils.OnPermissionListener() {
                     @Override
                     public void onPermissionGranted() {
+                        System.out.println("保存图片权限通过了。。。。。。。");
                        saveBitmapToFile(context, bitmap, fileName, fileDir);
                     }
 

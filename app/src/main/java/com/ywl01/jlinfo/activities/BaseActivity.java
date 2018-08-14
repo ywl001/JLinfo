@@ -3,9 +3,12 @@ package com.ywl01.jlinfo.activities;
 import android.app.Activity;
 import android.os.Bundle;
 
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.inputmethod.InputMethodManager;
+
+import com.ywl01.jlinfo.utils.MPermissionUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -96,6 +99,12 @@ public abstract class BaseActivity extends AppCompatActivity {
             ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
                     .hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        MPermissionUtils.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     protected abstract void initView();

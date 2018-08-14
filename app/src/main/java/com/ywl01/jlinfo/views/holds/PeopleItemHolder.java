@@ -146,7 +146,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     }
 
     private void setMenuButton() {
-        if (CommVar.loginUser.isEdit) {
+        if (CommVar.loginUser.isEdit == 1) {
             if (peopleFlag == PeopleFlag.FROM_BUILDING || peopleFlag == PeopleFlag.FROM_MARK || peopleFlag == PeopleFlag.FROM_HOUSE) {
                 btnDelPeople.setVisibility(View.VISIBLE);
             } else {

@@ -110,7 +110,7 @@ public class MainActivity extends BaseActivity {
     private UploadImageEvent uploadImageEvent;
 
     private ArcGISTiledLayer tiledLayer;
-    private LocationService locationService;
+    private LocationService  locationService;
     private boolean          isShowLocation;
 
     @Override
@@ -121,7 +121,7 @@ public class MainActivity extends BaseActivity {
         getMetrics();
         initMap();
         drawerLayout.setScrimColor(Color.TRANSPARENT);
-        locationService = new LocationService(this);
+
     }
 
     //获取手机各种尺寸
@@ -197,12 +197,12 @@ public class MainActivity extends BaseActivity {
     @OnClick(R.id.btn_location)
     public void onLocation() {
         if (locationService == null) {
-            return;
-        }
-        if(isShowLocation){
+            locationService = new LocationService(this);
+            btnLocation.setBackground(AppUtils.getResDrawable(R.drawable.btn_location_press));
+        } else if (isShowLocation) {
             locationService.requestLocation();
             btnLocation.setBackground(AppUtils.getResDrawable(R.drawable.btn_location_press));
-        }else {
+        } else {
             locationService.closeLocation();
             btnLocation.setBackground(AppUtils.getResDrawable(R.drawable.btn_location_normal));
             TypeEvent.dispatch(TypeEvent.CLEAR_LOCATION);
@@ -218,14 +218,14 @@ public class MainActivity extends BaseActivity {
     ///////////////////////////////////////////////////////////////////////////
     // Eventbus事件处理
     ///////////////////////////////////////////////////////////////////////////
-   //显示右上角的按钮组
+    //显示右上角的按钮组
     @Subscribe
     public void showBtnContainer(TypeEvent event) {
         if (event.type == TypeEvent.SHOW_BTN_CONTAINER)
             btnContainer.setVisibility(View.VISIBLE);
         else if (event.type == TypeEvent.CLEAR_BOTTOM_CONTAINER) {
             clearBottomContainer();
-        }else if(event.type == TypeEvent.SHOW_PROGRESS_BAR){
+        } else if (event.type == TypeEvent.SHOW_PROGRESS_BAR) {
             progressBar.setVisibility(View.VISIBLE);
         } else if (event.type == TypeEvent.HIDE_PROGRESS_BAR) {
             progressBar.setVisibility(View.GONE);
@@ -350,11 +350,11 @@ public class MainActivity extends BaseActivity {
                 File file = new File(AppUtils.getPathByUri(uri));
 
                 Bitmap bitmap = ImageUtils.getScaleBitmap(file.getPath());
-                File tempFile = ImageUtils.saveBitmapToFile(this,bitmap, "temp","uploadImage");
+                File tempFile = ImageUtils.saveBitmapToFile(this, bitmap, "temp", "uploadImage");
                 uploadFile(tempFile);
             } else if (requestCode == PhotoUtils.TAKE_PHOTO) {
                 Bitmap bm = ImageUtils.getScaleBitmap(PhotoUtils.tempFile.getPath());
-                File tempFile = ImageUtils.saveBitmapToFile(this,bm, "temp","uploadImage");
+                File tempFile = ImageUtils.saveBitmapToFile(this, bm, "temp", "uploadImage");
                 uploadFile(tempFile);
             }
         }

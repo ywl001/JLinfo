@@ -45,12 +45,12 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
     private Context context;
 
     public static final int search_type_people = 1;
-    public static final int search_type_geo = 2;
+    public static final int search_type_geo    = 2;
 
-    private static final int num_date = 0;
-    private static final int num_phone = 1;
+    private static final int num_date   = 0;
+    private static final int num_phone  = 1;
     private static final int num_idcard = 2;
-    private static final int num_other = 3;
+    private static final int num_other  = 3;
 
     @BindView(R.id.et_search)
     EditText etSearch;
@@ -139,8 +139,49 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
 
     @OnClick(R.id.btn_search1)
     public void onSearch() {
-        System.out.println("fffffffffffffff");
         doSearch();
+    }
+
+    private void doSearch() {
+        String sql = getSql(etSearch.getText().toString().trim());
+        if (sql == "") {
+            AppUtils.showToast("請輸入正確的查詢條件");
+        } else {
+            if (searchType == 1) {
+                PeopleObserver peopleObserver = new PeopleObserver(PeopleFlag.FROM_SEARCH);
+                HttpMethods.getInstance().getSqlResult(peopleObserver, SqlAction.SELECT, sql);
+                peopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+                    @Override
+                    public void onNext(Observer observer, Object data) {
+                        etSearch.setText("");
+                        List<PeopleBean> peoples = (List<PeopleBean>) data;
+                        if (peoples.size() == 0) {
+                            AppUtils.showToast("没有查询到相关人员");
+                        } else {
+                            CommVar.getInstance().put("peoples", data);
+                            AppUtils.startActivity(PeoplesActivity.class);
+                        }
+                    }
+                });
+            } else if (searchType == 2) {
+                GraphicItemsObserver observer = new GraphicItemsObserver();
+                HttpMethods.getInstance().getSqlResult(observer, SqlAction.SELECT, sql);
+                observer.setOnNextListener(new BaseObserver.OnNextListener() {
+                    @Override
+                    public void onNext(Observer observer, Object data) {
+                        etSearch.setText("");
+                        List<GraphicItemBean> graphicItems = (List<GraphicItemBean>) data;
+                        if (graphicItems.size() > 0) {
+                            ShowGraphicListEvent event = new ShowGraphicListEvent();
+                            event.graphicItems = graphicItems;
+                            event.dispatch();
+                        }else{
+                            AppUtils.showToast("没有查询到相关场所或单位");
+                        }
+                    }
+                });
+            }
+        }
     }
 
     private String getSql(String input) {
@@ -159,6 +200,12 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
                         sql = "select * from people where peopleNumber = '" + input + "'";
                         break;
                     case num_other:
+                        if (input.length() < 6) {
+                            return "";
+                        }
+                        if (input.contains("410306") && input.length() < 10) {
+                            return "";
+                        }
                         sql = "select * from people where (peopleNumber like '%" + input + "%' or telephone like '%" + input + "%')";
                         break;
                 }
@@ -166,44 +213,9 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
                 sql = "select * from people where name like '%" + input + "%'";
             }
         } else if (searchType == 2) {
-                sql = SqlFactory.selectGraphicByName(input);
+            sql = SqlFactory.selectGraphicByName(input);
         }
         return sql;
-    }
-
-    private void doSearch() {
-        String sql = getSql(etSearch.getText().toString().trim());
-        if (sql == "") {
-            AppUtils.showToast("請輸入正確的查詢條件");
-        } else {
-            if (searchType == 1) {
-                PeopleObserver peopleObserver = new PeopleObserver(PeopleFlag.FROM_SEARCH);
-                HttpMethods.getInstance().getSqlResult(peopleObserver, SqlAction.SELECT, sql);
-                peopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
-                    @Override
-                    public void onNext(Observer observer, Object data) {
-                        List<PeopleBean> peoples = (List<PeopleBean>) data;
-                        if (peoples.size() == 0) {
-                            AppUtils.showToast("没有查询到相关人员");
-                        } else {
-                            CommVar.getInstance().put("peoples", data);
-                            AppUtils.startActivity(PeoplesActivity.class);
-                        }
-                    }
-                });
-            } else if (searchType == 2) {
-                GraphicItemsObserver observer = new GraphicItemsObserver();
-                HttpMethods.getInstance().getSqlResult(observer, SqlAction.SELECT, sql);
-                observer.setOnNextListener(new BaseObserver.OnNextListener() {
-                    @Override
-                    public void onNext(Observer observer, Object data) {
-                        ShowGraphicListEvent event = new ShowGraphicListEvent();
-                        event.graphicItems = (List<GraphicItemBean>) data;
-                        event.dispatch();
-                    }
-                });
-            }
-        }
     }
 
     private int getNumType(String num) {

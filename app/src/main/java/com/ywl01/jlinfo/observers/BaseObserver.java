@@ -1,5 +1,7 @@
 package com.ywl01.jlinfo.observers;
 
+import com.ywl01.jlinfo.events.TypeEvent;
+
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
@@ -33,6 +35,10 @@ public abstract class BaseObserver<T,E> implements Observer<T> {
     public void onNext(@NonNull T data) {
         //System.out.println("on next");
         E newData = convert(data);
+
+        //网络请求获得数据后，隐藏忙碌图标
+        TypeEvent.dispatch(TypeEvent.HIDE_PROGRESS_BAR);
+
         if (onNextListener != null) {
             onNextListener.onNext(this,newData);
         }

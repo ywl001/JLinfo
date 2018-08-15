@@ -1,8 +1,6 @@
 package com.ywl01.jlinfo.observers;
 
 
-import com.ywl01.jlinfo.consts.CommVar;
-
 /**
  * Created by ywl01 on 2017/12/10.
  * <config>
@@ -33,7 +31,7 @@ public class AppConfigObserver<String,Integer> extends BaseObserver {
 ////                        if ("vec_map_url".equals(name)) {
 ////                            appConfig.vecMapUrl = parser.nextText();
 ////                        } else if ("arcgis_license".equals(name)) {
-////                            appConfig.license = parser.nextText();
+////                            appConfig.arcgis_license = parser.nextText();
 ////                        } else if ("base_url".equals(name)) {
 ////                            appConfig.baseUrl = parser.nextText();
 ////                        } else if ("server_image_folder_url".equals(name)) {

@@ -8,7 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ywl01.jlinfo.beans.BuildingBean;
 import com.ywl01.jlinfo.beans.GraphicBean;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
 
 import java.util.List;

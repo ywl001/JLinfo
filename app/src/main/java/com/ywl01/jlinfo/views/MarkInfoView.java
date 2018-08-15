@@ -15,7 +15,7 @@ import com.ywl01.jlinfo.beans.ImageBean;
 import com.ywl01.jlinfo.beans.MarkBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.beans.User;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;

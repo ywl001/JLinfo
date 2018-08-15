@@ -137,7 +137,6 @@
             </LinearLayout>
         </LinearLayout>
 
-
         <LinearLayout
             android:id="@+id/workplace_group"
             android:layout_width="match_parent"
@@ -201,6 +200,8 @@
 
             <TextView
                 style="@style/text_normal"
+                android:focusable="false"
+                android:inputType="number"
                 android:text="房间号码：" />
 
             <EditText
@@ -246,8 +247,5 @@
                 android:layout_weight="1"
                 android:text="取消" />
         </LinearLayout>
-
-
     </LinearLayout>
-
 </ScrollView>

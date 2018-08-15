@@ -9,6 +9,7 @@ public class SelectValueEvent extends Event{
     public static final int SELECT_SYMBOL = 0;
     public static final int SELECT_MAP_LEVEL = 1;
     public static final int SELECT_ANGLE = 2;
+    public static final int SELECT_ROOM_NUMBER = 3;
     public int type;
     public Object selectValue;
 

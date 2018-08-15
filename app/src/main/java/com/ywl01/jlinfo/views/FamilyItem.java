@@ -2,7 +2,6 @@ package com.ywl01.jlinfo.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -15,21 +14,13 @@ import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.PeoplesActivity;
 import com.ywl01.jlinfo.beans.FamilyNode;
 import com.ywl01.jlinfo.beans.PeopleBean;
-import com.ywl01.jlinfo.consts.CommVar;
-import com.ywl01.jlinfo.consts.PeopleFlag;
-import com.ywl01.jlinfo.consts.SqlAction;
-import com.ywl01.jlinfo.net.HttpMethods;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.net.QueryFamilyServices;
-import com.ywl01.jlinfo.net.SqlFactory;
-import com.ywl01.jlinfo.observers.BaseObserver;
-import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import io.reactivex.Observer;
 
 /**
  * 生产一个home的item

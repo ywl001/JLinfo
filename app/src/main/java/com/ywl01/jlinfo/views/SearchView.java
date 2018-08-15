@@ -16,7 +16,7 @@ import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.PeoplesActivity;
 import com.ywl01.jlinfo.beans.GraphicItemBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.events.ShowGraphicListEvent;

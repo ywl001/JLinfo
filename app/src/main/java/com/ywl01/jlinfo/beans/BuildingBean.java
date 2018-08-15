@@ -10,6 +10,4 @@ public class BuildingBean extends GraphicBean{
     public int countHomesInUnit;
     public String buildingName;
     public String sortType;
-
-
 }

@@ -11,10 +11,8 @@ import android.widget.Button;
 import com.esri.arcgisruntime.geometry.Point;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.AddGraphicActivity;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
-import com.ywl01.jlinfo.consts.ImageType;
-import com.ywl01.jlinfo.events.UploadImageEvent;
 import com.ywl01.jlinfo.utils.AppUtils;
 
 import java.util.Map;

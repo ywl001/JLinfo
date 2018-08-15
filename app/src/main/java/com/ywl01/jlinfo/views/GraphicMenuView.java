@@ -10,7 +10,7 @@ import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.AddPeopleActivity;
 import com.ywl01.jlinfo.activities.BaseActivity;
 import com.ywl01.jlinfo.activities.EditGraphicActivity;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
 import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.consts.SqlAction;

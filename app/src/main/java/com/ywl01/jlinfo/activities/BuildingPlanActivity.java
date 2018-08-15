@@ -3,7 +3,7 @@ package com.ywl01.jlinfo.activities;
 
 import com.ywl01.jlinfo.beans.BuildingBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.views.BuildingPlan;
 
 import java.util.List;

@@ -11,12 +11,14 @@ import android.widget.RadioGroup;
 
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.ywl01.jlinfo.R;
+import com.ywl01.jlinfo.beans.BuildingBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
+import com.ywl01.jlinfo.events.SelectValueEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
@@ -26,6 +28,10 @@ import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.DialogUtils;
 import com.ywl01.jlinfo.utils.PeopleNumbleUtils;
 import com.ywl01.jlinfo.views.QueryPeopleView;
+import com.ywl01.jlinfo.views.SelectBuildingRoomNumberDialog;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.HashMap;
 import java.util.List;
@@ -371,7 +377,7 @@ public class AddPeopleActivity extends BaseActivity {
         });
     }
 
-    //检索同户人员
+    //检索同户人员,根據需求添加人員
     private void selectPeopleInHome(final PeopleBean people) {
         String sql = SqlFactory.selectPeoplesByHome(people.id);
         PeopleObserver selectHomePeopleObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
@@ -468,6 +474,48 @@ public class AddPeopleActivity extends BaseActivity {
             }
         } else {
             view.setEnabled(enabled);
+        }
+    }
+
+
+    @OnClick(R.id.et_room_number)
+    public void showSelectBudingRoomNumber() {
+        if (addPeopleFlag == GraphicFlag.BUILDING) {
+            Map<String, Object> attributes = graphic.getAttributes();
+            BuildingBean building = new BuildingBean();
+            AppUtils.mapToBean(attributes,building);
+
+            createBuildingRoomNumbers(building);
+        }
+    }
+
+    private void createBuildingRoomNumbers(BuildingBean building) {
+        if (building.countFloor < 1 || building.countUnit < 1 || building.countHomesInUnit < 1 || AppUtils.isEmptyString(building.sortType)) {
+            AppUtils.showToast("楼房的参数不正确，请先设置楼房的参数");
+            return;
+        }
+        SelectBuildingRoomNumberDialog dialog = new SelectBuildingRoomNumberDialog(this,building);
+        dialog.show();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (EventBus.getDefault().isRegistered(this))
+            EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe
+    public void onGetRoomNumber(SelectValueEvent event) {
+        if (event.type == SelectValueEvent.SELECT_ROOM_NUMBER) {
+            etRoomNumber.setText(event.selectValue.toString());
         }
     }
 }

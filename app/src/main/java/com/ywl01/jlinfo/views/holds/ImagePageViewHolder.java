@@ -16,7 +16,7 @@ import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.BaseActivity;
 import com.ywl01.jlinfo.beans.ImageBean;
 import com.ywl01.jlinfo.beans.User;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.SqlFactory;

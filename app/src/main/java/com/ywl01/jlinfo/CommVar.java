@@ -1,4 +1,4 @@
-package com.ywl01.jlinfo.consts;
+package com.ywl01.jlinfo;
 
 import com.esri.arcgisruntime.geometry.SpatialReference;
 import com.ywl01.jlinfo.beans.User;
@@ -12,7 +12,7 @@ public class CommVar {
     //服务器的一些参数
     public static String baseUrl = "http://120.92.200.168/";
     //public static String configUrl = baseUrl + "jlInfo/config.xml";
-    public static String license = "runtimelite,1000,rud7393493088,none,FA0RJAY3FLJ5EBZNR078";
+    public static String arcgis_license = "runtimelite,1000,rud7393493088,none,FA0RJAY3FLJ5EBZNR078";
     public static String vecMapUrl = "http://120.92.200.168:8399/arcgis/rest/services/jlmap2/MapServer";
     public static String imgMapUrl;
     public static String serverImageRootUrl = baseUrl + "jlmap_image/";
@@ -80,5 +80,4 @@ public class CommVar {
         }
         return 9;
     }
-
 }

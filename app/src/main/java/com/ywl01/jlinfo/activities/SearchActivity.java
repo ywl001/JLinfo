@@ -1,13 +1,11 @@
 package com.ywl01.jlinfo.activities;
 
-import android.content.Intent;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.LinearLayout;
 
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.beans.PeopleBean;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.net.HttpMethods;

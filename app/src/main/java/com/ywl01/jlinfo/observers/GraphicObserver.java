@@ -4,7 +4,7 @@ import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.symbology.Symbol;
 import com.ywl01.jlinfo.beans.GraphicBean;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.utils.BeanMapUtils;
 
 import java.util.ArrayList;

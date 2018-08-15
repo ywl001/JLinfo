@@ -1,7 +1,7 @@
 package com.ywl01.jlinfo.net;
 
 
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.observers.UploadObserver;
 

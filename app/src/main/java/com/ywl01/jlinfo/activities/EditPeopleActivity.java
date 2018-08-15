@@ -1,7 +1,6 @@
 package com.ywl01.jlinfo.activities;
 
 import android.view.View;
-import android.view.ViewDebug;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -9,8 +8,9 @@ import android.widget.RadioGroup;
 
 
 import com.ywl01.jlinfo.R;
+import com.ywl01.jlinfo.beans.BuildingBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.PeopleFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
@@ -21,6 +21,9 @@ import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.PeopleNumbleUtils;
+import com.ywl01.jlinfo.views.SelectBuildingRoomNumberDialog;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -68,7 +68,7 @@
         <!--标题  -->
         <item name="android:windowNoTitle">true</item>
         <!--阴影  -->
-        <item name="android:windowIsTranslucent">true</item><!--半透明-->
+        <!--<item name="android:windowIsTranslucent">true</item>&lt;!&ndash;半透明&ndash;&gt;-->
         <!-- 进入和退出的动画 -->
         <item name="android:windowAnimationStyle">@style/dialogAnimation</item>
 

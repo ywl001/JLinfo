@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.beans.ImageBean;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;

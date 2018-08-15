@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.ywl01.jlinfo.activities.PeoplesActivity;
 import com.ywl01.jlinfo.beans.BuildingBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.utils.AppUtils;
 
 import java.util.ArrayList;
@@ -70,11 +70,9 @@ public class BuildingPlan extends ViewGroup implements View.OnClickListener {
         sortType = building.sortType;
         this.peoples = peoples;
 
-
         title = buildingName;
         homeholderMap = getHomeholderMap(peoples);
         init();
-
     }
 
     private void init() {

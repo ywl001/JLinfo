@@ -1,7 +1,7 @@
 package com.ywl01.jlinfo.net;
 
 import com.esri.arcgisruntime.geometry.Envelope;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 
 import java.util.Map;
 

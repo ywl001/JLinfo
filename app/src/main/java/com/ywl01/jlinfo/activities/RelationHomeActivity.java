@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.beans.PeopleHomeBean;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.net.HttpMethods;

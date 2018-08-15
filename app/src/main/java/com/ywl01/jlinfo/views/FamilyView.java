@@ -1,21 +1,15 @@
 package com.ywl01.jlinfo.views;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
-import com.nostra13.universalimageloader.utils.L;
-import com.ywl01.jlinfo.activities.BaseActivity;
 import com.ywl01.jlinfo.beans.FamilyNode;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.utils.AppUtils;
 
 import java.util.ArrayList;

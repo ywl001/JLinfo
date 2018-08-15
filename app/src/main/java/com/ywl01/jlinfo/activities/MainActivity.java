@@ -31,7 +31,7 @@ import com.esri.arcgisruntime.mapping.view.MapView;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.beans.GraphicItemBean;
-import com.ywl01.jlinfo.consts.CommVar;
+import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
 import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
@@ -150,7 +150,7 @@ public class MainActivity extends BaseActivity {
      */
     private void initMap() {
         //设置license
-        ArcGISRuntimeEnvironment.setLicense(CommVar.license);
+        ArcGISRuntimeEnvironment.setLicense(CommVar.arcgis_license);
         //设置隐藏logo
         mapView.setAttributionTextVisible(false);
         //隐藏背景网格

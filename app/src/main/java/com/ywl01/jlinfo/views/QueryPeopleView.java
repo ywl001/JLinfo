@@ -15,16 +15,18 @@ import android.widget.RadioGroup;
 import com.github.promeg.pinyinhelper.Pinyin;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.consts.PeopleFlag;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.views.adapters.DividerItemDecoration;
 import com.ywl01.jlinfo.views.adapters.QueryPeopleListAdapter;
 import com.ywl01.jlinfo.beans.PeopleBean;
-import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -110,9 +112,8 @@ public class QueryPeopleView extends LinearLayout implements RadioGroup.OnChecke
 
     @OnClick(R.id.btn_submit)
     public void onSubmit() {
-        String sql = createSql();
         PeopleObserver peopleObserver = new PeopleObserver(PeopleFlag.FROM_QUERY);
-        HttpMethods.getInstance().getSqlResult(peopleObserver, SqlAction.SELECT, sql);
+        HttpMethods.getInstance().getSqlResult(peopleObserver, PhpFunction.SELECT_PEOPLES_BY_KEYWORD, createData());
         peopleObserver.setOnNextListener(this);
     }
 
@@ -123,40 +124,31 @@ public class QueryPeopleView extends LinearLayout implements RadioGroup.OnChecke
         }
     }
 
-    private String createSql() {
+    private Map<String,Object> createData() {
+        Map<String, Object> data = new HashMap<>();
         String keyword = etKeyWord.getText().toString().trim();
+
         int rbID = rg.getCheckedRadioButtonId();
-        String sql = "";
         newPeople = new PeopleBean();
         if (rbID == R.id.rb_pname) {
             newPeople.name = keyword;
             if (ckHomophone.isChecked()) {
                 //同音查询
                 String pinyin = Pinyin.toPinyin(keyword,"");
-                System.out.println(pinyin);
-                sql = "select p.*,pp.photoUrl,pp.thumbUrl,phm.id phmID,phm.homeNumber " +
-                        "from people p " +
-                        "left join people_photo pp on p.id = pp.peopleID " +
-                        "left join people_home phm on phm.peopleID = p.id " +
-                        "where p.namePinyin like '%" + pinyin + "%' and phm.isDelete = 0";
+                data.put("inputType", "namePinyin");
+                data.put("keyword", pinyin);
             } else {
                 //名字查询
-                sql = "select p.*,pp.photoUrl,pp.thumbUrl,phm.id phmID,phm.homeNumber " +
-                        "from people p " +
-                        "left join people_photo pp on p.id = pp.peopleID " +
-                        "left join people_home phm on phm.peopleID = p.id " +
-                        "where p.name like '%" + keyword + "%' and phm.isDelete = 0";
+                data.put("inputType", "name");
+                data.put("keyword", keyword);
             }
         } else {
             //身份证号查询
             newPeople.peopleNumber = keyword;
-            sql = "select p.*,pp.photoUrl,pp.thumbUrl,phm.id phmID,phm.homeNumber " +
-                    "from people p " +
-                    "left join people_photo pp on p.id = pp.peopleID " +
-                    "left join people_home phm on phm.peopleID = p.id " +
-                    "where p.peopleNumber like '%" + keyword + "%' and phm.isDelete = 0";
+            data.put("inputType", "peopleNumber");
+            data.put("keyword", keyword);
         }
-        return sql;
+        return data;
     }
 
     @Override

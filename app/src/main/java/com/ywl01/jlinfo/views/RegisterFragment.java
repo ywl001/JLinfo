@@ -10,14 +10,11 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.ywl01.jlinfo.R;
-import com.ywl01.jlinfo.beans.User;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
-import com.ywl01.jlinfo.observers.UserObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 
 import java.util.HashMap;
@@ -68,14 +65,15 @@ public class RegisterFragment extends Fragment {
     }
 
     private void checkUserName(String userName) {
-        String sql = "select * from user where userName = '" + userName + "'";
-        UserObserver userObserver = new UserObserver();
-        HttpMethods.getInstance().getSqlResult(userObserver, SqlAction.SELECT, sql);
+        IntObserver userObserver = new IntObserver();
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("userName", userName);
+        HttpMethods.getInstance().getSqlResult(userObserver, PhpFunction.CHECK_USER_NAME, tableData);
         userObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
-                User user = (User) data;
-                if (user != null) {
+                int num = (int) data;
+                if (num == 0) {
                     submitRegister();
                 }else{
                     AppUtils.showToast("用户名已经存在");
@@ -95,9 +93,7 @@ public class RegisterFragment extends Fragment {
         tableData.put("password", password);
         tableData.put("realName", realName);
 
-        String sql = SqlFactory.insert(TableName.USER, tableData);
-
-        HttpMethods.getInstance().getSqlResult(insertObserver,SqlAction.INSERT,sql);
+        PhpFunction.insert(insertObserver,TableName.USER,tableData);
         insertObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {

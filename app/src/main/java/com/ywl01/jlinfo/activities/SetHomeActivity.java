@@ -5,13 +5,15 @@ import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.beans.PeopleHomeBean;
 import com.ywl01.jlinfo.beans.SetHomeBean;
 import com.ywl01.jlinfo.CommVar;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.PeopleHomeObserver;
 import com.ywl01.jlinfo.views.SetHomeFragment1;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Observer;
 
@@ -41,15 +43,15 @@ public class SetHomeActivity extends BaseActivity {
     }
 
     private void getPeopleHomeInfo() {
-        String sql = "select id,homeNumber,relation from people_home where peopleID = " + people.id + " and isDelete = 0";
-        System.out.println(sql);
-        getHomeInfoObserver = new PeopleHomeObserver();
-        HttpMethods.getInstance().getSqlResult(getHomeInfoObserver, SqlAction.SELECT, sql);
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", people.id);
+        PeopleHomeObserver getHomeInfoObserver = new PeopleHomeObserver();
+        HttpMethods.getInstance().getSqlResult(getHomeInfoObserver, PhpFunction.SELECT_PEOPLE_HOME_INFO, data);
         getHomeInfoObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
                 List<PeopleHomeBean> temp = (List<PeopleHomeBean>) data;
-                if (temp.size() > 0) {
+                if (temp != null && temp.size() > 0) {
                     PeopleHomeBean h = temp.get(0);
                     people.phmID = h.id;
                     people.homeNumber = h.homeNumber;

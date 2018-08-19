@@ -16,11 +16,10 @@ import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
 import com.ywl01.jlinfo.consts.PeopleFlag;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.SelectValueEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
@@ -142,27 +141,28 @@ public class AddPeopleActivity extends BaseActivity {
 
     //检查人员是否已经添加到graphic内了
     private void checkPeopleIsAdded(PeopleBean peopleBean) {
+        //String sql = "";
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("peopleID", peopleBean.id);
+        tableData.put("graphicID", graphic.getAttributes().get("id"));
         String tableName = "";
-        String sql = "";
-        int graphicID = (int) graphic.getAttributes().get("id");
-        int peopleID = peopleBean.id;
+        String graphicIDName = "";
         if (addPeopleFlag == GraphicFlag.MARK) {
-            tableName = TableName.PEOPLE_MARK;
-            sql = "select * from " + tableName + " where peopleID =  " + peopleID + " and markID = " + graphicID;
+            tableData.put("tableName",TableName.PEOPLE_MARK);
+            tableData.put("graphicIDName", "markID");
         } else if (addPeopleFlag == GraphicFlag.BUILDING) {
-            tableName = TableName.PEOPLE_BUILDING;
-            sql = "select * from " + tableName + " where peopleID =  " + peopleID + " and buildingID = " + graphicID;
+            tableData.put("tableName",TableName.PEOPLE_BUILDING);
+            tableData.put("graphicIDName", "buildingID");
         } else if (addPeopleFlag == GraphicFlag.HOUSE) {
-            tableName = TableName.PEOPLE_HOUSE;
-            sql = "select * from " + tableName + " where peopleID =  " + peopleID + " and houseID = " + graphicID;
+            tableData.put("tableName",TableName.PEOPLE_HOUSE);
+            tableData.put("graphicIDName", "houseID");
         }
-        PeopleObserver checkPeopleIsAddObserver = new PeopleObserver(addPeopleFlag);
-        HttpMethods.getInstance().getSqlResult(checkPeopleIsAddObserver, SqlAction.SELECT, sql);
+        IntObserver checkPeopleIsAddObserver = new IntObserver();
+        HttpMethods.getInstance().getSqlResult(checkPeopleIsAddObserver,PhpFunction.CHECK_PEOPLE_IS_IN_GRAPHIC,tableData);
         checkPeopleIsAddObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
-                List<PeopleBean> peoples = (List<PeopleBean>) data;
-                if (peoples.size() > 0) {
+                if ((int)data > 0) {
                     DialogUtils.showPrompt(AddPeopleActivity.this, "人员已经添加过了");
                 } else {
                     initAddPeopleView();
@@ -257,9 +257,8 @@ public class AddPeopleActivity extends BaseActivity {
         peopleData.put("isDead", people.isDead + "");
         peopleData.put("insertTime", "now()");
 
-        String sql = SqlFactory.insert(TableName.PEOPLE, peopleData);
         IntObserver insertPeopleObserver = new IntObserver();
-        HttpMethods.getInstance().getSqlResult(insertPeopleObserver, SqlAction.INSERT, sql);
+        PhpFunction.insert(insertPeopleObserver,TableName.PEOPLE,peopleData);
         insertPeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -283,8 +282,7 @@ public class AddPeopleActivity extends BaseActivity {
         homeData.put("insertTime", "now()");
 
         IntObserver insertHomeObserver = new IntObserver();
-        String sql = SqlFactory.insert(TableName.PEOPLE_HOME, homeData);
-        HttpMethods.getInstance().getSqlResult(insertHomeObserver, SqlAction.INSERT, sql);
+        PhpFunction.insert(insertHomeObserver,TableName.PEOPLE_HOME,homeData);
         insertHomeObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -304,19 +302,18 @@ public class AddPeopleActivity extends BaseActivity {
 
     //插入人员到场所单位
     private void insertPeopleMark(PeopleBean people) {
-        Map<String, String> data = new HashMap<String, String>();
-        data.put("peopleID", people.id + "");
-        data.put("markID", graphic.getAttributes().get("id") + "");
-        data.put("isManager", people.isManager + "");
+        Map<String, Object> data = new HashMap<>();
+        data.put("peopleID", people.id);
+        data.put("markID", graphic.getAttributes().get("id"));
+        data.put("isManager", people.isManager);
         data.put("department", people.department);
         data.put("job", people.job);
-        data.put("insertUser", CommVar.loginUser.id + "");
-        data.put("updateUser", CommVar.loginUser.id + "");
+        data.put("insertUser", CommVar.loginUser.id);
+        data.put("updateUser", CommVar.loginUser.id);
         data.put("insertTime", "now()");
 
         IntObserver insertPMarkObserver = new IntObserver();
-        String sql = SqlFactory.insert(TableName.PEOPLE_MARK, data);
-        HttpMethods.getInstance().getSqlResult(insertPMarkObserver, SqlAction.INSERT, sql);
+        PhpFunction.insert(insertPMarkObserver,TableName.PEOPLE_MARK,data);
         insertPMarkObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -340,8 +337,7 @@ public class AddPeopleActivity extends BaseActivity {
         data.put("insertTime", "now()");
 
         IntObserver insertPBuildingObserver = new IntObserver();
-        String sql = SqlFactory.insert(TableName.PEOPLE_BUILDING, data);
-        HttpMethods.getInstance().getSqlResult(insertPBuildingObserver, SqlAction.INSERT, sql);
+        PhpFunction.insert(insertPBuildingObserver,TableName.PEOPLE_BUILDING,data);
         insertPBuildingObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -363,8 +359,7 @@ public class AddPeopleActivity extends BaseActivity {
         data.put("insertTime", "now()");
 
         IntObserver insertPHouseObserver = new IntObserver();
-        String sql = SqlFactory.insert(TableName.PEOPLE_HOUSE, data);
-        HttpMethods.getInstance().getSqlResult(insertPHouseObserver, SqlAction.INSERT, sql);
+        PhpFunction.insert(insertPHouseObserver,TableName.PEOPLE_HOUSE,data);
         insertPHouseObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -379,9 +374,10 @@ public class AddPeopleActivity extends BaseActivity {
 
     //检索同户人员,根據需求添加人員
     private void selectPeopleInHome(final PeopleBean people) {
-        String sql = SqlFactory.selectPeoplesByHome(people.id);
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("id", people.id);
         PeopleObserver selectHomePeopleObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
-        HttpMethods.getInstance().getSqlResult(selectHomePeopleObserver, SqlAction.SELECT, sql);
+        HttpMethods.getInstance().getSqlResult(selectHomePeopleObserver, PhpFunction.SELECT_HOME_PEOPLES_BY_PEOPLE_ID, tableData);
         selectHomePeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {

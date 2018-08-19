@@ -13,11 +13,9 @@ import com.ywl01.jlinfo.activities.EditGraphicActivity;
 import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
 import com.ywl01.jlinfo.consts.ImageType;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.TypeEvent;
-import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
@@ -125,8 +123,7 @@ public class GraphicMenuView extends LinearLayout {
         final String tableName = getTableNameByGraphic(graphic);
         Map<String, String> data = new HashMap<>();
         data.put("isDelete", "1");
-        String sql = SqlFactory.update(tableName, data, (Integer) graphic.getAttributes().get("id"));
-        HttpMethods.getInstance().getSqlResult(delObserver, SqlAction.UPDATE, sql);
+        PhpFunction.update(delObserver,tableName, data, (Integer) graphic.getAttributes().get("id"));
         delObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {

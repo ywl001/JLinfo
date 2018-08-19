@@ -8,22 +8,16 @@ import android.widget.RadioGroup;
 
 
 import com.ywl01.jlinfo.R;
-import com.ywl01.jlinfo.beans.BuildingBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.PeopleFlag;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.UpdatePeopleEvent;
-import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.PeopleNumbleUtils;
-import com.ywl01.jlinfo.views.SelectBuildingRoomNumberDialog;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -153,8 +147,7 @@ public class EditPeopleActivity extends BaseActivity{
             people.isDead = isDead.isChecked() ? 1 : 0;
 
             IntObserver updatePeopleObserver = new IntObserver();
-            String sql = SqlFactory.update(TableName.PEOPLE, peopleData, people.id);
-            HttpMethods.getInstance().getSqlResult(updatePeopleObserver, SqlAction.UPDATE, sql);
+            PhpFunction.update(updatePeopleObserver,TableName.PEOPLE, peopleData, people.id);
             updatePeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                 @Override
                 public void onNext(Observer observer, Object data) {
@@ -171,12 +164,16 @@ public class EditPeopleActivity extends BaseActivity{
         }
 
         Map<String, String> otherData = null;
+        String tableName = "";
+        int id = 0;
         if (flag == PeopleFlag.FROM_MARK && markInfoIsChange()) {
             otherData = new HashMap<>();
             otherData.put("department", etDepartment.getText().toString().trim());
             otherData.put("job", etJob.getText().toString().trim());
             otherData.put("isManager", isManager.isChecked() ? "1" : "0");
             otherData.put("updateUser", CommVar.loginUser.id + "");
+            tableName = TableName.PEOPLE_MARK;
+            id = people.pmID;
             people.department = otherData.get("department");
             people.job = otherData.get("job");
             people.isManager = isManager.isChecked() ? 1 : 0;
@@ -184,26 +181,21 @@ public class EditPeopleActivity extends BaseActivity{
             otherData = new HashMap<>();
             otherData.put("roomNumber", etRoomNumber.getText().toString().trim());
             otherData.put("updateUser", CommVar.loginUser.id + "");
+            tableName = TableName.PEOPLE_BUILDING;
+            id = people.pbID;
             people.roomNumber = otherData.get("roomNumber");
         } else if ((flag == PeopleFlag.FROM_HOME || flag == PeopleFlag.FROM_FAMILY) && relationIsChange()) {
             otherData = new HashMap<>();
             otherData.put("relation", etRelation.getText().toString().trim());
             otherData.put("updateUser", CommVar.loginUser.id + "");
+            tableName = TableName.PEOPLE_HOME;
+            id = people.phmID;
             people.relation = otherData.get("relation");
         }
 
         if (otherData != null) {
             IntObserver updateOtherObserver = new IntObserver();
-            String sql = "";
-            if (flag == PeopleFlag.FROM_MARK) {
-                sql = SqlFactory.update(TableName.PEOPLE_MARK, otherData, people.pmID);
-            } else if (flag == PeopleFlag.FROM_BUILDING) {
-                sql = SqlFactory.update(TableName.PEOPLE_BUILDING, otherData, people.pbID);
-            } else if (flag == PeopleFlag.FROM_HOME || flag == PeopleFlag.FROM_FAMILY) {
-                sql = SqlFactory.update(TableName.PEOPLE_HOME, otherData, people.phmID);
-            }
-
-            HttpMethods.getInstance().getSqlResult(updateOtherObserver, SqlAction.UPDATE, sql);
+            PhpFunction.update(updateOtherObserver, tableName, otherData,id);
             updateOtherObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                 @Override
                 public void onNext(Observer observer, Object data) {

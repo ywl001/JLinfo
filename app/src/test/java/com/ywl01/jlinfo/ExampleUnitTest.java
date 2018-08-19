@@ -1,6 +1,12 @@
 package com.ywl01.jlinfo;
 
+import com.google.gson.Gson;
+import com.ywl01.jlinfo.utils.AppUtils;
+
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -17,7 +23,19 @@ public class ExampleUnitTest {
 
     @Test
     public void test() {
-        System.out.println(IdcardUtils.validateCard("410306197401270516"));
+        Map<String, Object> data = new HashMap<>();
+        Map<String, Object> data2 = new HashMap<>();
+
+        data.put("aaa",1);
+        data.put("bbb",false);
+        data2.put("ccc",false);
+        data2.put("ddd",false);
+        data.put("ccc", data2);
+
+        Gson gson = new Gson();
+       String str =  gson.toJson(data);
+        System.out.println(str);
+
     }
 
 }

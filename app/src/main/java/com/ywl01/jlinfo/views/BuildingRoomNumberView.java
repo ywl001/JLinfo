@@ -27,7 +27,7 @@ public class BuildingRoomNumberView extends ViewGroup {
     private int bgWidth;//背景图宽度
     private int bgHeight;//背景图高度
 
-    private String title = "河阳新村1号楼";
+    private String title;
     private BuildingBean building;
 
     private int stepWidth = 180;
@@ -178,6 +178,7 @@ public class BuildingRoomNumberView extends ViewGroup {
         }
 
         //绘制标题文字
+        String title = "请选择人员的房间号码";
         Paint titleTextPaint = createTextPaint(0xff000000, 50);
         int titleWidth = getStringWidth(title, titleTextPaint);
         canvas.drawText(title,
@@ -198,8 +199,7 @@ public class BuildingRoomNumberView extends ViewGroup {
 
     private int getStringWidth(String strings, Paint p) {
         float width = p.measureText(strings);
-        int maxWidth = (int) (width + 0.5);
-        return maxWidth;
+        return (int) (width + 0.5);
     }
 
     private Paint createTextPaint(int color, float textSize) {
@@ -249,7 +249,7 @@ public class BuildingRoomNumberView extends ViewGroup {
                 break;
             case MotionEvent.ACTION_MOVE:
                 int moveX = (int) event.getX();
-                int dx = (int) (moveX - downX);
+                int dx = moveX - downX;
                 int newScrollX = getScrollX() - dx;
 
                 int moveY = (int) event.getY();
@@ -287,7 +287,7 @@ public class BuildingRoomNumberView extends ViewGroup {
                 break;
             case MotionEvent.ACTION_MOVE:
                 int moveX = (int) event.getX();
-                int dx = (int) (moveX - downX);
+                int dx = moveX - downX;
 
                 int moveY = (int) event.getY();
                 int dy = moveY - downY;

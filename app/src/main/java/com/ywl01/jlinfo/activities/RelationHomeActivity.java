@@ -1,6 +1,5 @@
 package com.ywl01.jlinfo.activities;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.text.TextUtils;
 import android.view.View;
@@ -13,10 +12,9 @@ import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.beans.PeopleHomeBean;
 import com.ywl01.jlinfo.CommVar;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.observers.PeopleHomeObserver;
@@ -34,7 +32,7 @@ import butterknife.OnClick;
 import io.reactivex.Observer;
 
 
-public class RelationHomeActivity extends BaseActivity implements BaseObserver.OnNextListener, QueryPeopleView.OnItemSelectListener, QueryPeopleView.onClickBtnCancelListener,DialogInterface.OnClickListener {
+public class RelationHomeActivity extends BaseActivity implements QueryPeopleView.OnItemSelectListener, QueryPeopleView.onClickBtnCancelListener {
     private static final int PARENT = 1;
     private static final int CHILD = 2;
 
@@ -58,17 +56,9 @@ public class RelationHomeActivity extends BaseActivity implements BaseObserver.O
 
     private int addFlag;
     private PeopleBean people;
-    private PeopleHomeObserver checkHasParentObserver;
 
     private PeopleBean childPeople;
     private PeopleBean parentPeople;
-    private PeopleHomeObserver getParentHomeNumberObserver;
-    private PeopleHomeObserver checkHasParentObserver_child;
-    private IntObserver insertObserver;
-
-    private Dialog confirmSubmitDialog;
-    private Dialog hasParentDialog;
-    private Dialog noHomeNumberDialog;
 
     @Override
     protected void initView() {
@@ -97,18 +87,43 @@ public class RelationHomeActivity extends BaseActivity implements BaseObserver.O
 
     //检查父级是否存在
     private void checkIsHasParent() {
-        String sql = "select id from people_home where peopleID = '" + people.id + "' and isDelete = 1";
-        checkHasParentObserver = new PeopleHomeObserver();
-        HttpMethods.getInstance().getSqlResult(checkHasParentObserver, SqlAction.SELECT, sql);
-        checkHasParentObserver.setOnNextListener(this);
+        IntObserver checkHasParentObserver = new IntObserver();
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", people.id);
+        HttpMethods.getInstance().getSqlResult(checkHasParentObserver, PhpFunction.CHECK_PEOPLE_IS_HAS_PARENT, data);
+        checkHasParentObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                if ((int) data > 0) {
+                    DialogUtils.showAlert(RelationHomeActivity.this, "该人员已经和爹建立联系过了。", "确定", null);
+                }else {
+                    addFlag = PARENT;
+                    childPeople = people;
+                    showAddParentUI();
+                }
+            }
+        });
     }
 
     //当添加子级时，如果该人员的户号不存在，获取户号
     private void getParentHomeNumber() {
-        String sql = "select id,homeNumber,relation from people_home where peopleID = '" + parentPeople.id + "' and isDelete = 1";
-        getParentHomeNumberObserver = new PeopleHomeObserver();
-        getParentHomeNumberObserver.setOnNextListener(this);
-        HttpMethods.getInstance().getSqlResult(getParentHomeNumberObserver, SqlAction.SELECT, sql);
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", parentPeople.id);
+        PeopleHomeObserver peopleHomeObserver = new PeopleHomeObserver();
+        peopleHomeObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                List<PeopleHomeBean> homes = (List<PeopleHomeBean>) data;
+                if (homes != null && homes.size() > 0) {
+                    PeopleHomeBean home = homes.get(0);
+                    parentPeople.homeNumber = home.homeNumber;
+                    showAddChildUI();
+                } else {
+                    DialogUtils.showAlert(RelationHomeActivity.this, "该人员没有户信息，请先设置该人员的户信息。", "确定", null);
+                }
+            }
+        });
+        HttpMethods.getInstance().getSqlResult(peopleHomeObserver, PhpFunction.SELECT_PEOPLE_HOME_INFO,data);
     }
 
     @Override
@@ -124,7 +139,7 @@ public class RelationHomeActivity extends BaseActivity implements BaseObserver.O
     }
 
     private void showConfirmDialog() {
-        confirmSubmitDialog = DialogUtils.showAlert(this, "提示：", "确定要建立连接吗，是否继续？", "确定", new DialogInterface.OnClickListener() {
+        DialogUtils.showAlert(this, "提示：", "确定要建立连接吗，是否继续？", "确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 submit();
@@ -148,60 +163,40 @@ public class RelationHomeActivity extends BaseActivity implements BaseObserver.O
         map.put("updateUser", CommVar.loginUser.id + "");
         map.put("insertTime", "now()");
 
-        insertObserver = new IntObserver();
-        String sql = SqlFactory.insert(TableName.PEOPLE_HOME, map);
-        HttpMethods.getInstance().getSqlResult(insertObserver,SqlAction.INSERT,sql);
-        insertObserver.setOnNextListener(this);
+        IntObserver insertObserver = new IntObserver();
+        PhpFunction.insert(insertObserver,TableName.PEOPLE_HOME,map);
+        insertObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                int returnID = (int) data;
+                if (returnID > 0) {
+                    finish();
+                    AppUtils.showToast("添加链接成功");
+                }
+            }
+        });
     }
 
     private void checkChildIsHaveParent() {
-        String sql = "select id from people_home where peopleID = '" + childPeople.id + "' and isDelete = 1";
-        checkHasParentObserver_child = new PeopleHomeObserver();
-        HttpMethods.getInstance().getSqlResult(checkHasParentObserver_child, SqlAction.SELECT, sql);
-        checkHasParentObserver_child.setOnNextListener(this);
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", childPeople.id);
+        IntObserver intObserver = new IntObserver();
+        intObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                if ((int)data > 0) {
+                    DialogUtils.showAlert(RelationHomeActivity.this, "你添加的这个子级已经有上级了。", "确定",null);
+                }else{
+                    showConfirmDialog();
+                }
+            }
+        });
+        HttpMethods.getInstance().getSqlResult(intObserver,PhpFunction.CHECK_PEOPLE_IS_HAS_PARENT,data);
     }
 
     @Override
     public void onClick() {
         finish();
-    }
-
-    @Override
-    public void onNext( Observer observer,Object data) {
-        if (observer == checkHasParentObserver) {
-            List<PeopleHomeBean> homes = (List<PeopleHomeBean>) data;
-            if (homes != null && homes.size() > 0){
-                //显示提示框，已经添加过了
-                hasParentDialog = DialogUtils.showAlert(this, "该人员已经和爹建立联系过了。", "确定", this);
-            } else {
-                addFlag = PARENT;
-                childPeople = people;
-                showAddParentUI();
-            }
-        } else if (observer == getParentHomeNumberObserver) {
-            List<PeopleHomeBean> homes = (List<PeopleHomeBean>) data;
-            if (homes != null && homes.size() > 0) {
-                PeopleHomeBean home = homes.get(0);
-                parentPeople.homeNumber = home.homeNumber;
-                showAddChildUI();
-            } else {
-                noHomeNumberDialog = DialogUtils.showAlert(this, "该人员没有户信息，请先设置该人员的户信息。", "确定", this);
-            }
-        } else if (observer == checkHasParentObserver_child) {
-            List<PeopleHomeBean> homes = (List<PeopleHomeBean>) data;
-            if (homes != null && homes.size() > 0) {
-                //显示提示框，已经添加过了
-               hasParentDialog =  DialogUtils.showAlert(this, "你添加的这个子级已经有上级了。", "确定",this);
-            } else {
-                showConfirmDialog();
-            }
-        } else if (observer == insertObserver) {
-            int returnID = (int) data;
-            if (returnID > 0) {
-                finish();
-                AppUtils.showToast("添加链接成功");
-            }
-        }
     }
 
     private void showAddParentUI() {
@@ -221,26 +216,6 @@ public class RelationHomeActivity extends BaseActivity implements BaseObserver.O
         for (int i = 0; i < rootView.getChildCount(); i++) {
             View view = rootView.getChildAt(i);
             view.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
-        if (dialog == confirmSubmitDialog) {
-            if(which == Dialog.BUTTON_POSITIVE){
-                submit();
-            }else {
-                finish();
-            }
-
-        } else if (dialog == hasParentDialog) {
-            if(which == Dialog.BUTTON_POSITIVE){
-                finish();
-            }
-        } else if (dialog == noHomeNumberDialog) {
-            if(which == Dialog.BUTTON_POSITIVE){
-                finish();
-            }
         }
     }
 }

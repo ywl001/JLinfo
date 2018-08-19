@@ -42,7 +42,7 @@ import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
 import com.ywl01.jlinfo.consts.PeopleFlag;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.LocationEvent;
 import com.ywl01.jlinfo.events.ShowGraphicMenuEvent;
@@ -50,7 +50,6 @@ import com.ywl01.jlinfo.events.ShowMarkInfoEvent;
 import com.ywl01.jlinfo.events.ShowGraphicLocationEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.BuildingObserver;
 import com.ywl01.jlinfo.observers.GraphicObserver;
@@ -252,7 +251,6 @@ public class MapListener extends DefaultMapViewOnTouchListener
 
     //服务器端载入数据
     private void loadGraphics(GraphicObserver observer, Envelope extent, double mapScale, String tableName) {
-        String sql = SqlFactory.selectGraphicData(extent, mapScale, tableName);
         observer.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -268,7 +266,14 @@ public class MapListener extends DefaultMapViewOnTouchListener
                 }
             }
         });
-        HttpMethods.getInstance().getSqlResult(observer, SqlAction.SELECT, sql);
+        Map<String, Object> data = new HashMap<>();
+        data.put("xmin",extent.getXMin());
+        data.put("ymin",extent.getYMin());
+        data.put("xmax",extent.getXMax());
+        data.put("ymax", extent.getYMax());
+        data.put("displayLevel", CommVar.getInstance().getLevelByScale(mapScale));
+        data.put("tableName", tableName);
+        HttpMethods.getInstance().getSqlResult(observer, PhpFunction.SELECT_GRAPHIC_DATA, data);
     }
 
     //判断当前视图是否改变
@@ -345,9 +350,10 @@ public class MapListener extends DefaultMapViewOnTouchListener
     }
 
     private void showBuildingPlan(final Graphic g) {
-        String sql = SqlFactory.selectPeopleByBuilding((int) g.getAttributes().get("id"));
         PeopleObserver peopleObserver_buildingPlan = new PeopleObserver(PeopleFlag.FROM_BUILDING);
-        HttpMethods.getInstance().getSqlResult(peopleObserver_buildingPlan, SqlAction.SELECT, sql);
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", g.getAttributes().get("id"));
+        HttpMethods.getInstance().getSqlResult(peopleObserver_buildingPlan, PhpFunction.SELECT_PEOPLES_BY_BUILDING, data);
         peopleObserver_buildingPlan.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -380,10 +386,9 @@ public class MapListener extends DefaultMapViewOnTouchListener
         data.put("x", mapPoint.getX() + "");
         data.put("y", mapPoint.getY() + "");
         data.put("updateUser", CommVar.loginUser.id + "");
-        String sql = SqlFactory.update(tableName, data, id);
 
         IntObserver moveObserver = new IntObserver();
-        HttpMethods.getInstance().getSqlResult(moveObserver, SqlAction.UPDATE, sql);
+        PhpFunction.update(moveObserver,tableName, data, id);
         moveObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -528,20 +533,22 @@ public class MapListener extends DefaultMapViewOnTouchListener
     private void showPeoples(Graphic g) {
         final int graphicFlag = (int) g.getAttributes().get("graphicFlag");
         int id = (int) g.getAttributes().get("id");
-        String sql = "";
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("id", id);
+        String functionName = "";
         int peopleFlag = -1;
         if (graphicFlag == GraphicFlag.MARK) {
-            sql = SqlFactory.selectPeopleByMark(id);
             peopleFlag = PeopleFlag.FROM_MARK;
+            functionName = PhpFunction.SELECT_PEOPLES_BY_MARK;
         } else if (graphicFlag == GraphicFlag.BUILDING) {
-            sql = SqlFactory.selectPeopleByBuilding(id);
             peopleFlag = PeopleFlag.FROM_BUILDING;
+            functionName = PhpFunction.SELECT_PEOPLES_BY_BUILDING;
         } else if (graphicFlag == GraphicFlag.HOUSE) {
-            sql = SqlFactory.selectPeopleByHouse(id);
             peopleFlag = PeopleFlag.FROM_HOUSE;
+            functionName = PhpFunction.SELECT_PEOPLES_BY_HOUSE;
         }
         peopleObserver = new PeopleObserver(peopleFlag);
-        HttpMethods.getInstance().getSqlResult(peopleObserver, SqlAction.SELECT, sql);
+        HttpMethods.getInstance().getSqlResult(peopleObserver, functionName, tableData);
         peopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {

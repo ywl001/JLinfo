@@ -29,14 +29,13 @@ import com.ywl01.jlinfo.beans.User;
 import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.consts.PeopleFlag;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.ListEvent;
 import com.ywl01.jlinfo.events.ShowGraphicLocationEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.QueryFamilyServices;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.FamilyDataObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
@@ -177,7 +176,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
         } else if (peopleFlag == PeopleFlag.FROM_HOUSE) {
             address = AppUtils.checkString(data.community) + AppUtils.checkString(data.roomNumber);
         } else if (peopleFlag == PeopleFlag.FROM_SEARCH) {
-            address= AppUtils.checkString(data.buildingName) + AppUtils.checkString(data.roomNumber) + AppUtils.checkString(data.community);
+            address = AppUtils.checkString(data.buildingName) + AppUtils.checkString(data.roomNumber) + AppUtils.checkString(data.community);
         }
 
         setTextViewValue(tvAddress, address);
@@ -224,7 +223,9 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     //获取人员照片
     private void getPeoplePhoto(@NonNull PeopleBean people) {
         PeoplePhotoObserver photoObserver = new PeoplePhotoObserver();
-        HttpMethods.getInstance().getSqlResult(photoObserver, SqlAction.SELECT, SqlFactory.selectPhotosByPeopleID(people.id));
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", people.id);
+        HttpMethods.getInstance().getSqlResult(photoObserver, PhpFunction.SELECT_PHOTOS_BY_PEOPLE_ID, data);
         photoObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -283,9 +284,10 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
 
     private void getUpdateInfo() {
         if (data.updateUser != 0) {
-            String sql = SqlFactory.selectUserByID(data.updateUser);
+            Map<String, Object> tableData = new HashMap<>();
+            tableData.put("id", data.updateUser);
             UserObserver userObserver = new UserObserver();
-            HttpMethods.getInstance().getSqlResult(userObserver, SqlAction.SELECT, sql);
+            HttpMethods.getInstance().getSqlResult(userObserver, PhpFunction.SELECT_USER_BY_ID, tableData);
             userObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                 @Override
                 public void onNext(Observer observer, Object data1) {
@@ -309,9 +311,10 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     //显示人员住址
     @OnClick(R.id.btn_show_address)
     public void onShowAddress() {
-        String sql = SqlFactory.selectAddressByPeopleID(data.id);
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("id", data.id);
         PositionObserver positionObserver = new PositionObserver();
-        HttpMethods.getInstance().getSqlResult(positionObserver, SqlAction.SELECT, sql);
+        HttpMethods.getInstance().getSqlResult(positionObserver, PhpFunction.SELECT_ADDRESS_BY_PEOPLE_ID, tableData);
         positionObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -331,9 +334,10 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     //显示人员工作单位
     @OnClick(R.id.btn_show_work_place)
     public void onShowWorkPlace() {
-        String sql = SqlFactory.selectWorkplaceByPeopleID(data.id);
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("id", data.id);
         PositionObserver positionObserver = new PositionObserver();
-        HttpMethods.getInstance().getSqlResult(positionObserver, SqlAction.SELECT, sql);
+        HttpMethods.getInstance().getSqlResult(positionObserver, PhpFunction.SELECT_WORKPLACE_BY_PEOPLE_ID, tableData);
         positionObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -353,17 +357,24 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     //显示人员同户人员
     @OnClick(R.id.btn_show_home)
     public void onShowHomePeoples() {
-        String sql = SqlFactory.selectHomePeopleByPid(data.id);
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("id", data.id);
         PeopleObserver homePeopleObserver = new PeopleObserver(PeopleFlag.FROM_HOME);
-        HttpMethods.getInstance().getSqlResult(homePeopleObserver, SqlAction.SELECT, sql);
+        HttpMethods.getInstance().getSqlResult(homePeopleObserver, PhpFunction.SELECT_HOME_PEOPLES_BY_PEOPLE_ID, tableData);
         homePeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data1) {
+
                 ArrayList<PeopleBean> homePeoples = (ArrayList<PeopleBean>) data1;
-                CommVar.getInstance().clear();
-                CommVar.getInstance().put("peoples", homePeoples);
-                CommVar.getInstance().put("hostName", data.name);
-                AppUtils.startActivity(PeoplesActivity.class);
+                if (homePeoples.size() > 0) {
+                    CommVar.getInstance().clear();
+                    CommVar.getInstance().put("peoples", homePeoples);
+                    CommVar.getInstance().put("hostName", data.name);
+                    AppUtils.startActivity(PeoplesActivity.class);
+                } else {
+                    AppUtils.showToast("人员没有户信息");
+                }
+
             }
         });
     }
@@ -371,9 +382,10 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     //显示人员亲戚信息
     @OnClick(R.id.btn_show_family)
     public void onShowFamilies() {
-        String sql = SqlFactory.selectAllHomePeopleByPid(data.id);
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("id", data.id);
         PeopleObserver familyObserver = new PeopleObserver(PeopleFlag.FROM_FAMILY);
-        HttpMethods.getInstance().getSqlResult(familyObserver, SqlAction.SELECT, sql);
+        HttpMethods.getInstance().getSqlResult(familyObserver, PhpFunction.SELECT_ALL_HOME_PEOPLES_BY_PEOPLE_ID, tableData);
         familyObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data1) {
@@ -397,7 +409,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                                 FamilyActivity.familyNodes = familyNodes;
                                 FamilyActivity.basePeople = data;
                                 AppUtils.startActivity(FamilyActivity.class);
-                            }else{
+                            } else {
                                 AppUtils.showToast("该人员无亲戚信息");
                             }
                         }
@@ -463,9 +475,10 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
     }
 
     private void breakParentHomeRelation() {
-        String sql = "delete from people_home where peopleID = '" + data.id + "' and isDelete = 1";
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("peopleID", data.id);
         IntObserver delParentObserver = new IntObserver();
-        HttpMethods.getInstance().getSqlResult(delParentObserver, SqlAction.DELETE, sql);
+        HttpMethods.getInstance().getSqlResult(delParentObserver,PhpFunction.DELETE_PEOPLE_PARENT_HOME_INFO, tableData);
         delParentObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -521,8 +534,8 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
             Map<String, String> map = new HashMap<>();
             map.put("isDelete", "1");
 
-            String sql = SqlFactory.update(tableName, map, tableID);
             IntObserver setPeopleLeaveObserver = new IntObserver();
+            PhpFunction.update(setPeopleLeaveObserver,tableName, map, tableID);
             setPeopleLeaveObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                 @Override
                 public void onNext(Observer observer, Object data) {
@@ -534,10 +547,9 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                     }
                 }
             });
-            HttpMethods.getInstance().getSqlResult(setPeopleLeaveObserver, SqlAction.UPDATE, sql);
         } else if (data.isLeave == 1) {
             IntObserver delPeopleObserver = new IntObserver();
-            String sql = SqlFactory.delete(tableName, tableID);
+            PhpFunction.delete(delPeopleObserver,tableName,tableID);
             delPeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                 @Override
                 public void onNext(Observer observer, Object data) {
@@ -549,7 +561,6 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                     }
                 }
             });
-            HttpMethods.getInstance().getSqlResult(delPeopleObserver, SqlAction.DELETE, sql);
         }
     }
 

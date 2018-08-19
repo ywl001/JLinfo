@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.esri.arcgisruntime.ArcGISRuntimeEnvironment;
 import com.esri.arcgisruntime.geometry.Point;
@@ -33,7 +34,7 @@ import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.beans.GraphicItemBean;
 import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.ShowGraphicListEvent;
 import com.ywl01.jlinfo.events.ShowGraphicMenuEvent;
@@ -45,7 +46,6 @@ import com.ywl01.jlinfo.map.LocationService;
 import com.ywl01.jlinfo.map.MapListener;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.ProgressRequestBody;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.observers.UploadObserver;
@@ -112,6 +112,7 @@ public class MainActivity extends BaseActivity {
     private ArcGISTiledLayer tiledLayer;
     private LocationService  locationService;
     private boolean          isShowLocation;
+    private long exitTime;
 
     @Override
     protected void initView() {
@@ -380,7 +381,6 @@ public class MainActivity extends BaseActivity {
                 String[] temp = imgUrl.split("\\.");
                 String thumbUrl = temp[0] + "_thumb.jpg";
 
-                IntObserver insertObserver = new IntObserver();
                 Map<String, String> tableData = new HashMap<String, String>();
                 int id = uploadImageEvent.id;
 
@@ -389,9 +389,9 @@ public class MainActivity extends BaseActivity {
                 tableData.put("thumbUrl", thumbUrl);
                 tableData.put("insertUser", CommVar.loginUser.id + "");
                 tableData.put("insertTime", "now()");
-                String sql = SqlFactory.insert(TableName.MARK_IMAGE, tableData);
-                HttpMethods.getInstance().getSqlResult(insertObserver, SqlAction.INSERT, sql);
 
+                IntObserver insertObserver = new IntObserver();
+                PhpFunction.insert(insertObserver,TableName.MARK_IMAGE,tableData);
                 insertObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                     @Override
                     public void onNext(Observer observer, Object data) {
@@ -432,7 +432,10 @@ public class MainActivity extends BaseActivity {
                 }
                 clickBackTimes = 0;
             } else if (clickBackTimes == 1) {
-                AppUtils.showToast("再按一次退出");
+                if ((System.currentTimeMillis() - exitTime) > 2000) {
+                    Toast.makeText(getApplicationContext(), "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                    exitTime = System.currentTimeMillis();
+                }
             } else {
                 super.finish();
             }

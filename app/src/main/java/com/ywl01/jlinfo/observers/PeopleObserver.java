@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ywl01.jlinfo.beans.PeopleBean;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,15 +20,16 @@ public class PeopleObserver extends BaseObserver<String,List<PeopleBean>> {
 
     @Override
     protected List<PeopleBean> convert(String data) {
-
         List<PeopleBean> peoples = new Gson().fromJson(data, new TypeToken<List<PeopleBean>>() {}.getType());
-
-        int countPeople = peoples.size();
-        for (int i = 0; i < countPeople; i++) {
-            PeopleBean p = peoples.get(i);
-            p.peopleFlag = peopleFlag;
+        if (peoples == null) {
+            peoples = new ArrayList<>();
+        }else{
+            int countPeople = peoples.size();
+            for (int i = 0; i < countPeople; i++) {
+                PeopleBean p = peoples.get(i);
+                p.peopleFlag = peopleFlag;
+            }
         }
-
         return peoples;
     }
 }

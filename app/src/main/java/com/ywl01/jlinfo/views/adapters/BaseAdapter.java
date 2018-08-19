@@ -115,8 +115,7 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter implements Vie
                 break;
             case update:
                 notifyItemChanged(position);
-                //清除状态
-                TypeEvent.dispatch(TypeEvent.RESET_SWIPEITEM_STATE);
+                System.out.println("List:我刷新了");
                 break;
         }
     }

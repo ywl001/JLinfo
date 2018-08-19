@@ -17,6 +17,7 @@ public class CommVar {
     public static String imgMapUrl;
     public static String serverImageRootUrl = baseUrl + "jlmap_image/";
     public static String sqlUrl = "jlInfo/sql.php";
+    public static String sqlUrl2 = "jlInfo/sql2.php";
     public static String delFileUrl = "jlInfo/delFile.php";
     public static String uploadUrl = "jlInfo/uploadImage.php";
 

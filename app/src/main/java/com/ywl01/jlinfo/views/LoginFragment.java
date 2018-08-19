@@ -12,12 +12,15 @@ import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.MainActivity;
 import com.ywl01.jlinfo.beans.User;
 import com.ywl01.jlinfo.CommVar;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
+import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.UserObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,10 +47,12 @@ public class LoginFragment extends Fragment {
     public void onLogin() {
         if (validateInput()) {
             UserObserver userObserver = new UserObserver();
-            final String userName = etUser.getText().toString().trim();
+            String userName = etUser.getText().toString().trim();
             String password = etPasswored.getText().toString().trim();
-            String sql = SqlFactory.selectUser(userName, password);
-            HttpMethods.getInstance().getSqlResult(userObserver, SqlAction.SELECT, sql);
+            Map<String, Object> data = new HashMap<>();
+            data.put("userName", userName);
+            data.put("password", password);
+            HttpMethods.getInstance().getSqlResult(userObserver, PhpFunction.SELECT_USER, data);
             userObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                 @Override
                 public void onNext(Observer observer, Object data) {

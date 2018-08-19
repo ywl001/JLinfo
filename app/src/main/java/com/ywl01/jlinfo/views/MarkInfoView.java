@@ -18,12 +18,10 @@ import com.ywl01.jlinfo.beans.User;
 import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.ImageType;
 import com.ywl01.jlinfo.consts.PeopleFlag;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
-import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.observers.MarkImageObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.observers.UserObserver;
@@ -33,7 +31,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,11 +48,6 @@ public class MarkInfoView extends FrameLayout implements View.OnClickListener {
     private Context context;
     private MarkBean markBean;
 
-    private MarkImageObserver imageObserver;
-    private IntObserver delImageObserver;
-    private PeopleObserver managerObersver;
-    private IntObserver delFileObserver;
-    private UserObserver userObserver;
 
     private String delImageUrl;
     private String delThumbUrl;
@@ -119,9 +114,10 @@ public class MarkInfoView extends FrameLayout implements View.OnClickListener {
     }
 
     private void getUpdateInfo() {
-        userObserver = new UserObserver();
-        String sql = SqlFactory.selectUserByID(markBean.updateUser);
-        HttpMethods.getInstance().getSqlResult(userObserver, SqlAction.SELECT, sql);
+        UserObserver userObserver = new UserObserver();
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("id",markBean.updateUser);
+        HttpMethods.getInstance().getSqlResult(userObserver, PhpFunction.SELECT_USER_BY_ID, tableData);
         userObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -136,9 +132,10 @@ public class MarkInfoView extends FrameLayout implements View.OnClickListener {
     }
 
     private void getManager() {
-        managerObersver = new PeopleObserver(PeopleFlag.FROM_MARK);
-        String sql = SqlFactory.selectMarkManager(markBean.id);
-        HttpMethods.getInstance().getSqlResult(managerObersver, SqlAction.SELECT, sql);
+        PeopleObserver managerObersver = new PeopleObserver(PeopleFlag.FROM_MARK);
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("id", markBean.id);
+        HttpMethods.getInstance().getSqlResult(managerObersver, PhpFunction.SELECT_MARK_MANAGER, tableData);
         managerObersver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -158,9 +155,10 @@ public class MarkInfoView extends FrameLayout implements View.OnClickListener {
 
     //获取图像
     private void getMarkImage() {
-        imageObserver = new MarkImageObserver();
-        String sql = SqlFactory.selectMarkImages(markBean.id);
-        HttpMethods.getInstance().getSqlResult(imageObserver, SqlAction.SELECT, sql);
+        MarkImageObserver imageObserver = new MarkImageObserver();
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("id", markBean.id);
+        HttpMethods.getInstance().getSqlResult(imageObserver, PhpFunction.SELECT_MARK_IMAGES, tableData);
         imageObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {

@@ -10,7 +10,7 @@ public class UserObserver extends BaseObserver<String,User> {
     @Override
     protected User convert(String data) {
         List<User> users = new Gson().fromJson(data, new TypeToken<List<User>>() {}.getType());
-        if(users.size() > 0)
+        if(users != null && users.size() > 0)
             return users.get(0);
         return null;
     }

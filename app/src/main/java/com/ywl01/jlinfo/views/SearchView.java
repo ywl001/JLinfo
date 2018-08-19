@@ -18,18 +18,19 @@ import com.ywl01.jlinfo.beans.GraphicItemBean;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.PeopleFlag;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.events.ShowGraphicListEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.GraphicItemsObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.utils.PeopleNumbleUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,10 +48,10 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
     public static final int search_type_people = 1;
     public static final int search_type_geo    = 2;
 
-    private static final int num_date   = 0;
-    private static final int num_phone  = 1;
-    private static final int num_idcard = 2;
-    private static final int num_other  = 3;
+    private static final int num_date   = 1;
+    private static final int num_phone  = 2;
+    private static final int num_idcard = 3;
+    private static final int num_other  = 4;
 
     @BindView(R.id.et_search)
     EditText etSearch;
@@ -143,79 +144,62 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
     }
 
     private void doSearch() {
-        String sql = getSql(etSearch.getText().toString().trim());
-        if (sql == "") {
-            AppUtils.showToast("請輸入正確的查詢條件");
-        } else {
-            if (searchType == 1) {
-                PeopleObserver peopleObserver = new PeopleObserver(PeopleFlag.FROM_SEARCH);
-                HttpMethods.getInstance().getSqlResult(peopleObserver, SqlAction.SELECT, sql);
-                peopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
-                    @Override
-                    public void onNext(Observer observer, Object data) {
-                        etSearch.setText("");
-                        List<PeopleBean> peoples = (List<PeopleBean>) data;
-                        if (peoples.size() == 0) {
-                            AppUtils.showToast("没有查询到相关人员");
-                        } else {
-                            CommVar.getInstance().put("peoples", data);
-                            AppUtils.startActivity(PeoplesActivity.class);
-                        }
+        String input = etSearch.getText().toString().trim();
+        if (!checkInput(input)) {
+            AppUtils.showToast("请输入正确的查询条件");
+            return;
+        }
+        if (searchType == 1) {
+            PeopleObserver peopleObserver = new PeopleObserver(PeopleFlag.FROM_SEARCH);
+            HttpMethods.getInstance().getSqlResult(peopleObserver, PhpFunction.SELECT_PEOPLES_BY_INPUT, getSqlData(input));
+            peopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+                @Override
+                public void onNext(Observer observer, Object data) {
+                    etSearch.setText("");
+                    List<PeopleBean> peoples = (List<PeopleBean>) data;
+                    if (peoples.size() == 0) {
+                        AppUtils.showToast("没有查询到相关人员");
+                    } else {
+                        CommVar.getInstance().put("peoples", data);
+                        AppUtils.startActivity(PeoplesActivity.class);
                     }
-                });
-            } else if (searchType == 2) {
-                GraphicItemsObserver observer = new GraphicItemsObserver();
-                HttpMethods.getInstance().getSqlResult(observer, SqlAction.SELECT, sql);
-                observer.setOnNextListener(new BaseObserver.OnNextListener() {
-                    @Override
-                    public void onNext(Observer observer, Object data) {
-                        etSearch.setText("");
-                        List<GraphicItemBean> graphicItems = (List<GraphicItemBean>) data;
-                        if (graphicItems.size() > 0) {
-                            ShowGraphicListEvent event = new ShowGraphicListEvent();
-                            event.graphicItems = graphicItems;
-                            event.dispatch();
-                        }else{
-                            AppUtils.showToast("没有查询到相关场所或单位");
-                        }
+                }
+            });
+        } else if (searchType == 2) {
+            GraphicItemsObserver observer = new GraphicItemsObserver();
+            HttpMethods.getInstance().getSqlResult(observer, PhpFunction.SELECT_GRAPHICS_BY_NAME, getSqlData(input));
+            observer.setOnNextListener(new BaseObserver.OnNextListener() {
+                @Override
+                public void onNext(Observer observer, Object data) {
+                    etSearch.setText("");
+                    List<GraphicItemBean> graphicItems = (List<GraphicItemBean>) data;
+                    if (graphicItems.size() > 0) {
+                        ShowGraphicListEvent event = new ShowGraphicListEvent();
+                        event.graphicItems = graphicItems;
+                        event.dispatch();
+                    } else {
+                        AppUtils.showToast("没有查询到相关场所或单位");
                     }
-                });
-            }
+                }
+            });
         }
     }
 
-    private String getSql(String input) {
-        String sql = "";
-        if (searchType == 1) {
-            if (AppUtils.isNumeric(input)) {
-                int numType = getNumType(input);
-                switch (numType) {
-                    case num_date:
-                        sql = "select * from people where peopleNumber like '%" + input + "%'";
-                        break;
-                    case num_phone:
-                        sql = "select * from people where telephone = '" + input + "'";
-                        break;
-                    case num_idcard:
-                        sql = "select * from people where peopleNumber = '" + input + "'";
-                        break;
-                    case num_other:
-                        if (input.length() < 6) {
-                            return "";
-                        }
-                        if (input.contains("410306") && input.length() < 10) {
-                            return "";
-                        }
-                        sql = "select * from people where (peopleNumber like '%" + input + "%' or telephone like '%" + input + "%')";
-                        break;
-                }
-            } else if (AppUtils.isChinese(input)) {
-                sql = "select * from people where name like '%" + input + "%'";
-            }
-        } else if (searchType == 2) {
-            sql = SqlFactory.selectGraphicByName(input);
+    private boolean checkInput(String input) {
+        if(AppUtils.isEmptyString(input)){
+            return false;
         }
-        return sql;
+        return true;
+    }
+
+    private Map<String, Object> getSqlData(String input) {
+        Map<String, Object> data = new HashMap<>();
+        if (AppUtils.isNumeric(input)) {
+            int numType = getNumType(input);
+            data.put("numType", numType);
+        }
+        data.put("input", input);
+        return data;
     }
 
     private int getNumType(String num) {

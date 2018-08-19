@@ -17,9 +17,8 @@ import com.ywl01.jlinfo.activities.BaseActivity;
 import com.ywl01.jlinfo.beans.ImageBean;
 import com.ywl01.jlinfo.beans.User;
 import com.ywl01.jlinfo.CommVar;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.UserObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
@@ -27,6 +26,8 @@ import com.ywl01.jlinfo.utils.ImageUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -71,8 +72,9 @@ public class ImagePageViewHolder extends BaseHolder<ImageBean> implements OnPhot
 
     private void getUpdateInfo() {
         UserObserver userObserver = new UserObserver();
-        String sql = SqlFactory.selectUserByID(markImageBean.insertUser);
-        HttpMethods.getInstance().getSqlResult(userObserver, SqlAction.SELECT, sql);
+        Map<String, Object> tableData = new HashMap<>();
+        tableData.put("id",markImageBean.insertUser);
+        HttpMethods.getInstance().getSqlResult(userObserver, PhpFunction.SELECT_USER_BY_ID, tableData);
         userObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {

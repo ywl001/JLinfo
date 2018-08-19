@@ -13,11 +13,11 @@ import android.widget.ProgressBar;
 
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.consts.PeopleFlag;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.views.adapters.DividerItemDecoration;
 import com.ywl01.jlinfo.views.adapters.PeopleListAdapter;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.CommVar;
-import com.ywl01.jlinfo.consts.SqlAction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.ListEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
@@ -25,7 +25,6 @@ import com.ywl01.jlinfo.events.UpdatePeopleEvent;
 import com.ywl01.jlinfo.events.UploadImageEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.net.ProgressRequestBody;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.observers.UploadObserver;
@@ -208,7 +207,6 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
                 String[] temp = imgUrl.split("\\.");
                 String thumbUrl = temp[0] + "_thumb.jpg";
 
-                IntObserver insertObserver = new IntObserver();
                 Map<String, String> tableData = new HashMap<String, String>();
                 int id = uploadPhotoEvent.id;
 
@@ -217,9 +215,9 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
                 tableData.put("thumbUrl", thumbUrl);
                 tableData.put("insertUser", CommVar.loginUser.id + "");
                 tableData.put("insertTime", "now()");
-                String sql = SqlFactory.insert(TableName.PEOPLE_PHOTO, tableData);
-                HttpMethods.getInstance().getSqlResult(insertObserver, SqlAction.INSERT, sql);
 
+                IntObserver insertObserver = new IntObserver();
+                PhpFunction.insert(insertObserver,TableName.PEOPLE_PHOTO,tableData);
                 insertObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                     @Override
                     public void onNext(Observer observer, Object data) {

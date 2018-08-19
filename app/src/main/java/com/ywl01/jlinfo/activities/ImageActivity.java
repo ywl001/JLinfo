@@ -12,11 +12,10 @@ import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.beans.ImageBean;
 import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.ImageType;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
@@ -103,7 +102,7 @@ public class ImageActivity extends BaseActivity implements ViewPager.OnPageChang
                             confirmDel();
                         }
                     }, "取消", null);
-        }else{
+        } else {
             AppUtils.showToast("你不是照片的上传者，不能删除。");
         }
     }
@@ -113,15 +112,12 @@ public class ImageActivity extends BaseActivity implements ViewPager.OnPageChang
         IntObserver delImageObserver = new IntObserver();
         delImageUrl = imageBean.imageUrl;
         delThumbUrl = imageBean.thumbUrl;
-        int id = imageBean.id;
-        String sql = "";
-        if (imageType == ImageType.images)
-            sql = SqlFactory.delete(TableName.MARK_IMAGE, id);
-        else if (imageType == ImageType.phpto) {
-            sql = SqlFactory.delete(TableName.PEOPLE_PHOTO, id);
-        }
-        HttpMethods.getInstance().getSqlResult(delImageObserver, SqlAction.DELETE, sql);
 
+        String tableName = TableName.MARK_IMAGE;
+        if (imageType == ImageType.phpto) {
+            tableName = TableName.PEOPLE_PHOTO;
+        }
+        PhpFunction.delete(delImageObserver, tableName, imageBean.id);
         delImageObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {

@@ -1,10 +1,15 @@
 package com.ywl01.jlinfo.net;
 
 
+import com.google.gson.Gson;
 import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.events.TypeEvent;
 import com.ywl01.jlinfo.observers.UploadObserver;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -28,6 +33,7 @@ public class HttpMethods {
 
     private ConfigService configService;
     private SqlService sqlService;
+    private SqlService2 sqlService2;
     private DelFileService delFileService;
     private UploadImageService uploadImageService;
 
@@ -45,6 +51,7 @@ public class HttpMethods {
                 .build();
         configService = retrofit.create(ConfigService.class);
         sqlService = retrofit.create(SqlService.class);
+        sqlService2 = retrofit.create(SqlService2.class);
         delFileService = retrofit.create(DelFileService.class);
         uploadImageService = retrofit.create(UploadImageService.class);
     }
@@ -54,8 +61,15 @@ public class HttpMethods {
 //        execute(observable,observer);
 //    }
 
-    public void getSqlResult(Observer observer, String sqlAction, String sql) {
-        Observable<String> observable = sqlService.getResult(CommVar.sqlUrl,sqlAction,sql);
+//    public void getSqlResult(Observer observer, String sqlAction, String sql) {
+//        Observable<String> observable = sqlService.getResult(CommVar.sqlUrl,sqlAction,sql);
+//        execute(observable,observer);
+//    }
+
+    public void getSqlResult(Observer observer, String function, Map<String,Object> data) {
+        String json = (new Gson()).toJson(data);
+        System.out.println(json);
+        Observable<String> observable = sqlService2.getResult(CommVar.sqlUrl2,function,json);
         execute(observable,observer);
     }
 

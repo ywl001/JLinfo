@@ -10,8 +10,8 @@ import retrofit2.http.Url;
  * Created by ywl01 on 2017/1/21.
  */
 
-public interface SqlService {
+public interface SqlService2 {
     @FormUrlEncoded
     @POST()
-    Observable<String> getResult(@Url String url,@Field("action") String action, @Field("sql") String sql);
+    Observable<String> getResult(@Url String url, @Field("function") String function, @Field("data") String data);
 }

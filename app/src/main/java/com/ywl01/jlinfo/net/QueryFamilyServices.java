@@ -3,14 +3,16 @@ package com.ywl01.jlinfo.net;
 import com.ywl01.jlinfo.beans.FamilyNode;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.consts.PeopleFlag;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.FamilyDataObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.Observer;
@@ -103,8 +105,9 @@ public class QueryFamilyServices implements BaseObserver.OnNextListener{
         }
         else{
             System.out.println("*****************************向上查询*************************************");
-            String sql = SqlFactory.selectParentHomePeoplesByPid(pid);
-            selectHomePeoplesByPid(sql);
+            Map<String, Object> tableData = new HashMap<>();
+            tableData.put("id", pid);
+            queryPeople(PhpFunction.SELECT_PARENT_HOME_PEOPLES_BY_PEOPLE_ID,tableData);
             sign = UP;
             pidList.add(pid);
         }
@@ -117,8 +120,9 @@ public class QueryFamilyServices implements BaseObserver.OnNextListener{
         }
         else{
             System.out.println("############################向下查询##################################");
-            String sql = SqlFactory.selectAllHomePeopleByPid(pid);
-            selectHomePeoplesByPid(sql);
+            Map<String, Object> tableData = new HashMap<>();
+            tableData.put("id", pid);
+            queryPeople(PhpFunction.SELECT_ALL_HOME_PEOPLES_BY_PEOPLE_ID,tableData);
             sign = DOWN;
             pidList.add(pid);
         }
@@ -161,8 +165,8 @@ public class QueryFamilyServices implements BaseObserver.OnNextListener{
         return arr;
     }
 
-    private void selectHomePeoplesByPid(String sql) {
-        HttpMethods.getInstance().getSqlResult(peopleObserver, SqlAction.SELECT, sql);
+    private void queryPeople(String function,Map<String,Object> tableData) {
+        HttpMethods.getInstance().getSqlResult(peopleObserver, function, tableData);
         peopleObserver.setOnNextListener(this);
     }
 

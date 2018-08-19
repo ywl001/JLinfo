@@ -16,10 +16,9 @@ import com.ywl01.jlinfo.activities.SetHomeActivity;
 import com.ywl01.jlinfo.beans.PeopleHomeBean;
 import com.ywl01.jlinfo.beans.SetHomeBean;
 import com.ywl01.jlinfo.CommVar;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.observers.PeopleHomeObserver;
@@ -39,7 +38,7 @@ import io.reactivex.Observer;
  * Created by ywl01 on 2017/2/15.
  */
 
-public class SetHomeFragment3 extends Fragment implements BaseObserver.OnNextListener,DialogInterface.OnClickListener {
+public class SetHomeFragment3 extends Fragment {
 
     @BindView(R.id.tv_text)
     TextView tv;
@@ -80,13 +79,57 @@ public class SetHomeFragment3 extends Fragment implements BaseObserver.OnNextLis
         if (setHomeBean.homeIsExists) {
             if (setHomeBean.isRealLeave) {
                 //查询父级户号是否设置
-                String sql = "select * from " + TableName.PEOPLE_HOME + " where peopleID = " + setHomeBean.peopleID + " and isDelete = 1";
+                Map<String, Object> data = new HashMap<>();
+                data.put("id", setHomeBean.peopleID);
                 peopleHomeObserver = new PeopleHomeObserver();
-                HttpMethods.getInstance().getSqlResult(peopleHomeObserver, SqlAction.SELECT, sql);
-                peopleHomeObserver.setOnNextListener(this);
+                HttpMethods.getInstance().getSqlResult(peopleHomeObserver, PhpFunction.SELECT_PEOPLE_IN_PARENT_HOME_INFO, data);
+                peopleHomeObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+                    @Override
+                    public void onNext(Observer observer, Object data) {
+                        List<PeopleHomeBean> homes = (List<PeopleHomeBean>) data;
+                        if (homes.size() > 0) {
+                            System.out.println("上级户号已经设置。。。");
+                            PeopleHomeBean homeBean = homes.get(0);
+                            if(homeBean.id == setHomeBean.oldHomeID){
+                                insertNew();
+                            }else{
+                                System.out.println("显示对话框");
+                                DialogUtils.showAlert(getActivity(),
+                                        "提示：",
+                                        "该人员已经从亲生父母户中分离，此次操作会将该人员从当前户中分离，建立新户，是否继续？",
+                                        "确定", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                delOld();
+                                            }
+                                        }, "取消", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                getActivity().finish();
+                                            }
+                                        });
+                            }
+                        } else {
+                            updateOld();
+                        }
+                    }
+                });
             }
             else{
-                DialogUtils.showAlert(getActivity(), "提示：", "此次操作会将改变人员的户信息，是否继续？", "确定", this, "取消", this);
+                DialogUtils.showAlert(getActivity(),
+                        "提示：",
+                        "此次操作会将改变人员的户信息，是否继续？",
+                        "确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                delOld();
+                            }
+                        }, "取消", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                getActivity().finish();
+                            }
+                        });
             }
         } else {
             insertNew();
@@ -95,47 +138,18 @@ public class SetHomeFragment3 extends Fragment implements BaseObserver.OnNextLis
 
     private void delOld() {
         System.out.println("删除老户号");
-        String sql = SqlFactory.delete(TableName.PEOPLE_HOME, setHomeBean.oldHomeID);
         delOldObserver = new IntObserver();
-        HttpMethods.getInstance().getSqlResult(delOldObserver,SqlAction.DELETE,sql);
-        delOldObserver.setOnNextListener(this);
-    }
-
-    @Override
-    public void onNext(Observer observer,Object data) {
-        if (observer == peopleHomeObserver) {
-            List<PeopleHomeBean> homes = (List<PeopleHomeBean>) data;
-            if (homes.size() > 0) {
-                System.out.println("上级户号已经设置。。。");
-                PeopleHomeBean homeBean = homes.get(0);
-                if(homeBean.id == setHomeBean.oldHomeID){
+        PhpFunction.delete(delOldObserver,TableName.PEOPLE_HOME,setHomeBean.oldHomeID);
+        delOldObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                int rows = (int) data;
+                if (rows > 0) {
+                    //删除老户号成功
                     insertNew();
-                }else{
-                    System.out.println("显示对话框");
-                    DialogUtils.showAlert(getActivity(), "提示：", "该人员已经从亲生父母户中分离，此次操作会将该人员从当前户中分离，建立新户，是否继续？", "确定", this, "取消", this);
                 }
-            } else {
-                updateOld();
             }
-        } else if (observer == updateOldObserver) {
-            int rows = (int) data;
-            if (rows > 0) {
-                //更新老户号成功
-                insertNew();
-            }
-        } else if (observer == insertNewObserver) {
-            int id = (int) data;
-            if (id > 0) {
-                AppUtils.showToast("设置户号成功,可点击户信息按钮查看。");
-                getActivity().finish();
-            }
-        } else if (observer == delOldObserver) {
-            int rows = (int) data;
-            if (rows > 0) {
-                //删除老户号成功
-                insertNew();
-            }
-        }
+        });
     }
 
     private void insertNew() {
@@ -146,28 +160,34 @@ public class SetHomeFragment3 extends Fragment implements BaseObserver.OnNextLis
         map.put("updateUser", CommVar.loginUser.id + "");
         map.put("insertTime", "now()");
 
-        String sql = SqlFactory.insert(TableName.PEOPLE_HOME, map);
         insertNewObserver = new IntObserver();
-        HttpMethods.getInstance().getSqlResult(insertNewObserver, SqlAction.INSERT, sql);
-        insertNewObserver.setOnNextListener(this);
+        PhpFunction.insert(insertNewObserver, TableName.PEOPLE_HOME,map);
+        insertNewObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                int id = (int) data;
+                if (id > 0) {
+                    AppUtils.showToast("设置户号成功,可点击户信息按钮查看。");
+                    getActivity().finish();
+                }
+            }
+        });
     }
 
     private void updateOld() {
         Map<String, String> map = new HashMap<>();
         map.put("isDelete", "1");
-        String sql = SqlFactory.update(TableName.PEOPLE_HOME,map,setHomeBean.oldHomeID);
         updateOldObserver = new IntObserver();
-        HttpMethods.getInstance().getSqlResult(updateOldObserver,SqlAction.UPDATE,sql);
-        updateOldObserver.setOnNextListener(this);
-    }
-
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
-        if (which == DialogInterface.BUTTON_POSITIVE) {
-            System.out.println("确定");
-            delOld();
-        } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-            getActivity().finish();
-        }
+        PhpFunction.update(updateOldObserver,TableName.PEOPLE_HOME,map,setHomeBean.oldHomeID);
+        updateOldObserver.setOnNextListener(new BaseObserver.OnNextListener() {
+            @Override
+            public void onNext(Observer observer, Object data) {
+                int rows = (int) data;
+                if (rows > 0) {
+                    //更新老户号成功
+                    insertNew();
+                }
+            }
+        });
     }
 }

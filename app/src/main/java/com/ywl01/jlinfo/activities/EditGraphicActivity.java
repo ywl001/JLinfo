@@ -12,12 +12,10 @@ import com.ywl01.jlinfo.beans.HouseBean;
 import com.ywl01.jlinfo.beans.MarkBean;
 import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.GraphicFlag;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.consts.TableName;
 import com.ywl01.jlinfo.events.SelectValueEvent;
 import com.ywl01.jlinfo.events.TypeEvent;
-import com.ywl01.jlinfo.net.HttpMethods;
-import com.ywl01.jlinfo.net.SqlFactory;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.IntObserver;
 import com.ywl01.jlinfo.utils.AppUtils;
@@ -231,8 +229,7 @@ public class EditGraphicActivity extends BaseActivity {
         }
 
         IntObserver observer = new IntObserver();
-        String sql = SqlFactory.update(getTableNameByGraphic(graphic), data, id);
-        HttpMethods.getInstance().getSqlResult(observer, SqlAction.UPDATE,sql);
+        PhpFunction.update(observer,getTableNameByGraphic(graphic), data, id);
         observer.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {

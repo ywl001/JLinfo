@@ -7,7 +7,7 @@ import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.CommVar;
 import com.ywl01.jlinfo.consts.PeopleFlag;
-import com.ywl01.jlinfo.consts.SqlAction;
+import com.ywl01.jlinfo.PhpFunction;
 import com.ywl01.jlinfo.net.HttpMethods;
 import com.ywl01.jlinfo.observers.BaseObserver;
 import com.ywl01.jlinfo.observers.PeopleObserver;
@@ -15,6 +15,7 @@ import com.ywl01.jlinfo.utils.AppUtils;
 import com.ywl01.jlinfo.views.SearchItemView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -87,16 +88,8 @@ public class SearchActivity extends BaseActivity implements SearchItemView.OnIte
             return;
         }
 
-        sql = "select p.id,p.name,sex,peopleNumber,p.telephone,m.name workPlace,buildingName,pb.roomNumber,h.community " +
-                "from people p left join people_house ph on p.id = ph.peopleID " +
-                "left join house h on ph.houseID = h.id " +
-                "left join people_building pb on p.id = pb.peopleID " +
-                "left join building b on pb.buildingID = b.id " +
-                "left join people_mark pm on p.id = pm.peopleID " +
-                "left join mark m on pm.markID = m.id " +
-                "where " + sql + " group by peopleNumber";
-
-        System.out.println(sql);
+        Map<String, Object> data = new HashMap<>();
+        data.put("where", getSql());
 
         PeopleObserver observer = new PeopleObserver(PeopleFlag.FROM_SEARCH);
         observer.setOnNextListener(new BaseObserver.OnNextListener() {
@@ -111,7 +104,7 @@ public class SearchActivity extends BaseActivity implements SearchItemView.OnIte
                 }
             }
         });
-        HttpMethods.getInstance().getSqlResult(observer, SqlAction.SELECT, sql);
+        HttpMethods.getInstance().getSqlResult(observer, PhpFunction.SELECT_PEOPLES_BY_WHERE, data);
 
     }
 

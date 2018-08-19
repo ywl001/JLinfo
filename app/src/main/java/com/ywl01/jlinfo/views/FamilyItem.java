@@ -125,17 +125,6 @@ public class FamilyItem extends LinearLayout {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             System.out.println("double click");
-//            String sql = SqlFactory.selectHomePeopleByHomeNumber(data.homeNumber);
-//            PeopleObserver homePeopleObserver = new PeopleObserver(PeopleFlag.FROM_FAMILY);
-//            HttpMethods.getInstance().getSqlResult(homePeopleObserver, SqlAction.SELECT, sql);
-//            homePeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
-//                @Override
-//                public void onNext(Observer observer,Object data) {
-//                    ArrayList<PeopleBean> peoples = (ArrayList<PeopleBean>) data;
-//                    CommVar.getInstance().put("peoples",peoples);
-//                    AppUtils.startActivity(PeoplesActivity.class);
-//                }
-//            });
             CommVar.getInstance().put("peoples",peoples);
             AppUtils.startActivity(PeoplesActivity.class);
             return super.onDoubleTap(e);

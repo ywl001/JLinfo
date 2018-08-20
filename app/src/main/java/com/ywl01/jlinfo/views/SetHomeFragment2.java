@@ -108,7 +108,12 @@ public class SetHomeFragment2 extends Fragment implements QueryPeopleView.OnItem
         }
 
         SetHomeFragment3 fragment3 = new SetHomeFragment3();
-        activity.addFragment(this,fragment3,R.id.root_view);
+        getFragmentManager()
+                .beginTransaction()
+                .add(R.id.root_view,fragment3)
+                .addToBackStack("")
+                .commit();
+        //activity.addFragment(this,fragment3,R.id.root_view);
     }
 
     private boolean validate(){

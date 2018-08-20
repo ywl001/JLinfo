@@ -119,7 +119,7 @@ public class AddPeopleActivity extends BaseActivity {
         //点击取消，退出界面
         queryPeopleView.setOnClickBtnCancelListener(new QueryPeopleView.onClickBtnCancelListener() {
             @Override
-            public void onClick() {
+            public void onClidkCancel() {
                 finish();
             }
         });

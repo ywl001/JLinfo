@@ -64,6 +64,7 @@ public class RelationHomeActivity extends BaseActivity implements QueryPeopleVie
     protected void initView() {
         setContentView(R.layout.activity_relation_home);
         ButterKnife.bind(this);
+        setTitle("建立直系亲属关系：");
         people = (PeopleBean) CommVar.getInstance().get("people");
         queryPeopleView.setOnItemSelectListener(this);
     }
@@ -195,7 +196,7 @@ public class RelationHomeActivity extends BaseActivity implements QueryPeopleVie
     }
 
     @Override
-    public void onClick() {
+    public void onClidkCancel() {
         finish();
     }
 
@@ -209,6 +210,7 @@ public class RelationHomeActivity extends BaseActivity implements QueryPeopleVie
         HideAll();
         tvTitleChild.setVisibility(View.VISIBLE);
         queryPeopleView.setVisibility(View.VISIBLE);
+        queryPeopleView.setOnClickBtnCancelListener(this);
         addFlag = CHILD;
     }
 

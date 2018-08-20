@@ -120,7 +120,7 @@ public class QueryPeopleView extends LinearLayout implements RadioGroup.OnChecke
     @OnClick(R.id.btn_cancel)
     public void onCancel() {
         if (onClickBtnCancelListener != null) {
-            onClickBtnCancelListener.onClick();
+            onClickBtnCancelListener.onClidkCancel();
         }
     }
 
@@ -186,6 +186,6 @@ public class QueryPeopleView extends LinearLayout implements RadioGroup.OnChecke
     }
 
     public interface onClickBtnCancelListener {
-        void onClick();
+        void onClidkCancel();
     }
 }

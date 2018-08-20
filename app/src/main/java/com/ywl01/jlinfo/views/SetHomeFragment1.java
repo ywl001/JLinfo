@@ -10,8 +10,10 @@ import android.widget.RadioGroup;
 
 
 import com.ywl01.jlinfo.R;
+import com.ywl01.jlinfo.activities.BaseActivity;
 import com.ywl01.jlinfo.activities.SetHomeActivity;
 import com.ywl01.jlinfo.beans.SetHomeBean;
+import com.ywl01.jlinfo.utils.AppUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,6 +32,7 @@ public class SetHomeFragment1 extends Fragment implements RadioGroup.OnCheckedCh
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.set_home1,null);
         ButterKnife.bind(this,view);
+        getActivity().setTitle("设置户关系：");
         rgSetHome.setOnCheckedChangeListener(this);
         return view;
     }
@@ -48,7 +51,13 @@ public class SetHomeFragment1 extends Fragment implements RadioGroup.OnCheckedCh
             activity.setHomeBean.oldHomeID = activity.people.phmID;
 
             SetHomeFragment3 fragment3 = new SetHomeFragment3();
-            activity.addFragment(this,fragment3,R.id.root_view);
+            getFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.root_view,fragment3)
+                    .addToBackStack("")
+                    .commit();
+
+            //activity.addFragment(this,fragment3,R.id.root_view);
 
         }else if(checkedId == R.id.rb_join_other){
             activity.setHomeBean.oprationType = SetHomeBean.OWN_JOIN_OTHER;
@@ -58,13 +67,23 @@ public class SetHomeFragment1 extends Fragment implements RadioGroup.OnCheckedCh
             activity.setHomeBean.oldHomeID = activity.people.phmID;
 
             SetHomeFragment2 fragment2 = new SetHomeFragment2();
-            activity.addFragment(this,fragment2,R.id.root_view);
+            getFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.root_view,fragment2)
+                    .addToBackStack("")
+                    .commit();
+//            activity.addFragment(this,fragment2,R.id.root_view);
         } else if (checkedId == R.id.rb_other_join) {
             activity.setHomeBean.oprationType = SetHomeBean.OTHER_JOIN_OWN;
             activity.setHomeBean.newHomeNumber = activity.people.homeNumber;
 
             SetHomeFragment2 fragment2 = new SetHomeFragment2();
-            activity.addFragment(this,fragment2,R.id.root_view);
+            getFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.root_view,fragment2)
+                    .addToBackStack("")
+                    .commit();
+            //activity.addFragment(this,fragment2,R.id.root_view);
         }
     }
 }

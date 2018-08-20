@@ -1,5 +1,7 @@
 package com.ywl01.jlinfo.activities;
 
+import android.view.MenuItem;
+
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.beans.PeopleBean;
 import com.ywl01.jlinfo.beans.PeopleHomeBean;
@@ -26,7 +28,6 @@ public class SetHomeActivity extends BaseActivity {
 
     public PeopleBean people;
     public SetHomeBean setHomeBean;
-    private PeopleHomeObserver getHomeInfoObserver;
 
     @Override
     protected void initView() {

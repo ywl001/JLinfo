@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/save_image"
+        android:title="重置缩放"
+        android:icon="@drawable/btn_download"
+        app:showAsAction="ifRoom"></item>
+
     <item android:id="@+id/zoom_reset"
         android:title="重置缩放"
         android:icon="@drawable/selector_reset"
         app:showAsAction="ifRoom"></item>
 
-    <item android:id="@+id/save_image"
-        android:title="重置缩放"
-        android:icon="@drawable/save"
-        app:showAsAction="ifRoom"></item>
 </menu>

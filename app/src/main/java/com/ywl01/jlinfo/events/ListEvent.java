@@ -17,6 +17,7 @@ public class ListEvent extends Event{
 
     public ListEvent(int action,int position) {;
         this.action = action;
+        this.position = position;
     }
 
 }

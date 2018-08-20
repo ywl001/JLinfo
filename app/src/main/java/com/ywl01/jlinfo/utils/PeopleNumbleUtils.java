@@ -109,7 +109,7 @@ public class PeopleNumbleUtils {
         GregorianCalendar gc = new GregorianCalendar();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         try {
-            if ((gc.get(Calendar.YEAR) - Integer.parseInt(strYear)) > 150 || (gc.getTime().getTime()
+            if ((gc.get(Calendar.YEAR) - Integer.parseInt(strYear)) > 250 || (gc.getTime().getTime()
                     - format.parse(strYear + "-" + strMonth + "-" + strDay).getTime()) < 0) {
                 errorMessage = "身份证生日不在有效范围";
                 return false;

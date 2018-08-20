@@ -151,12 +151,12 @@ public class PeoplesActivity extends BaseActivity implements Filter.FilterListen
         for (int i = 0; i < countPeople; i++) {
             if (peoples.get(i).id == p.id) {
                 peoples.set(i, p);
-                ListEvent e = new ListEvent(ListEvent.update, i);
-                e.dispatch();
-                break;
+                adapter.notifyItemChanged(i);
             }
         }
     }
+
+
 
     @Subscribe
     public void uploadPhoto(UploadImageEvent event) {

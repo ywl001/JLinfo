@@ -108,10 +108,10 @@ public abstract class BaseAdapter<T> extends RecyclerView.Adapter implements Vie
                 notifyItemInserted(position);
                 break;
             case remove:
+                System.out.println("romeve position:----" + position);
                 datas.remove(position);
                 notifyItemRemoved(position);
                 notifyItemRangeChanged(position,datas.size());
-                TypeEvent.dispatch(TypeEvent.RESET_SWIPEITEM_STATE);
                 break;
             case update:
                 notifyItemChanged(position);

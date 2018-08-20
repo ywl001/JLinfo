@@ -292,9 +292,9 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                 @Override
                 public void onNext(Observer observer, Object data1) {
                     User updateUser = (User) data1;
-                    if (updateUser != null) {
-                        if (data.updateTime != null)
-                            tvUpdateInfo.setText(updateUser.realName + data.updateTime + "更新");
+                    if (updateUser != null && data.updateTime != null) {
+                        tvUpdateInfo.setText(updateUser.realName + data.updateTime + "更新");
+                        tvUpdateInfo.setVisibility(View.VISIBLE);
                     } else {
                         tvUpdateInfo.setVisibility(View.GONE);
                     }
@@ -364,7 +364,6 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
         homePeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data1) {
-
                 ArrayList<PeopleBean> homePeoples = (ArrayList<PeopleBean>) data1;
                 if (homePeoples.size() > 0) {
                     CommVar.getInstance().clear();
@@ -374,7 +373,6 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                 } else {
                     AppUtils.showToast("人员没有户信息");
                 }
-
             }
         });
     }
@@ -478,7 +476,7 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
         Map<String, Object> tableData = new HashMap<>();
         tableData.put("peopleID", data.id);
         IntObserver delParentObserver = new IntObserver();
-        HttpMethods.getInstance().getSqlResult(delParentObserver,PhpFunction.DELETE_PEOPLE_PARENT_HOME_INFO, tableData);
+        HttpMethods.getInstance().getSqlResult(delParentObserver, PhpFunction.DELETE_PEOPLE_PARENT_HOME_INFO, tableData);
         delParentObserver.setOnNextListener(new BaseObserver.OnNextListener() {
             @Override
             public void onNext(Observer observer, Object data) {
@@ -533,9 +531,8 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
         if (data.isLeave == 0) {
             Map<String, String> map = new HashMap<>();
             map.put("isDelete", "1");
-
             IntObserver setPeopleLeaveObserver = new IntObserver();
-            PhpFunction.update(setPeopleLeaveObserver,tableName, map, tableID);
+            PhpFunction.update(setPeopleLeaveObserver, tableName, map, tableID);
             setPeopleLeaveObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                 @Override
                 public void onNext(Observer observer, Object data) {
@@ -543,13 +540,14 @@ public class PeopleItemHolder extends BaseRecyclerHolder<PeopleBean> {
                     if (rows > 0) {
                         AppUtils.showToast("删除人员成功。");
                         ListEvent event = new ListEvent(ListEvent.remove, position);
+                        System.out.println("remove position:" + position);
                         event.dispatch();
                     }
                 }
             });
         } else if (data.isLeave == 1) {
             IntObserver delPeopleObserver = new IntObserver();
-            PhpFunction.delete(delPeopleObserver,tableName,tableID);
+            PhpFunction.delete(delPeopleObserver, tableName, tableID);
             delPeopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                 @Override
                 public void onNext(Observer observer, Object data) {

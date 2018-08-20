@@ -80,6 +80,7 @@
         style="@style/text_normal"
         android:layout_marginLeft="10dp"
         android:text="姚伟立2017-01-01更新"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/image_scroll"
         app:layout_constraintLeft_toRightOf="@id/image_scroll"
         />

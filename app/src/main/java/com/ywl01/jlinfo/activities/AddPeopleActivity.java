@@ -141,12 +141,10 @@ public class AddPeopleActivity extends BaseActivity {
 
     //检查人员是否已经添加到graphic内了
     private void checkPeopleIsAdded(PeopleBean peopleBean) {
-        //String sql = "";
         Map<String, Object> tableData = new HashMap<>();
         tableData.put("peopleID", peopleBean.id);
         tableData.put("graphicID", graphic.getAttributes().get("id"));
-        String tableName = "";
-        String graphicIDName = "";
+
         if (addPeopleFlag == GraphicFlag.MARK) {
             tableData.put("tableName",TableName.PEOPLE_MARK);
             tableData.put("graphicIDName", "markID");
@@ -196,6 +194,7 @@ public class AddPeopleActivity extends BaseActivity {
             people.isExists = 0;
             etPeopleName.setText(people.name);
             etPeopleNumber.setText(people.peopleNumber);
+            btnRandomPeopleNumber.setVisibility(View.VISIBLE);
         }
     }
 
@@ -204,21 +203,12 @@ public class AddPeopleActivity extends BaseActivity {
         if (vilidateData()) {
             //人员不在库中，从界面获取人员信息，然后添加到库
             if (people.isExists == 0) {
-                people.peopleNumber = etPeopleNumber.getText().toString();
-                people.name = etPeopleName.getText().toString();
-                people.sex = rgSex.getCheckedRadioButtonId() == R.id.rb_man ? "男" : "女";
-                people.telephone = etTelephone.getText().toString();
-                people.nation = etNation.getText().toString();
-
                 insertPeople(people);
             } else {
                 if (addPeopleFlag == GraphicFlag.MARK) {
-                    people.isManager = isManager.isChecked() ? 1 : 0;
-                    people.department = etDepartment.getText().toString();
-                    people.job = etJob.getText().toString();
                     insertPeopleMark(people);
                 } else if (addPeopleFlag == GraphicFlag.BUILDING) {
-                    people.roomNumber = etRoomNumber.getText().toString();
+
                     selectPeopleInHome(people);
                 } else if (addPeopleFlag == GraphicFlag.HOUSE) {
                     selectPeopleInHome(people);
@@ -244,17 +234,23 @@ public class AddPeopleActivity extends BaseActivity {
     }
 
     //新人员进人员库
-    private void insertPeople(PeopleBean people) {
-        Map<String, String> peopleData = new HashMap<>();
-        peopleData.put("peopleNumber", people.peopleNumber);
-        peopleData.put("name", people.name);
-        peopleData.put("sex", people.sex);
-        peopleData.put("telephone", people.telephone);
-        peopleData.put("nation", people.nation);
-        peopleData.put("community", people.community);
-        peopleData.put("liveType", people.liveType);
-        peopleData.put("insertUser", CommVar.loginUser.id + "");
-        peopleData.put("isDead", people.isDead + "");
+    private void insertPeople(PeopleBean p) {
+        p.peopleNumber = etPeopleNumber.getText().toString();
+        p.name = etPeopleName.getText().toString();
+        p.sex = rgSex.getCheckedRadioButtonId() == R.id.rb_man ? "男" : "女";
+        p.telephone = etTelephone.getText().toString();
+        p.nation = etNation.getText().toString();
+
+        Map<String, Object> peopleData = new HashMap<>();
+        peopleData.put("peopleNumber", p.peopleNumber);
+        peopleData.put("name", p.name);
+        peopleData.put("sex", p.sex);
+        peopleData.put("telephone", p.telephone);
+        peopleData.put("nation", p.nation);
+        peopleData.put("community", p.community);
+        peopleData.put("liveType", p.liveType);
+        peopleData.put("insertUser", CommVar.loginUser.id);
+        peopleData.put("isDead", p.isDead);
         peopleData.put("insertTime", "now()");
 
         IntObserver insertPeopleObserver = new IntObserver();
@@ -265,6 +261,7 @@ public class AddPeopleActivity extends BaseActivity {
                 int pid = (int) data;
                 if (pid > 0) {
                     //插入户信息
+                    people.id = pid;
                     insertPeopleHome(pid);
                 }
             }
@@ -301,13 +298,17 @@ public class AddPeopleActivity extends BaseActivity {
     }
 
     //插入人员到场所单位
-    private void insertPeopleMark(PeopleBean people) {
+    private void insertPeopleMark(PeopleBean p) {
+        p.isManager = isManager.isChecked() ? 1 : 0;
+        p.department = etDepartment.getText().toString();
+        p.job = etJob.getText().toString();
+
         Map<String, Object> data = new HashMap<>();
-        data.put("peopleID", people.id);
+        data.put("peopleID", p.id);
         data.put("markID", graphic.getAttributes().get("id"));
-        data.put("isManager", people.isManager);
-        data.put("department", people.department);
-        data.put("job", people.job);
+        data.put("isManager", p.isManager);
+        data.put("department", p.department);
+        data.put("job", p.job);
         data.put("insertUser", CommVar.loginUser.id);
         data.put("updateUser", CommVar.loginUser.id);
         data.put("insertTime", "now()");
@@ -328,12 +329,14 @@ public class AddPeopleActivity extends BaseActivity {
 
     //插入人员到住宅楼
     private void insertPeopleBuilding(PeopleBean p) {
-        Map<String, String> data = new HashMap<String, String>();
-        data.put("peopleID", p.id + "");
-        data.put("buildingID", graphic.getAttributes().get("id") + "");
+        p.roomNumber = etRoomNumber.getText().toString();
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("peopleID", p.id);
+        data.put("buildingID", graphic.getAttributes().get("id"));
         data.put("roomNumber", p.roomNumber);
-        data.put("insertUser", CommVar.loginUser.id + "");
-        data.put("updateUser", CommVar.loginUser.id + "");
+        data.put("insertUser", CommVar.loginUser.id);
+        data.put("updateUser", CommVar.loginUser.id);
         data.put("insertTime", "now()");
 
         IntObserver insertPBuildingObserver = new IntObserver();
@@ -352,10 +355,10 @@ public class AddPeopleActivity extends BaseActivity {
 
     //插入人员到民房
     private void insertPeopleHouse(PeopleBean p) {
-        Map<String, String> data = new HashMap<String, String>();
-        data.put("peopleID", p.id + "");
-        data.put("houseID", graphic.getAttributes().get("id") + "");
-        data.put("insertUser", CommVar.loginUser.id + "");
+        Map<String, Object> data = new HashMap<>();
+        data.put("peopleID", p.id);
+        data.put("houseID", graphic.getAttributes().get("id"));
+        data.put("insertUser", CommVar.loginUser.id);
         data.put("insertTime", "now()");
 
         IntObserver insertPHouseObserver = new IntObserver();

@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.github.promeg.pinyinhelper.Pinyin;
 import com.ywl01.jlinfo.R;
 import com.ywl01.jlinfo.activities.PeoplesActivity;
 import com.ywl01.jlinfo.beans.GraphicItemBean;
@@ -48,10 +49,12 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
     public static final int search_type_people = 1;
     public static final int search_type_geo    = 2;
 
-    private static final int num_date   = 1;
-    private static final int num_phone  = 2;
-    private static final int num_idcard = 3;
-    private static final int num_other  = 4;
+    private static final int input_date         = 1;
+    private static final int input_phone        = 2;
+    private static final int input_peopleNumber = 3;
+    private static final int input_num_other    = 4;
+    private static final int input_homophone    = 5;
+    private static final int input_name         = 6;
 
     @BindView(R.id.et_search)
     EditText etSearch;
@@ -65,6 +68,10 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
     @BindView(R.id.btn_search1)
     Button btnSearch;
 
+    @BindView(R.id.btn_homophone)
+    Button btnHomophone;
+
+    private boolean isHomophone;
 
     public int searchType = 1;
 
@@ -131,6 +138,14 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
         } else {
             btnSearch.setVisibility(GONE);
         }
+
+        if (AppUtils.isChinese(charSequence.toString())) {
+            btnHomophone.setVisibility(VISIBLE);
+            btnClear.setVisibility(GONE);
+        } else {
+            btnHomophone.setVisibility(GONE);
+            btnClear.setVisibility(VISIBLE);
+        }
     }
 
     @Override
@@ -143,15 +158,31 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
         doSearch();
     }
 
+    @OnClick(R.id.btn_homophone)
+    public void onHomophone() {
+        isHomophone = !isHomophone;
+        if (isHomophone) {
+            btnHomophone.setBackground(AppUtils.getResDrawable(R.drawable.homophone_press));
+        } else {
+            btnHomophone.setBackground(AppUtils.getResDrawable(R.drawable.homophone));
+        }
+    }
+
     private void doSearch() {
         String input = etSearch.getText().toString().trim();
+        int inputType = getInputType(input);
+        if (isHomophone) {
+            input = Pinyin.toPinyin(input, "");
+            System.out.println("input");
+        }
+        Map data = getSqlData(inputType, input);
         if (!checkInput(input)) {
             AppUtils.showToast("请输入正确的查询条件");
             return;
         }
         if (searchType == 1) {
             PeopleObserver peopleObserver = new PeopleObserver(PeopleFlag.FROM_SEARCH);
-            HttpMethods.getInstance().getSqlResult(peopleObserver, PhpFunction.SELECT_PEOPLES_BY_INPUT, getSqlData(input));
+            HttpMethods.getInstance().getSqlResult(peopleObserver, PhpFunction.SELECT_PEOPLES_BY_INPUT, data);
             peopleObserver.setOnNextListener(new BaseObserver.OnNextListener() {
                 @Override
                 public void onNext(Observer observer, Object data) {
@@ -167,7 +198,7 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
             });
         } else if (searchType == 2) {
             GraphicItemsObserver observer = new GraphicItemsObserver();
-            HttpMethods.getInstance().getSqlResult(observer, PhpFunction.SELECT_GRAPHICS_BY_NAME, getSqlData(input));
+            HttpMethods.getInstance().getSqlResult(observer, PhpFunction.SELECT_GRAPHICS_BY_NAME, data);
             observer.setOnNextListener(new BaseObserver.OnNextListener() {
                 @Override
                 public void onNext(Observer observer, Object data) {
@@ -186,31 +217,32 @@ public class SearchView extends FrameLayout implements TextWatcher, TextView.OnE
     }
 
     private boolean checkInput(String input) {
-        if(AppUtils.isEmptyString(input)){
+        if (AppUtils.isEmptyString(input)) {
             return false;
         }
         return true;
     }
 
-    private Map<String, Object> getSqlData(String input) {
+    private Map<String, Object> getSqlData(int inputType,String input) {
         Map<String, Object> data = new HashMap<>();
-        if (AppUtils.isNumeric(input)) {
-            int numType = getNumType(input);
-            data.put("numType", numType);
-        }
+        data.put("inputType", inputType);
         data.put("input", input);
         return data;
     }
 
-    private int getNumType(String num) {
-        if (AppUtils.isDate(num)) {
-            return num_date;
-        } else if (AppUtils.isMobile(num)) {
-            return num_phone;
-        } else if (PeopleNumbleUtils.validate(num)) {
-            return num_idcard;
+    private int getInputType(String input) {
+        if (AppUtils.isDate(input)) {
+            return input_date;
+        } else if (AppUtils.isMobile(input)) {
+            return input_phone;
+        } else if (PeopleNumbleUtils.validate(input)) {
+            return input_peopleNumber;
+        } else if (AppUtils.isChinese(input) && isHomophone) {
+            return input_homophone;
+        } else if (AppUtils.isChinese(input)) {
+            return input_name;
         } else {
-            return num_other;
+            return input_num_other;
         }
     }
 }

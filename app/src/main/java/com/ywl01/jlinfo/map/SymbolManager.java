@@ -96,6 +96,7 @@ public class SymbolManager {
     private static HashMap<String,PictureMarkerSymbol> getPmsMap(){
         HashMap<String,PictureMarkerSymbol> map = new HashMap<>();
         map.put("警察",pms_police);
+        map.put("车站",pms_chezhan);
         map.put("五金",pms_wujin);
         map.put("体育馆",pms_tiyuchang);
         map.put("公厕",pms_gongce);
